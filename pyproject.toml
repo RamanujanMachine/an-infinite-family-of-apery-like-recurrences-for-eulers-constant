@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infinite-family-euler-constant"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "ramanujantools==0.0.8",
+    "pandas",
+    "matplotlib",
+]
+
+[tool.setuptools]
+packages = []

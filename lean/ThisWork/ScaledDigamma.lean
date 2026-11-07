@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ReflectedDigamma
 
 /-! Uniform digamma bounds after the saddle scaling. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -65,4 +67,4 @@ theorem uniform_scaled_digamma_left {κ η : ℝ} (hκ : 0 < κ) (hη : 0 < η) 
     mul_le_mul_of_nonneg_left (hexp.trans hinv) (mul_nonneg (by norm_num) Real.pi_pos.le)
   exact (hb.trans (add_le_add hfirst hsecond)).trans_eq (by ring)
 
-end ThisWork
+end ThisWork.Analytic

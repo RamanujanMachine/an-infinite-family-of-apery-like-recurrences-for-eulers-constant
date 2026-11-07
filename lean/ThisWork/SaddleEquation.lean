@@ -1,35 +1,37 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.PoleFree
 public import ThisWork.ScaledDigamma
 
-/-! The exact saddle equation of the original Gamma-product kernel. -/
+/-! The exact saddle equation of the original Gamma-product normalizedKernel. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
 
 noncomputable def largeScale (n : ℕ) : ℝ := (n : ℝ) ^ (2 / 3 : ℝ)
 
-noncomputable def kernelLogDerivative (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) (x : ℂ) : ℂ :=
+noncomputable def kernelLogDerivative [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) (x : ℂ) : ℂ :=
   3 * Complex.digamma x - Complex.digamma ((α₁ : ℂ) * n - x + 1) -
-    Complex.digamma ((α₂ : ℂ) * n - x + 1) + twist j
+    Complex.digamma ((α₂ : ℂ) * n - x + 1) + kernelTwist j
 
-noncomputable def exactSaddleEquation (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) (s : ℂ) : ℂ :=
+noncomputable def exactSaddleEquation [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) (s : ℂ) : ℂ :=
   kernelLogDerivative α₁ α₂ j n ((largeScale n : ℂ) * s)
 
 /-- This is an identity for the actual Gamma product. It does not use a
 principal logarithm of Gamma, whose branch cuts would be unsuitable here. -/
-theorem logDeriv_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
+theorem logDeriv_kernel [PositiveArgument] {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
     (hx : x ∈ kernelDomain α₁ α₂ n) :
-    logDeriv (kernel α₁ α₂ j n) x = kernelLogDerivative α₁ α₂ j n x := by
+    logDeriv (normalizedKernel α₁ α₂ j n) x = kernelLogDerivative α₁ α₂ j n x := by
   let g₀ : ℂ → ℂ := fun z => Complex.Gamma z ^ 3
   let g₁ : ℂ → ℂ := fun z => Complex.Gamma ((α₁ : ℂ) * n - z + 1)
   let g₂ : ℂ → ℂ := fun z => Complex.Gamma ((α₂ : ℂ) * n - z + 1)
-  let g₃ : ℂ → ℂ := fun z => Complex.exp (twist j * z)
+  let g₃ : ℂ → ℂ := fun z => Complex.exp (kernelTwist j * z)
   have hright := kernelDomain_right_re_pos hx
   have hleftPole := not_neg_nat_of_mem_slitPlane hx.1
   have hrightPole₁ := not_neg_nat_of_mem_slitPlane (Complex.mem_slitPlane_iff.mpr (Or.inl hright.1))
@@ -46,7 +48,7 @@ theorem logDeriv_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
     (Complex.differentiableAt_Gamma _ hrightPole₁).comp x ha₁.differentiableAt
   have hd₂ : DifferentiableAt ℂ g₂ x :=
     (Complex.differentiableAt_Gamma _ hrightPole₂).comp x ha₂.differentiableAt
-  have he₃ := ((hasDerivAt_id x).const_mul (twist j)).cexp
+  have he₃ := ((hasDerivAt_id x).const_mul (kernelTwist j)).cexp
   have hd₃ : DifferentiableAt ℂ g₃ x := by simpa only [id_eq] using he₃.differentiableAt
   have hn₀ : g₀ x ≠ 0 := pow_ne_zero 3 (Complex.Gamma_ne_zero hleftPole)
   have hn₁ : g₁ x ≠ 0 := Complex.Gamma_ne_zero hrightPole₁
@@ -65,10 +67,10 @@ theorem logDeriv_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
     simpa only [neg_one_mul] using ha₁.logDeriv_Gamma hrightPole₁
   have hlog₂ : logDeriv g₂ x = -Complex.digamma ((α₂ : ℂ) * n - x + 1) := by
     simpa only [neg_one_mul] using ha₂.logDeriv_Gamma hrightPole₂
-  have hlog₃ : logDeriv g₃ x = twist j := by
+  have hlog₃ : logDeriv g₃ x = kernelTwist j := by
     rw [logDeriv_apply]
-    change deriv (fun z => Complex.exp (twist j * z)) x / Complex.exp (twist j * x) = _
-    have he : deriv (fun z => Complex.exp (twist j * z)) x = Complex.exp (twist j * x) * twist j := by
+    change deriv (fun z => Complex.exp (kernelTwist j * z)) x / Complex.exp (kernelTwist j * x) = _
+    have he : deriv (fun z => Complex.exp (kernelTwist j * z)) x = Complex.exp (kernelTwist j * x) * kernelTwist j := by
       simpa only [id_eq, mul_one] using he₃.deriv
     rw [he]
     exact mul_div_cancel_left₀ _ hn₃
@@ -76,17 +78,17 @@ theorem logDeriv_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
   rw [hprod, hlog₀, hlog₁, hlog₂, hlog₃]
   simp only [kernelLogDerivative, sub_eq_add_neg]
 
-theorem kernel_ne_zero {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
-    (hx : x ∈ kernelDomain α₁ α₂ n) : kernel α₁ α₂ j n x ≠ 0 := by
+theorem kernel_ne_zero [PositiveArgument] {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
+    (hx : x ∈ kernelDomain α₁ α₂ n) : normalizedKernel α₁ α₂ j n x ≠ 0 := by
   have hright := kernelDomain_right_re_pos hx
   exact mul_ne_zero (mul_ne_zero (mul_ne_zero
     (pow_ne_zero 3 (Complex.Gamma_ne_zero (not_neg_nat_of_mem_slitPlane hx.1)))
     (Complex.Gamma_ne_zero_of_re_pos hright.1)) (Complex.Gamma_ne_zero_of_re_pos hright.2))
     (Complex.exp_ne_zero _)
 
-theorem kernelLogDerivative_eq_zero_iff {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
+theorem kernelLogDerivative_eq_zero_iff [PositiveArgument] {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
     (hx : x ∈ kernelDomain α₁ α₂ n) :
-    kernelLogDerivative α₁ α₂ j n x = 0 ↔ deriv (kernel α₁ α₂ j n) x = 0 := by
+    kernelLogDerivative α₁ α₂ j n x = 0 ↔ deriv (normalizedKernel α₁ α₂ j n) x = 0 := by
   rw [← logDeriv_kernel j n hx, logDeriv_apply, div_eq_zero_iff]
   simp only [kernel_ne_zero j n hx, or_false]
 
@@ -98,15 +100,14 @@ theorem log_largeScale {n : ℕ} (hn : 0 < n) :
   rw [largeScale, Real.log_rpow (Nat.cast_pos.mpr hn)]
   ring
 
-theorem limitingEquation_eq_logs {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem limitingEquation_eq_logs [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {s : ℂ} (hs : s ≠ 0) :
     limitingEquation j (saddleScale α₁ α₂) s =
-      3 * Complex.log s - (Real.log α₁ : ℂ) - (Real.log α₂ : ℂ) + twist j := by
+      3 * Complex.log s - (Real.log α₁ : ℂ) - (Real.log α₂ : ℂ) + kernelTwist j := by
   let c := saddleScale α₁ α₂
   have hc : 0 < c := saddleScale_pos h₁ h₂
-  have hlogc := congrArg Real.log (saddleScale_cube h₁ h₂)
-  rw [Real.log_pow, Real.log_mul h₁.ne' h₂.ne'] at hlogc
-  have hcast : (3 : ℂ) * (Real.log c : ℂ) = (Real.log α₁ : ℂ) + (Real.log α₂ : ℂ) := by
+  have hlogc := log_saddleScale h₁ h₂
+  have hcast : (3 : ℂ) * (Real.log c : ℂ) = (Real.log α₁ : ℂ) + (Real.log α₂ : ℂ) + (Real.log PositiveArgument.value : ℂ) := by
     exact_mod_cast hlogc
   have hdiv : Complex.log (s / (c : ℂ)) = Complex.log s - (Real.log c : ℂ) := by
     rw [show s / (c : ℂ) = ((c⁻¹ : ℝ) : ℂ) * s from by push_cast; ring,
@@ -114,9 +115,10 @@ theorem limitingEquation_eq_logs {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 
     ring
   change 3 * Complex.log (s / (c : ℂ)) + twist j = _
   rw [hdiv]
+  dsimp only [kernelTwist]
   linear_combination -hcast
 
-theorem differentiableOn_kernelLogDerivative (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) :
+theorem differentiableOn_kernelLogDerivative [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) :
     DifferentiableOn ℂ (kernelLogDerivative α₁ α₂ j n) (kernelDomain α₁ α₂ n) := by
   have hk := differentiableOn_kernel α₁ α₂ j n
   have hd := hk.deriv (isOpen_kernelDomain α₁ α₂ n)
@@ -125,4 +127,4 @@ theorem differentiableOn_kernelLogDerivative (α₁ α₂ : ℝ) (j : Branch) (n
   intro x hx
   rw [← logDeriv_kernel j n hx, logDeriv_apply, Pi.div_apply]
 
-end ThisWork
+end ThisWork.Analytic

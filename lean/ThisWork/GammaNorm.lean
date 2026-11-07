@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LogNorm
 public import ThisWork.DigammaBound
 
@@ -7,7 +8,8 @@ public import ThisWork.DigammaBound
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -109,4 +111,4 @@ theorem abs_gammaNormError_right {z : ℂ} (hz : 2 ≤ z.re) :
   rw [sub_add_cancel] at htri₂
   linarith [Real.log_nonneg (show (1 : ℝ) ≤ 2 by norm_num)]
 
-end ThisWork
+end ThisWork.Analytic

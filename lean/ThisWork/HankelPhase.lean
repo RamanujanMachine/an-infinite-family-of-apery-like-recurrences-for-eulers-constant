@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ContourBounds
 
 /-! Explicit fixed Hankel contours for the three limiting phases. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -168,4 +170,4 @@ theorem hankelTrace_re_le {right height : ℝ} {s : ℂ} (hs : s ∈ hankelTrace
   · simp
   · simpa using hx
 
-end ThisWork
+end ThisWork.Analytic

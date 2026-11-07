@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LocalSaddleContours
 public import Neuschel.QuadraticExpansion
 
@@ -7,14 +8,15 @@ public import Neuschel.QuadraticExpansion
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
 
 namespace CompactSaddleFamily
 
-structure LocalSaddleData {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) where
+structure LocalSaddleData [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) where
   shift : ℕ
   speed : ℝ
   speed_pos : 0 < speed
@@ -27,7 +29,7 @@ structure LocalSaddleData {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFam
     (fun t z => S.phase t (parameterShift shift z)) (ball 0 (saddleScale α₁ α₂ / 16))
     (fun u : ℝ => (u : ℂ) * (-((speed : ℂ) * saddleTangent j)))
 
-theorem exists_localSaddleData {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem exists_localSaddleData [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) : Nonempty S.LocalSaddleData := by
   obtain ⟨N, d, hd, hM⟩ := S.exists_local_saddle_contour_models h₁ h₂
   have hp := hM 1 (Or.inl rfl)
@@ -36,42 +38,42 @@ theorem exists_localSaddleData {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 
   simp only [Complex.ofReal_neg, neg_mul, one_mul] at hm
   exact ⟨⟨N, d, hd, hp.some, hm.some⟩⟩
 
-noncomputable def momentAmplitude {α₁ α₂ : ℝ} {j : Branch}
+noncomputable def momentAmplitude [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (N k : ℕ) (t : ℂ) (z : OnePoint ℕ) : ℂ :=
   (t + S.saddle (parameterShift N z)) ^ k
 
-theorem continuous_momentAmplitude {α₁ α₂ : ℝ} {j : Branch}
+theorem continuous_momentAmplitude [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (N k : ℕ) :
     Continuous (Function.uncurry (S.momentAmplitude N k)) := by
   change Continuous (fun w : ℂ × OnePoint ℕ => (w.1 + S.saddle (parameterShift N w.2)) ^ k)
   exact (continuous_fst.add (S.saddle.continuous.comp
     ((parameterShift N).continuous.comp continuous_snd))).pow k
 
-theorem differentiableOn_momentAmplitude {α₁ α₂ : ℝ} {j : Branch}
+theorem differentiableOn_momentAmplitude [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (N k : ℕ) (z : OnePoint ℕ) (G : Set ℂ) :
     DifferentiableOn ℂ (fun t => S.momentAmplitude N k t z) G :=
   (differentiableOn_id.add_const (S.saddle (parameterShift N z))).pow k
 
 namespace LocalSaddleData
 
-noncomputable def velocity {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def velocity [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : ℂ := (D.speed : ℂ) * saddleTangent j
 
-theorem velocity_ne_zero {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem velocity_ne_zero [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : D.velocity ≠ 0 :=
   mul_ne_zero (Complex.ofReal_ne_zero.mpr D.speed_pos.ne') (saddleTangent_ne_zero j)
 
-noncomputable def leftWidth {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def leftWidth [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : ℝ := D.speed * D.negative.cutoff
 
-noncomputable def rightWidth {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def rightWidth [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : ℝ := D.speed * D.positive.cutoff
 
-theorem widths_pos {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem widths_pos [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : 0 < D.leftWidth ∧ 0 < D.rightWidth :=
   ⟨mul_pos D.speed_pos D.negative.cutoff_mem.1, mul_pos D.speed_pos D.positive.cutoff_mem.1⟩
 
-theorem widths_lt {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem widths_lt [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : D.leftWidth < saddleScale α₁ α₂ / 16 ∧
       D.rightWidth < saddleScale α₁ α₂ / 16 := by
   have hp := D.positive.inverseFamily.source_subset
@@ -89,7 +91,7 @@ theorem widths_lt {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α�
   exact ⟨by simpa only [leftWidth, mul_comm] using hm,
     by simpa only [rightWidth, mul_comm] using hp⟩
 
-noncomputable def localMoment {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def localMoment [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (R : ℝ) (k : ℕ) (z : OnePoint ℕ) : ℂ :=
   (∫ u in 0..D.positive.cutoff, D.velocity *
     (Complex.exp (-(R : ℂ) * S.phase ((u : ℂ) * D.velocity) (parameterShift D.shift z)) *
@@ -98,7 +100,7 @@ noncomputable def localMoment {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddl
     (Complex.exp (-(R : ℂ) * S.phase ((u : ℂ) * (-D.velocity)) (parameterShift D.shift z)) *
       S.momentAmplitude D.shift k ((u : ℂ) * (-D.velocity)) z))
 
-theorem local_moment_leading_estimate {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem local_moment_leading_estimate [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) (k : ℕ) :
     ∃ C ≥ 0, ∀ᶠ R : ℝ in atTop, ∀ z,
       ‖D.localMoment R k z - S.saddle (parameterShift D.shift z) ^ k *
@@ -115,4 +117,4 @@ end LocalSaddleData
 
 end CompactSaddleFamily
 
-end ThisWork
+end ThisWork.Analytic

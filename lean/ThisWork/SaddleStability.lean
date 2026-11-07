@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import Neuschel.UniformLocal
 
 /-! Quantitative stability of a simple holomorphic zero under uniform perturbations. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -97,4 +99,4 @@ theorem exists_simple_zero_with_rate {F : ℕ → ℂ → ℂ} {f : ℂ → ℂ}
       div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hbn (by norm_num)) (norm_nonneg _)
     _ = _ := by ring
 
-end ThisWork
+end ThisWork.Analytic

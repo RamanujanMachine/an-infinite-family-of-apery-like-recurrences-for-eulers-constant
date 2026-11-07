@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.HankelTruncation
 
 /-! Exact extraction of the saddle window on each oriented contour edge. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set MeasureTheory
 
@@ -61,4 +63,4 @@ theorem finiteHankelIntegral_sub_vertical_window {left right height a b : ℝ} {
   rw [← h2, ← h1]
   ring
 
-end ThisWork
+end ThisWork.Analytic

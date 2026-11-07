@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ContourKernelApproximation
 
-/-! Uniform gaps for the actual finite-index kernel on bounded moving contours. -/
+/-! Uniform gaps for the actual finite-index normalizedKernel on bounded moving contours. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -19,15 +21,15 @@ theorem saddleDisk_mem_comparison_region {c : ℝ} (hc : 0 < c) (j : Branch) {σ
   · exact Or.inr h.2
   · exact Or.inl (by change c / 2 ≤ σ.re at h; linarith)
 
-theorem uniform_log_kernel_compact_gap {α₁ α₂ δ : ℝ}
+theorem uniform_log_kernel_compact_gap [PositiveArgument] {α₁ α₂ δ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hδ : 0 < δ) (j : Branch) (M D : ℝ) :
     ∃ ε > 0, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ‖σ - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n →
       ∀ s : ℂ, s ∈ hankelTrace (saddleContourRight (saddleScale α₁ α₂) j σ)
         (saddleContourHeight (saddleScale α₁ α₂) j σ) →
       ‖s‖ ≤ M → δ ≤ ‖s - σ‖ →
-      ε * largeScale n ≤ Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ -
-        Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ := by
+      ε * largeScale n ≤ Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ -
+        Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ := by
   obtain ⟨ε, hε, hgap⟩ := exists_uniform_limiting_gap_near_exact_saddles h₁ h₂ hδ j M D
   have hc := saddleScale_pos h₁ h₂
   have hcmp := uniform_kernelPhaseError_difference h₁ h₂
@@ -46,25 +48,25 @@ theorem uniform_log_kernel_compact_gap {α₁ α₂ δ : ℝ}
   nlinarith [(abs_le.mp herr).1,
     mul_le_mul_of_nonneg_left (hg σ hdisp s hs hM hd) (largeScale_pos hn).le]
 
-/-- The actual finite-index kernel is exponentially smaller than its saddle
+/-- The actual finite-index normalizedKernel is exponentially smaller than its saddle
 value on every bounded contour piece a fixed distance from the moving saddle. -/
-theorem uniform_kernel_compact_gap {α₁ α₂ δ : ℝ}
+theorem uniform_kernel_compact_gap [PositiveArgument] {α₁ α₂ δ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hδ : 0 < δ) (j : Branch) (M D : ℝ) :
     ∃ ε > 0, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ‖σ - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n →
       ∀ s : ℂ, s ∈ hankelTrace (saddleContourRight (saddleScale α₁ α₂) j σ)
         (saddleContourHeight (saddleScale α₁ α₂) j σ) →
       ‖s‖ ≤ M → δ ≤ ‖s - σ‖ →
-      ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ ≤
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-ε * largeScale n) := by
+      ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ ≤
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-ε * largeScale n) := by
   obtain ⟨ε, hε, hb⟩ := uniform_log_kernel_compact_gap h₁ h₂ hδ j M D
   refine ⟨ε, hε, ?_⟩
   filter_upwards [hb, eventually_saddleDisk_mapsTo_kernelDomain h₁ h₂ j]
     with n hn hdom σ hσ hdisp s hs hM hd
   calc
-    _ ≤ Real.exp (Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖) := Real.le_exp_log _
-    _ ≤ Real.exp (Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ + (-ε * largeScale n)) :=
+    _ ≤ Real.exp (Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖) := Real.le_exp_log _
+    _ ≤ Real.exp (Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ + (-ε * largeScale n)) :=
       Real.exp_le_exp.mpr (by linarith [hn σ hσ hdisp s hs hM hd])
     _ = _ := by rw [Real.exp_add, Real.exp_log (norm_pos_iff.mpr (kernel_ne_zero j n (hdom.2 hσ)))]
 
-end ThisWork
+end ThisWork.Analytic

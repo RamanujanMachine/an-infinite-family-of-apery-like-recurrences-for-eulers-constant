@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.Parameters
 public import ThisWork.AffineDigamma
 
@@ -7,12 +8,13 @@ public import ThisWork.AffineDigamma
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
 
-theorem norm_exactSaddleEquation_sub_limit_le {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem norm_exactSaddleEquation_sub_limit_le [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {n : ℕ} (hn : 0 < n) {M : ℝ} {s : ℂ} (hs : ‖s‖ ≤ M) (hs0 : s ≠ 0)
     (hA₁ : 4 ≤ α₁ * n) (hA₂ : 4 ≤ α₂ * n)
     (hM₁ : largeScale n * M ≤ (α₁ * n) / 4) (hM₂ : largeScale n * M ≤ (α₂ * n) / 4) :
@@ -76,7 +78,7 @@ theorem affineError_le_smallParameter {α : ℝ} (hα : 0 < α) {n : ℕ} (hn : 
 
 /-- Uniform `O(n^(-1/3))` control of the exact saddle equation follows from
 the proved scaled digamma bounds and a bounded source region. -/
-theorem uniform_saddleApprox_from_digamma {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem uniform_saddleApprox_from_digamma [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {K : Set ℂ} {M : ℝ} (hM : 0 ≤ M)
     (hK : ∀ s ∈ K, ‖s‖ ≤ M) (hne : ∀ s ∈ K, s ≠ 0)
     (hψ : ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ K,
@@ -100,7 +102,7 @@ theorem uniform_saddleApprox_from_digamma {α₁ α₂ : ℝ} (h₁ : 0 < α₁)
     (affineError_le_smallParameter h₂ hn M))
   exact hb.trans_eq (by ring)
 
-theorem uniform_exactSaddleEquation_right {α₁ α₂ κ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem uniform_exactSaddleEquation_right [PositiveArgument] {α₁ α₂ κ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (hκ : 0 < κ) (j : Branch) {K : Set ℂ} {M : ℝ} (hM : 0 ≤ M)
     (hK : ∀ s ∈ K, ‖s‖ ≤ M) (hregion : ∀ s ∈ K, κ ≤ s.re) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ K,
@@ -111,7 +113,7 @@ theorem uniform_exactSaddleEquation_right {α₁ α₂ κ : ℝ} (h₁ : 0 < α�
   filter_upwards [largeScale_tendsto.eventually (uniform_scaled_digamma_right hκ)] with n hn s hs
   exact hn.2 s (hregion s hs)
 
-theorem uniform_exactSaddleEquation_left {α₁ α₂ κ η : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem uniform_exactSaddleEquation_left [PositiveArgument] {α₁ α₂ κ η : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (hκ : 0 < κ) (hη : 0 < η) (j : Branch) {K : Set ℂ} {M : ℝ} (hM : 0 ≤ M)
     (hK : ∀ s ∈ K, ‖s‖ ≤ M) (hregion : ∀ s ∈ K, s.re ≤ -κ ∧ η ≤ |s.im|) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ K,
@@ -122,4 +124,4 @@ theorem uniform_exactSaddleEquation_left {α₁ α₂ κ η : ℝ} (h₁ : 0 < �
   filter_upwards [largeScale_tendsto.eventually (uniform_scaled_digamma_left hκ hη)] with n hn s hs
   exact hn.2 s (hregion s hs).1 (hregion s hs).2
 
-end ThisWork
+end ThisWork.Analytic

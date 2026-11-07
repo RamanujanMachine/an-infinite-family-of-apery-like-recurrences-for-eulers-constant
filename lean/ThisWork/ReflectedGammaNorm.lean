@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.GammaNorm
 public import ThisWork.SineNorm
 
@@ -7,7 +8,8 @@ public import ThisWork.SineNorm
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -69,4 +71,4 @@ theorem abs_gammaNormError_left {z : ℂ} (hre : z.re ≤ -2)
   exact abs_le.mpr ⟨by linarith [neg_le_abs (Real.log Real.pi)],
     by linarith [le_abs_self (Real.log Real.pi)]⟩
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.GammaTailBounds
 
 /-! Decay on horizontal Mellin–Barnes tails and absolute convergence. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -31,11 +33,11 @@ theorem twist_re_le (j : Branch) {z : ℂ} {H : ℝ} (hz : |z.im| ≤ H) :
   · simp only [twist_three, zero_mul, Complex.zero_re]
     nlinarith [Real.pi_pos]
 
-theorem uniform_log_norm_kernel_left_strip {α₁ α₂ H : ℝ}
+theorem uniform_log_norm_kernel_left_strip [PositiveArgument] {α₁ α₂ H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hH : 1 ≤ H) (j : Branch) (n : ℕ) :
     ∃ B ≥ 0, ∀ᶠ T : ℝ in atTop, ∀ y : ℝ, 1 ≤ |y| → |y| ≤ H →
-      Real.log ‖kernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤
-        -T * Real.log T + T + (α₁ * n + α₂ * n + 4) * Real.log T + B := by
+      Real.log ‖normalizedKernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤
+        -T * Real.log T + (1 + |Real.log PositiveArgument.value|) * T + (α₁ * n + α₂ * n + 4) * Real.log T + B := by
   obtain ⟨C, hC, hb⟩ := uniform_log_norm_Gamma_strip_shift
     (D := α₁ * n + α₂ * n + 2) (H := H) (by positivity) (by linarith)
   refine ⟨max 0 (5 * C + 3 * Real.log Real.pi + 3 * Real.log 4 +
@@ -84,7 +86,16 @@ theorem uniform_log_norm_kernel_left_strip {α₁ α₂ H : ℝ}
       (α₁ * n + α₂ * n + 2) * Real.log T :=
     mul_le_mul_of_nonneg_left (Real.log_le_log (by linarith [hT.1]) (by linarith))
       (by positivity)
-  nlinarith [log_norm_kernel j n hx, log_norm_Gamma_real_lower hT.1,
+  have htwist : (kernelTwist j * (-(T : ℂ) + (y : ℂ) * Complex.I)).re ≤
+      2 * Real.pi * H + |Real.log PositiveArgument.value| * T := by
+    have h := twist_re_le j (z := -(T : ℂ) + (y : ℂ) * Complex.I) (by simpa using hyH)
+    simp only [kernelTwist, sub_mul, Complex.sub_re,
+      Complex.add_re, Complex.neg_re, Complex.ofReal_re, Complex.mul_re,
+      Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero, zero_mul, sub_zero,
+      add_zero] at *
+    nlinarith [mul_le_mul_of_nonneg_right (le_abs_self (Real.log PositiveArgument.value))
+      (show 0 ≤ T by linarith [hT.1])]
+  nlinarith [log_norm_kernel j n hx, log_norm_Gamma_real_lower hT.1, htwist,
     log_norm_sine_tail_lower (z := -(T : ℂ) + (y : ℂ) * Complex.I) (by simpa using hy),
     twist_re_le j (z := -(T : ℂ) + (y : ℂ) * Complex.I) (by simpa using hyH),
     hright α₁ h₁.le (by nlinarith [mul_nonneg h₂.le (Nat.cast_nonneg (α := ℝ) n)]),
@@ -92,16 +103,17 @@ theorem uniform_log_norm_kernel_left_strip {α₁ α₂ H : ℝ}
     le_max_right 0 (5 * C + 3 * Real.log Real.pi + 3 * Real.log 4 +
       2 * Real.pi * H + |gammaNormError 2|)]
 
-/-- For each fixed index, the actual kernel decays faster than every exponential
+/-- For each fixed index, the actual normalizedKernel decays faster than every exponential
 on the left, uniformly in a bounded strip separated from the real axis. -/
-theorem uniform_kernel_left_decay {α₁ α₂ H : ℝ}
+theorem uniform_kernel_left_decay [PositiveArgument] {α₁ α₂ H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hH : 1 ≤ H) (j : Branch) (n : ℕ) (q : ℝ) :
     ∀ᶠ T : ℝ in atTop, ∀ y : ℝ, 1 ≤ |y| → |y| ≤ H →
-      ‖kernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
+      ‖normalizedKernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
   obtain ⟨B, _, hb⟩ := uniform_log_norm_kernel_left_strip h₁ h₂ hH j n
-  filter_upwards [hb, eventually_log_tail_le (α₁ * n + α₂ * n + 4) B q]
-    with T hT hq y hy hyH
-  exact (Real.le_exp_log _).trans (Real.exp_le_exp.mpr ((hT y hy hyH).trans hq.2))
+  filter_upwards [hb, eventually_log_tail_le (α₁ * n + α₂ * n + 4) B (q + |Real.log PositiveArgument.value|),
+    eventually_ge_atTop (0 : ℝ)]
+    with T hT hq hT0 y hy hyH
+  exact (Real.le_exp_log _).trans (Real.exp_le_exp.mpr (by linarith [hT y hy hyH, hq.2]))
 
 theorem eventually_shifted_pow_le_exp {D : ℝ} (hD : 0 ≤ D) (k : ℕ) :
     ∀ᶠ T : ℝ in atTop, (T + D) ^ k ≤ Real.exp T := by
@@ -123,20 +135,20 @@ theorem norm_polynomial_left_le {T y H : ℝ} (hT : 0 ≤ T) (hy : |y| ≤ H) (n
     _ = (n : ℝ) + (T + |y|) := by simp [abs_of_nonneg hT]
     _ ≤ T + ((n : ℝ) + H) := by linarith
 
-theorem uniform_weighted_kernel_left_decay {α₁ α₂ H : ℝ}
+theorem uniform_weighted_kernel_left_decay [PositiveArgument] {α₁ α₂ H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hH : 1 ≤ H) (j : Branch) (n k : ℕ) (q : ℝ) :
     ∀ᶠ T : ℝ in atTop, ∀ y : ℝ, 1 ≤ |y| → |y| ≤ H →
       ‖((n : ℂ) - (-(T : ℂ) + (y : ℂ) * Complex.I)) ^ k *
-        kernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
+        normalizedKernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
   filter_upwards [uniform_kernel_left_decay h₁ h₂ hH j n (q + 1),
     eventually_shifted_pow_le_exp (D := (n : ℝ) + H) (by positivity) k,
     eventually_ge_atTop (0 : ℝ)] with T hK hP hT y hy hyH
   calc
     _ = ‖(n : ℂ) - (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ^ k *
-        ‖kernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ := by rw [norm_mul, norm_pow]
+        ‖normalizedKernel α₁ α₂ j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ := by rw [norm_mul, norm_pow]
     _ ≤ Real.exp T * Real.exp (-(q + 1) * T) :=
       mul_le_mul ((pow_le_pow_left₀ (norm_nonneg _) (norm_polynomial_left_le hT hyH n) k).trans hP)
         (hK y hy hyH) (norm_nonneg _) (Real.exp_pos T).le
     _ = Real.exp (-q * T) := by rw [← Real.exp_add]; congr 1; ring
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LocalKernelPhase
 
 /-! Logarithmic norm derivatives, obtained from local holomorphic logarithms. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -26,4 +28,4 @@ theorem hasDerivAt_log_norm_comp {f : ℂ → ℂ} {U : Set ℂ} (hU : IsOpen U)
   rw [he _ hu, norm_mul, Complex.norm_exp, Real.log_mul (norm_ne_zero_iff.mpr (hne _ ht))
     (Real.exp_ne_zero _), Real.log_exp]
 
-end ThisWork
+end ThisWork.Analytic

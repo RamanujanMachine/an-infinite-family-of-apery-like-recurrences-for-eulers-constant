@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.WindowOrientation
 public import ThisWork.CompactMomentRemainder
 
@@ -7,7 +8,8 @@ public import ThisWork.CompactMomentRemainder
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -94,7 +96,7 @@ theorem bounded_saddleContour_norm {c T : ℝ} (hc : 0 < c) (hT : 0 ≤ T) (j : 
       _ = _ := by simp
   linarith
 
-theorem uniform_moment_window_remainder_piece {α₁ α₂ a b T : ℝ}
+theorem uniform_moment_window_remainder_piece [PositiveArgument] {α₁ α₂ a b T : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (ha0 : 0 < a) (hb0 : 0 < b) (hT : 0 ≤ T)
     (ha : a < saddleScale α₁ α₂ / 16) (hb : b < saddleScale α₁ α₂ / 16)
     (j : Branch) (D : ℝ) (k : ℕ) :
@@ -104,9 +106,9 @@ theorem uniform_moment_window_remainder_piece {α₁ α₂ a b T : ℝ}
       (∀ t ∈ uIcc l u, γ t ∈ hankelTrace (saddleContourRight (saddleScale α₁ α₂) j σ)
         (saddleContourHeight (saddleScale α₁ α₂) j σ) ∧ -T ≤ (γ t).re ∧
         OutsideSaddleWindow j σ a b (γ t)) →
-      ‖∫ t in l..u, v * ((γ t) ^ k * kernel α₁ α₂ j n ((largeScale n : ℂ) * γ t))‖ ≤
+      ‖∫ t in l..u, v * ((γ t) ^ k * normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * γ t))‖ ≤
         (‖v‖ * (T + 4 * saddleScale α₁ α₂) ^ k *
-          ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-ε * largeScale n)) * |u - l| := by
+          ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-ε * largeScale n)) * |u - l| := by
   obtain ⟨ε, hε, hc⟩ := uniform_moment_compact_integral_gap h₁ h₂
     (lt_min ha0 hb0) j (T + 4 * saddleScale α₁ α₂) D k
   refine ⟨ε, hε, hc.mono (fun n hn σ hσ hdisp l u v γ hγ => ?_)⟩
@@ -116,4 +118,4 @@ theorem uniform_moment_window_remainder_piece {α₁ α₂ a b T : ℝ}
   exact ⟨hs, bounded_saddleContour_norm (saddleScale_pos h₁ h₂) hT j hσ hs hl,
     contour_gap_outside_window (saddleScale_pos h₁ h₂) ha hb j hσ hs ho⟩
 
-end ThisWork
+end ThisWork.Analytic

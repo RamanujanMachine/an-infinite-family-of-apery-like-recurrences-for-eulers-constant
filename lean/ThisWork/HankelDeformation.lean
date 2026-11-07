@@ -1,18 +1,20 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.AbsoluteConvergence
 
 /-! Contour deformation for the actual Mellin–Barnes integrals. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter MeasureTheory
 open scoped Topology
 
-theorem differentiableOn_weighted_kernel (α₁ α₂ : ℝ) (j : Branch) (n k : ℕ) :
-    DifferentiableOn ℂ (fun x : ℂ => ((n : ℂ) - x) ^ k * kernel α₁ α₂ j n x)
+theorem differentiableOn_weighted_kernel [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n k : ℕ) :
+    DifferentiableOn ℂ (fun x : ℂ => ((n : ℂ) - x) ^ k * normalizedKernel α₁ α₂ j n x)
       (kernelDomain α₁ α₂ n) := by
   exact (by fun_prop : Differentiable ℂ (fun x : ℂ => ((n : ℂ) - x) ^ k)).differentiableOn.mul
     (differentiableOn_kernel α₁ α₂ j n)
@@ -50,18 +52,18 @@ theorem horizontal_tail_identity_of_rectangles {f : ℂ → ℂ} {r A B : ℝ}
       (∫ v in A..B, Complex.I * f ((r : ℂ) + (v : ℂ) * Complex.I))).sub hleft
   simpa only [sub_zero] using tendsto_nhds_unique h (tendsto_const_nhds.congr' (hrect.mono fun _ hx => hx.symm))
 
-theorem weighted_horizontal_tail_deformation {α₁ α₂ r H A B : ℝ}
+theorem weighted_horizontal_tail_deformation [PositiveArgument] {α₁ α₂ r H A B : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hH : 1 ≤ H) (j : Branch) (n k : ℕ)
     (hr : r < min (α₁ * n + 1) (α₂ * n + 1))
     (hstrip : ∀ v ∈ uIcc A B, 1 ≤ |v| ∧ |v| ≤ H) :
     (∫ u in Iic r, ((n : ℂ) - ((u : ℂ) + (A : ℂ) * Complex.I)) ^ k *
-      kernel α₁ α₂ j n ((u : ℂ) + (A : ℂ) * Complex.I)) -
+      normalizedKernel α₁ α₂ j n ((u : ℂ) + (A : ℂ) * Complex.I)) -
     (∫ u in Iic r, ((n : ℂ) - ((u : ℂ) + (B : ℂ) * Complex.I)) ^ k *
-      kernel α₁ α₂ j n ((u : ℂ) + (B : ℂ) * Complex.I)) +
+      normalizedKernel α₁ α₂ j n ((u : ℂ) + (B : ℂ) * Complex.I)) +
     (∫ v in A..B, Complex.I * (((n : ℂ) - ((r : ℂ) + (v : ℂ) * Complex.I)) ^ k *
-      kernel α₁ α₂ j n ((r : ℂ) + (v : ℂ) * Complex.I))) = 0 := by
+      normalizedKernel α₁ α₂ j n ((r : ℂ) + (v : ℂ) * Complex.I))) = 0 := by
   refine horizontal_tail_identity_of_rectangles
-    (f := fun x : ℂ => ((n : ℂ) - x) ^ k * kernel α₁ α₂ j n x)
+    (f := fun x : ℂ => ((n : ℂ) - x) ^ k * normalizedKernel α₁ α₂ j n x)
     (r := r) (A := A) (B := B)
     (integrableOn_weighted_kernel_horizontal h₁ h₂ j n k hr (hstrip A left_mem_uIcc).1)
     (integrableOn_weighted_kernel_horizontal h₁ h₂ j n k hr (hstrip B right_mem_uIcc).1)
@@ -89,12 +91,12 @@ theorem negative_height_strip {A B v : ℝ} (hA : 1 ≤ A) (hB : 1 ≤ B)
     exact ⟨by linarith [hv.2], by linarith [hv.1]⟩
   simpa only [abs_neg] using positive_height_strip hA hB hn
 
-theorem weighted_hankel_height_eq {α₁ α₂ r A B : ℝ}
+theorem weighted_hankel_height_eq [PositiveArgument] {α₁ α₂ r A B : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) (n k : ℕ)
     (hr₀ : 0 < r) (hr : r < min (α₁ * n + 1) (α₂ * n + 1))
     (hA : 1 ≤ A) (hB : 1 ≤ B) :
-    hankelIntegral r A (fun x => ((n : ℂ) - x) ^ k * kernel α₁ α₂ j n x) =
-      hankelIntegral r B (fun x => ((n : ℂ) - x) ^ k * kernel α₁ α₂ j n x) := by
+    hankelIntegral r A (fun x => ((n : ℂ) - x) ^ k * normalizedKernel α₁ α₂ j n x) =
+      hankelIntegral r B (fun x => ((n : ℂ) - x) ^ k * normalizedKernel α₁ α₂ j n x) := by
   have hlo := weighted_horizontal_tail_deformation h₁ h₂
     (H := max B A) (hB.trans (le_max_left B A)) j n k hr
     (A := -B) (B := -A) (fun v hv => negative_height_strip hB hA hv)
@@ -111,13 +113,13 @@ theorem weighted_hankel_height_eq {α₁ α₂ r A B : ℝ}
   dsimp only [hankelIntegral]
   linear_combination -hlo - hhi + hvleft + hvright
 
-theorem weighted_hankel_right_eq {α₁ α₂ r s h : ℝ}
+theorem weighted_hankel_right_eq [PositiveArgument] {α₁ α₂ r s h : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) (n k : ℕ)
     (hr₀ : 0 < r) (hs₀ : 0 < s)
     (hr : r < min (α₁ * n + 1) (α₂ * n + 1))
     (hs : s < min (α₁ * n + 1) (α₂ * n + 1)) (hh : 1 ≤ h) :
-    hankelIntegral r h (fun x => ((n : ℂ) - x) ^ k * kernel α₁ α₂ j n x) =
-      hankelIntegral s h (fun x => ((n : ℂ) - x) ^ k * kernel α₁ α₂ j n x) := by
+    hankelIntegral r h (fun x => ((n : ℂ) - x) ^ k * normalizedKernel α₁ α₂ j n x) =
+      hankelIntegral s h (fun x => ((n : ℂ) - x) ^ k * normalizedKernel α₁ α₂ j n x) := by
   have hrect := rectangle_integral_identity (differentiableOn_weighted_kernel α₁ α₂ j n k)
     (a := r) (r := s) (A := -h) (B := h)
     (fun z hz _ => ⟨Complex.mem_slitPlane_iff.mpr (Or.inl ((lt_min hr₀ hs₀).trans_le hz.1)),
@@ -132,11 +134,11 @@ theorem weighted_hankel_right_eq {α₁ α₂ r s h : ℝ}
 
 /-- The original vector integral may be evaluated on any admissible symmetric
 polygonal Hankel contour, component by component. -/
-theorem branchIntegral_eq_deformed {α₁ α₂ r h : ℝ}
+theorem branchIntegral_eq_deformed [PositiveArgument] {α₁ α₂ r h : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) (n : ℕ) (k : Fin 3)
     (hr₀ : 0 < r) (hr : r < min (α₁ * n + 1) (α₂ * n + 1)) (hh : 1 ≤ h) :
-    branchIntegral α₁ α₂ j n k = (2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
-      hankelIntegral r h (fun x => ((n : ℂ) - x) ^ k.val * kernel α₁ α₂ j n x) := by
+    normalizedBranchIntegral α₁ α₂ j n k = (2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
+      hankelIntegral r h (fun x => ((n : ℂ) - x) ^ k.val * normalizedKernel α₁ α₂ j n x) := by
   have href : (1 / 2 : ℝ) < min (α₁ * n + 1) (α₂ * n + 1) := by
     apply lt_min <;> nlinarith [mul_nonneg h₁.le (Nat.cast_nonneg (α := ℝ) n),
       mul_nonneg h₂.le (Nat.cast_nonneg (α := ℝ) n)]
@@ -144,4 +146,4 @@ theorem branchIntegral_eq_deformed {α₁ α₂ r h : ℝ}
     ((weighted_hankel_height_eq h₁ h₂ j n k.val (by norm_num) href le_rfl hh).trans
       (weighted_hankel_right_eq h₁ h₂ j n k.val (by norm_num) hr₀ href hr hh))
 
-end ThisWork
+end ThisWork.Analytic

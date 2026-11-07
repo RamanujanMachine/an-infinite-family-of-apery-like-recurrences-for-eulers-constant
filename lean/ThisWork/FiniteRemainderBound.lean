@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.RemainderPieces
 
 /-! Exact finite-remainder sums and their uniform exponential estimate. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -111,10 +113,10 @@ theorem scaled_hankelTrace_mem_kernelDomain {α₁ α₂ R r h : ℝ} (n : ℕ)
   simpa only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero] using
     (mul_le_mul_of_nonneg_left hre hR.le).trans_lt hright
 
-theorem eventually_continuousOn_moment_kernel_contour {α₁ α₂ : ℝ}
+theorem eventually_continuousOn_moment_kernel_contour [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) (k : ℕ) :
     ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
-      ContinuousOn (fun s => s ^ k * kernel α₁ α₂ j n ((largeScale n : ℂ) * s))
+      ContinuousOn (fun s => s ^ k * normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s))
         (hankelTrace (saddleContourRight (saddleScale α₁ α₂) j σ)
           (saddleContourHeight (saddleScale α₁ α₂) j σ)) := by
   filter_upwards [eventually_saddleContours_admissible h₁ h₂ j] with n hn σ hσ
@@ -130,7 +132,7 @@ theorem eventually_continuousOn_moment_kernel_contour {α₁ α₂ : ℝ}
     (fun s hs => scaled_hankelTrace_mem_kernelDomain n (largeScale_pos hn.1) hr.1 hh0 ha.2.1 hs)
   exact (continuous_id.pow k).continuousOn.mul hk
 
-theorem uniform_finite_window_remainder_bound {α₁ α₂ a b T : ℝ}
+theorem uniform_finite_window_remainder_bound [PositiveArgument] {α₁ α₂ a b T : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (ha0 : 0 < a) (hb0 : 0 < b)
     (hT : 2 * saddleScale α₁ α₂ ≤ T)
     (ha : a < saddleScale α₁ α₂ / 16) (hb : b < saddleScale α₁ α₂ / 16)
@@ -139,12 +141,12 @@ theorem uniform_finite_window_remainder_bound {α₁ α₂ a b T : ℝ}
       ‖σ - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n →
       ‖finiteHankelIntegral (-T) (saddleContourRight (saddleScale α₁ α₂) j σ)
           (saddleContourHeight (saddleScale α₁ α₂) j σ)
-          (fun s => s ^ k * kernel α₁ α₂ j n ((largeScale n : ℂ) * s)) -
+          (fun s => s ^ k * normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)) -
         contourWindow j σ a b (saddleContourRight (saddleScale α₁ α₂) j σ)
           (saddleContourHeight (saddleScale α₁ α₂) j σ)
-          (fun s => s ^ k * kernel α₁ α₂ j n ((largeScale n : ℂ) * s))‖ ≤
+          (fun s => s ^ k * normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s))‖ ≤
         4 * ((T + 4 * saddleScale α₁ α₂) ^ k *
-          ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-ε * largeScale n)) *
+          ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-ε * largeScale n)) *
           (2 * T + 8 * saddleScale α₁ α₂) := by
   obtain ⟨ε, hε, hbnd⟩ := uniform_moment_remainderPiece_bound h₁ h₂ ha0 hb0 hT ha hb j D k
   refine ⟨ε, hε, ?_⟩
@@ -156,4 +158,4 @@ theorem uniform_finite_window_remainder_bound {α₁ α₂ a b T : ℝ}
   simpa only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul,
     Nat.cast_ofNat, mul_assoc] using hsum
 
-end ThisWork
+end ThisWork.Analytic

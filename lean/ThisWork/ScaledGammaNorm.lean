@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ReflectedGammaNorm
 public import ThisWork.Parameters
 
@@ -7,7 +8,8 @@ public import ThisWork.Parameters
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -94,7 +96,7 @@ theorem gammaNormError_rate_of_scaled_bound {K : Set ℂ} {C : ℝ} (hC : 0 ≤ 
 
 /-- Uniform Gamma error on the actual fixed saddle disks, at the precision
 needed for the exponential norm estimate in Lemma 8. -/
-theorem uniform_gammaNormError_disk {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem uniform_gammaNormError_disk [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       |gammaNormError ((largeScale n : ℂ) * s)| ≤ C * (n : ℝ) ^ (1 / 3 : ℝ) := by
   let c := saddleScale α₁ α₂
@@ -115,4 +117,4 @@ theorem uniform_gammaNormError_disk {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂
     exact gammaNormError_rate_of_scaled_bound hC (hb.mono (fun R hR s hs =>
       hR.2 s (saddleDisk_norm_le hc .three hs) (saddleDisk_region hc .three hs)))
 
-end ThisWork
+end ThisWork.Analytic

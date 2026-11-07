@@ -1,32 +1,34 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LocalSaddleExpansion
 
 /-! Normalized local power moments converge to the powers of the limiting saddle. -/
 
 @[expose] public section
 
-namespace ThisWork.CompactSaddleFamily.LocalSaddleData
+namespace ThisWork.Analytic.CompactSaddleFamily.LocalSaddleData
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
 
-noncomputable def quadraticRoot {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def quadraticRoot [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (z : OnePoint ℕ) : ℂ :=
   Neuschel.leadingRoot 2 D.velocity (S.phaseCoefficients 0 (parameterShift D.shift z))
 
-noncomputable def normalizedLocalMoment {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def normalizedLocalMoment [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (R : ℝ) (k : ℕ) (z : OnePoint ℕ) : ℂ :=
   D.quadraticRoot z * ((R ^ (1 / 2 : ℝ) / Real.Gamma (1 / 2 : ℝ) : ℝ) : ℂ) * D.localMoment R k z
 
-theorem uniform_quadraticRoot_bounds {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem uniform_quadraticRoot_bounds [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
     ∃ B ≥ 1, ∀ z, ‖D.quadraticRoot z‖ ≤ B ∧ ‖(D.quadraticRoot z)⁻¹‖ ≤ B := by
   obtain ⟨B, hB, hb⟩ := Neuschel.exists_uniform_quadratic_root_bounds
     (S.continuous_phaseCoefficients h₁ h₂ 0) (S.phaseCoefficients_zero_ne h₁ h₂) D.velocity_ne_zero
   exact ⟨B, hB, fun z => hb (parameterShift D.shift z)⟩
 
-theorem normalized_local_moment_error {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem normalized_local_moment_error [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) (k : ℕ) :
     ∃ C ≥ 0, ∀ᶠ R : ℝ in atTop, ∀ z,
       ‖D.normalizedLocalMoment R k z - S.saddle (parameterShift D.shift z) ^ k‖ ≤
@@ -60,7 +62,7 @@ theorem normalized_local_moment_error {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h�
     _ = (B * C / Real.Gamma (1 / 2 : ℝ)) * (R ^ (1 / 2 : ℝ) * R ^ (-1 : ℝ)) := by ring
     _ = _ := by rw [← Real.rpow_add hR0]; norm_num
 
-theorem normalizedLocalMoment_tendsto {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem normalizedLocalMoment_tendsto [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) (k : ℕ) :
     Tendsto (fun m : ℕ => D.normalizedLocalMoment (largeScale (m + D.shift + S.firstIndex)) k m)
       atTop (𝓝 (((saddleScale α₁ α₂ : ℂ) * rho j) ^ k)) := by
@@ -79,4 +81,4 @@ theorem normalizedLocalMoment_tendsto {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h�
         ((tendsto_rpow_neg_atTop (show (0 : ℝ) < 1 / 2 by norm_num)).comp hscale).const_mul C)
   simpa only [sub_add_cancel, zero_add] using he.add (hσ.pow k)
 
-end ThisWork.CompactSaddleFamily.LocalSaddleData
+end ThisWork.Analytic.CompactSaddleFamily.LocalSaddleData

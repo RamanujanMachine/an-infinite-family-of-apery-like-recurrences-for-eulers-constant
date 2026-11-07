@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.HankelScaling
 
 /-! Linearity on the absolutely convergent Hankel integrands. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set MeasureTheory
 
@@ -55,4 +57,4 @@ theorem hankelIntegral_sub {r h : ℝ} {f g : ℂ → ℂ}
     integral_sub hf.2.2 hg.2.2]
   ring
 
-end ThisWork
+end ThisWork.Analytic

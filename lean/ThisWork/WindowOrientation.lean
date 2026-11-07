@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LocalWindowIdentity
 public import ThisWork.SaddleContours
 
@@ -7,7 +8,8 @@ public import ThisWork.SaddleContours
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set MeasureTheory Filter
 open scoped Topology OnePoint
@@ -85,16 +87,16 @@ theorem contourWindow_eq_ray_window {c : ℝ} (hc : 0 < c) (j : Branch) {σ : �
 
 namespace CompactSaddleFamily.LocalSaddleData
 
-theorem eventually_contourWindow_eq_phase {α₁ α₂ : ℝ}
+theorem eventually_contourWindow_eq_phase [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (k : ℕ) :
     ∀ᶠ m : ℕ in atTop,
       contourWindow j (S.saddle (m + D.shift)) D.leftWidth D.rightWidth
         (saddleContourRight (saddleScale α₁ α₂) j (S.saddle (m + D.shift)))
         (saddleContourHeight (saddleScale α₁ α₂) j (S.saddle (m + D.shift)))
-        (fun s => s ^ k * kernel α₁ α₂ j (m + D.shift + S.firstIndex)
+        (fun s => s ^ k * normalizedKernel α₁ α₂ j (m + D.shift + S.firstIndex)
           ((largeScale (m + D.shift + S.firstIndex) : ℂ) * s)) =
-      branchOrientation j * kernel α₁ α₂ j (m + D.shift + S.firstIndex)
+      branchOrientation j * normalizedKernel α₁ α₂ j (m + D.shift + S.firstIndex)
         ((largeScale (m + D.shift + S.firstIndex) : ℂ) * S.saddle (m + D.shift)) *
         D.localMoment (largeScale (m + D.shift + S.firstIndex)) k m := by
   filter_upwards [D.eventually_localKernelMoment_eq_phase h₁ h₂ k,
@@ -104,4 +106,4 @@ theorem eventually_contourWindow_eq_phase {α₁ α₂ : ℝ}
 
 end CompactSaddleFamily.LocalSaddleData
 
-end ThisWork
+end ThisWork.Analytic

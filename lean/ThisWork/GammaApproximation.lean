@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Deriv
 public import Mathlib.Analysis.Complex.LocallyUniformLimit
@@ -8,7 +9,8 @@ public import Mathlib.Analysis.Complex.LocallyUniformLimit
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory Asymptotics
 open scoped Topology
@@ -220,4 +222,4 @@ theorem GammaSeq_tendsto_locally_uniform :
     (GammaSeq_tendsto_uniform_strip (half_pos hs0) (show s.re / 2 ≤ s.re + 1 by linarith)) ε hε
   exact hu.mono (fun n hn z hz => hn z ⟨hz.1.le, hz.2.le⟩)
 
-end ThisWork
+end ThisWork.Analytic

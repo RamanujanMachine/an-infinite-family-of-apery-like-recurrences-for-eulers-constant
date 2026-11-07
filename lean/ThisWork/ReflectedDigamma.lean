@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.DigammaBound
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Cotangent
 
@@ -7,7 +8,8 @@ public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Cotangent
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -159,4 +161,4 @@ theorem norm_digamma_sub_log_left {s : ℂ} (hre : s.re < 0)
   · rw [abs_of_pos him] at hexp ⊢
     exact norm_digamma_sub_log_left_upper hre him hexp
 
-end ThisWork
+end ThisWork.Analytic

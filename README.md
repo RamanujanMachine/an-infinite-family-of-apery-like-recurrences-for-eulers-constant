@@ -47,6 +47,13 @@ The lean formalization was generated using GPT-6.1-Sol which prompted to generat
 | Lemma 8 | [ThisWork.lean](lean/ThisWork.lean) | [`ThisWork.lemma8`](lean/ThisWork/Lemma8.lean) |
 | Neuschel, Theorem 3.1 | [Neuschel.lean](lean/Neuschel.lean) | [`Neuschel.neuschel_theorem_3_1_published`](lean/Neuschel/PublishedTheorem.lean) |
 
+Lemma 8 is stated for every real `z > 0`. The integrals `branchIntegral α₁ α₂ z`
+include the full Mellin–Barnes factor `z^(n-x)`. Their common growth scale is
+`H(n) z^n`, with limiting saddles `(α₁ α₂ z)^(1/3) ρⱼ` and an
+`O(n^(1/3))` error in the exponent. Constants and thresholds may depend on `z`.
+The theorem includes complex linear independence of the three integral sequences.
+The specialization `ThisWork.lemma8_one` recovers the result at `z = 1`.
+
 With [elan](https://github.com/leanprover/elan) installed, verify the proofs with:
 
 ```bash

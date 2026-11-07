@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ScaledDigamma
 public import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
 
@@ -7,7 +8,8 @@ public import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -55,4 +57,4 @@ theorem norm_digamma_affine_sub_log_le {A R M : ℝ} (hA : 4 ≤ A) (hR : 0 ≤ 
   have hbound := htri.trans (add_le_add hpsi (hlogEq ▸ hlog))
   simpa only [sub_add_sub_cancel] using hbound
 
-end ThisWork
+end ThisWork.Analytic

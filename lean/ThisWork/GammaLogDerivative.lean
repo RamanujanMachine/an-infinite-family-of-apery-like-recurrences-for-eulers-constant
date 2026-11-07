@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.GammaApproximation
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Digamma
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
@@ -8,7 +9,8 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory Asymptotics
 open scoped Topology
@@ -71,4 +73,4 @@ theorem digamma_eq_gauss_limit {s : ℂ} (hs : 0 < s.re) :
       ∑ k ∈ Finset.range (n + 2), (s + (k : ℂ))⁻¹) atTop (𝓝 (Complex.digamma s)) := by
   simpa only [logDeriv_GammaSeq (Nat.succ_ne_zero _) hs, Nat.add_assoc] using GammaSeq_logDeriv_tendsto hs
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.SaddleContours
 
 /-! Uniform limiting phase gaps on bounded contour pieces and their perturbations. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -181,7 +183,7 @@ theorem exists_uniform_perturbed_limiting_gap {c δ : ℝ} (hc : 0 < c) (hδ : 0
     with σ hσ hσD s hs hM hd
   exact hσ s ⟨ball_subset_closedBall hσD, hs, hM, hd⟩
 
-theorem exists_uniform_limiting_gap_near_exact_saddles {α₁ α₂ δ : ℝ}
+theorem exists_uniform_limiting_gap_near_exact_saddles [PositiveArgument] {α₁ α₂ δ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hδ : 0 < δ) (j : Branch) (M D : ℝ) :
     ∃ ε > 0, ∀ᶠ n : ℕ in atTop, ∀ σ : ℂ,
       ‖σ - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n →
@@ -198,4 +200,4 @@ theorem exists_uniform_limiting_gap_near_exact_saddles {α₁ α₂ δ : ℝ}
   exact ⟨ε, hε, hsmall.mono fun n hn σ hσ =>
     hball σ (by simpa only [mem_ball, dist_eq_norm] using hσ.trans_lt hn)⟩
 
-end ThisWork
+end ThisWork.Analytic

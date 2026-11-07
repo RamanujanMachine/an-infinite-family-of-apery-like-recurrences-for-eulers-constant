@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.GammaLogDerivative
 public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
 public import Mathlib.Analysis.Complex.RealDeriv
@@ -9,7 +10,8 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -192,4 +194,4 @@ theorem norm_log_add_one_sub_le {s : ℂ} (hs : 0 < s.re) :
     simpa only [norm_inv, one_div] using one_div_le_one_div_of_le hs hnt
   simpa only [sub_zero, abs_one, mul_one] using intervalIntegral.norm_integral_le_of_norm_le_const hb
 
-end ThisWork
+end ThisWork.Analytic

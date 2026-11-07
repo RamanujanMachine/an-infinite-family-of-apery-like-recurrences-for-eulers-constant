@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ImaginaryDigamma
 public import ThisWork.CompactContourGap
 
@@ -7,12 +8,13 @@ public import ThisWork.CompactContourGap
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
 
-theorem uniform_exactSaddleEquation_region {α₁ α₂ κ η M ε : ℝ}
+theorem uniform_exactSaddleEquation_region [PositiveArgument] {α₁ α₂ κ η M ε : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hκ : 0 < κ) (hη : 0 < η)
     (hε : 0 < ε) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, 0 < n ∧ ∀ s : ℂ, ‖s‖ ≤ M → κ ≤ s.re ∨ η ≤ |s.im| →
@@ -60,7 +62,7 @@ theorem saddleContour_mem_region {c : ℝ} (hc : 0 < c) (j : Branch) {σ s : ℂ
     rw [him, abs_of_nonneg ((show 0 ≤ c / 4 by positivity).trans hh)]
     exact hh
 
-theorem uniform_exactSaddleEquation_contours {α₁ α₂ ε : ℝ}
+theorem uniform_exactSaddleEquation_contours [PositiveArgument] {α₁ α₂ ε : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hε : 0 < ε) (j : Branch) (M : ℝ) :
     ∀ᶠ n : ℕ in atTop, 0 < n ∧ ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ∀ s : ℂ, s ∈ hankelTrace (saddleContourRight (saddleScale α₁ α₂) j σ)
@@ -72,4 +74,4 @@ theorem uniform_exactSaddleEquation_contours {α₁ α₂ ε : ℝ}
     (by positivity) (by positivity) hε j).mono fun n hn =>
       ⟨hn.1, fun σ hσ s hs hM => hn.2 s hM (saddleContour_mem_region hc j hσ hs)⟩
 
-end ThisWork
+end ThisWork.Analytic

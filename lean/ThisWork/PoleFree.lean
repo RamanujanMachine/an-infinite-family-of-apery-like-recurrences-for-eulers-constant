@@ -1,6 +1,7 @@
 module
 
-public import ThisWork.Definitions
+public import ThisWork.Argument
+public import ThisWork.NormalizedDefinitions
 public import ThisWork.HankelPhase
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Deriv
 
@@ -8,7 +9,8 @@ public import Mathlib.Analysis.SpecialFunctions.Gamma.Deriv
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -42,10 +44,10 @@ theorem referenceContour_mem_kernelDomain {α₁ α₂ : ℝ} (h₁ : 0 < α₁)
   apply lt_min_iff.mpr
   constructor <;> nlinarith [Nat.cast_nonneg (α := ℝ) n]
 
-/-- Holomorphy is proved for the actual Gamma-product kernel, with both pole
+/-- Holomorphy is proved for the actual Gamma-product normalizedKernel, with both pole
 families excluded explicitly. -/
-theorem differentiableOn_kernel (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) :
-    DifferentiableOn ℂ (kernel α₁ α₂ j n) (kernelDomain α₁ α₂ n) := by
+theorem differentiableOn_kernel [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) :
+    DifferentiableOn ℂ (normalizedKernel α₁ α₂ j n) (kernelDomain α₁ α₂ n) := by
   intro x hx
   have hleft : DifferentiableAt ℂ Complex.Gamma x :=
     Complex.differentiableAt_Gamma x (not_neg_nat_of_mem_slitPlane hx.1)
@@ -54,11 +56,11 @@ theorem differentiableOn_kernel (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) :
   have harg₂ : DifferentiableAt ℂ (fun t : ℂ => (α₂ : ℂ) * n - t + 1) x := by fun_prop
   have hg₁ := (Complex.hasDerivAt_Gamma_of_re_pos hright.1).differentiableAt.comp x harg₁
   have hg₂ := (Complex.hasDerivAt_Gamma_of_re_pos hright.2).differentiableAt.comp x harg₂
-  have he : DifferentiableAt ℂ (fun t : ℂ => Complex.exp (twist j * t)) x := by fun_prop
+  have he : DifferentiableAt ℂ (fun t : ℂ => Complex.exp (kernelTwist j * t)) x := by fun_prop
   have h := (((hleft.pow 3).fun_mul hg₁).fun_mul hg₂).fun_mul he
   change DifferentiableWithinAt ℂ (fun t => Complex.Gamma t ^ 3 *
     Complex.Gamma ((α₁ : ℂ) * n - t + 1) * Complex.Gamma ((α₂ : ℂ) * n - t + 1) *
-      Complex.exp (twist j * t)) (kernelDomain α₁ α₂ n) x
+      Complex.exp (kernelTwist j * t)) (kernelDomain α₁ α₂ n) x
   simpa only [Pi.pow_def, Function.comp_def] using h.differentiableWithinAt
 
-end ThisWork
+end ThisWork.Analytic

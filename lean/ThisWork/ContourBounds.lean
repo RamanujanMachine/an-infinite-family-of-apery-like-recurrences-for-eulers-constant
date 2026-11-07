@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LimitingPhase
 public import Mathlib.Analysis.Complex.RealDeriv
 public import Mathlib.Analysis.Calculus.Deriv.MeanValue
@@ -8,7 +9,8 @@ public import Mathlib.Analysis.Calculus.Deriv.MeanValue
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -207,4 +209,4 @@ theorem horizontalPhase_monotone_large_height (j : Branch) {c height : ℝ}
   rw [norm_horizontal_div_sq hc, one_pow, le_div_iff₀ (sq_pos_of_pos hc), one_mul]
   nlinarith [sq_nonneg x]
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,17 +1,19 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.OriginalMomentLimits
 
 /-! Polynomial bounds for the nonzero saddle normalizers. -/
 
 public section
 
-namespace ThisWork.CompactSaddleFamily.LocalSaddleData
+namespace ThisWork.Analytic.CompactSaddleFamily.LocalSaddleData
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
 
-theorem normalizingScalar_norm {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem normalizingScalar_norm [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) {n : ℕ} (hn : 0 < n) :
     ‖D.normalizingScalar n‖ =
       ‖D.quadraticRoot (n - D.offset)‖ * (largeScale n ^ (1 / 2 : ℝ) / Real.Gamma (1 / 2 : ℝ)) /
@@ -23,7 +25,7 @@ theorem normalizingScalar_norm {α₁ α₂ : ℝ} {j : Branch} {S : CompactSadd
     Complex.norm_of_nonneg (div_pos (Real.rpow_pos_of_pos hR _) hG).le,
     Complex.norm_of_nonneg hR.le]
 
-theorem normalizingScalar_norm_mul_kernel {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem normalizingScalar_norm_mul_kernel [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) {n : ℕ} (hn : 0 < n) (hK : D.rawKernel n ≠ 0) :
     ‖D.normalizingScalar n‖ * ‖D.rawKernel n‖ =
       ‖D.quadraticRoot (n - D.offset)‖ * largeScale n ^ (1 / 2 : ℝ) /
@@ -34,7 +36,7 @@ theorem normalizingScalar_norm_mul_kernel {α₁ α₂ : ℝ} {j : Branch} {S : 
   have hcn : ‖cauchyFactor‖ ≠ 0 := norm_ne_zero_iff.mpr cauchyFactor_ne_zero
   field_simp [norm_ne_zero_iff.mpr hK, hG.ne', hR.ne', hcn]
 
-theorem inv_normalizingScalar_norm {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem inv_normalizingScalar_norm [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) {n : ℕ} (hn : 0 < n) (hK : D.rawKernel n ≠ 0) :
     ‖(D.normalizingScalar n)⁻¹‖ =
       Real.Gamma (1 / 2 : ℝ) * ‖cauchyFactor‖ * largeScale n *
@@ -50,7 +52,7 @@ theorem inv_normalizingScalar_norm {α₁ α₂ : ℝ} {j : Branch} {S : Compact
     norm_ne_zero_iff.mpr (Neuschel.leadingRoot_ne_zero 2 D.velocity_ne_zero _)
   field_simp [norm_ne_zero_iff.mpr hK, hG.ne', hR.ne', hp.ne', hcn, hroot]
 
-theorem normalizingScalar_polynomial_bounds {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem normalizingScalar_polynomial_bounds [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
     ∃ A > 0, ∃ B > 0, ∀ᶠ n : ℕ in atTop,
       ‖D.normalizingScalar n‖ * ‖D.rawKernel n‖ ≤ A ∧
@@ -84,8 +86,8 @@ theorem normalizingScalar_polynomial_bounds {α₁ α₂ : ℝ} (h₁ : 0 < α�
       _ ≤ Real.Gamma (1 / 2 : ℝ) * ‖cauchyFactor‖ * (n : ℝ) * B * ‖D.rawKernel n‖ := by gcongr
       _ = _ := by ring
 
-/-- The Gaussian amplitude differs from the saddle kernel only by polynomial factors. -/
-theorem gaussianAmplitude_kernel_bounds {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+/-- The Gaussian amplitude differs from the saddle normalizedKernel only by polynomial factors. -/
+theorem gaussianAmplitude_kernel_bounds [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
     ∃ A > 0, ∃ B > 0, ∀ᶠ n : ℕ in atTop,
       ‖D.rawKernel n‖ ≤ A * ‖D.gaussianAmplitude n‖ ∧
@@ -97,4 +99,4 @@ theorem gaussianAmplitude_kernel_bounds {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (
   simpa only [gaussianAmplitude, norm_inv, div_eq_mul_inv] using
     (le_div_iff₀ (norm_pos_iff.mpr hN)).mpr (by simpa only [mul_comm] using hn.1)
 
-end ThisWork.CompactSaddleFamily.LocalSaddleData
+end ThisWork.Analytic.CompactSaddleFamily.LocalSaddleData

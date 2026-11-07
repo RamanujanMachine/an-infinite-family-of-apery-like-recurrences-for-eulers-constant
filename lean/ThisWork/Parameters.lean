@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.SaddleEquation
 
 /-! The compact auxiliary parameter family used in Appendix A. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -91,4 +93,4 @@ theorem one_add_log_largeScale_le {n : ℕ} (hn : 1 ≤ n) :
   have hR := log_largeScale (show 0 < n by omega)
   nlinarith
 
-end ThisWork
+end ThisWork.Analytic

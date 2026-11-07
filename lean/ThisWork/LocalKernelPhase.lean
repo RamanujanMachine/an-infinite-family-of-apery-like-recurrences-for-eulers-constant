@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ExactSaddles
 public import Neuschel.ContourIntegral
 
@@ -7,7 +8,8 @@ public import Neuschel.ContourIntegral
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -65,9 +67,9 @@ theorem exists_normalized_phase_ball {f Q : ℂ → ℂ} {a b R : ℂ} {r : ℝ}
     dsimp only
     field_simp
 
-theorem logDeriv_scaled_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {s : ℂ}
+theorem logDeriv_scaled_kernel [PositiveArgument] {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {s : ℂ}
     (hs : (largeScale n : ℂ) * s ∈ kernelDomain α₁ α₂ n) :
-    logDeriv (fun t => kernel α₁ α₂ j n ((largeScale n : ℂ) * t)) s =
+    logDeriv (fun t => normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * t)) s =
       (largeScale n : ℂ) * exactSaddleEquation α₁ α₂ j n s := by
   have hscale : HasDerivAt (fun t : ℂ => (largeScale n : ℂ) * t) (largeScale n : ℂ) s := by
     simpa only [id_eq, mul_one] using (hasDerivAt_id s).const_mul (largeScale n : ℂ)
@@ -77,14 +79,14 @@ theorem logDeriv_scaled_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {s : �
   rfl
 
 /-- A genuine local Laplace phase for the original scaled Gamma product. -/
-theorem exists_scaled_kernel_phase {α₁ α₂ : ℝ} (j : Branch) {n : ℕ} (hn : 0 < n)
+theorem exists_scaled_kernel_phase [PositiveArgument] {α₁ α₂ : ℝ} (j : Branch) {n : ℕ} (hn : 0 < n)
     {a b : ℂ} {r : ℝ} (ha : a ∈ ball b r)
     (hmap : MapsTo (fun s : ℂ => (largeScale n : ℂ) * s) (ball b r) (kernelDomain α₁ α₂ n)) :
     ∃ p : ℂ → ℂ, p a = 0 ∧
       (∀ s ∈ ball b r, HasDerivAt p (-exactSaddleEquation α₁ α₂ j n s) s) ∧
       ∀ s ∈ ball b r,
-        kernel α₁ α₂ j n ((largeScale n : ℂ) * s) =
-          kernel α₁ α₂ j n ((largeScale n : ℂ) * a) *
+        normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s) =
+          normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * a) *
             Complex.exp (-(largeScale n : ℂ) * p s) := by
   apply exists_normalized_phase_ball ha (Complex.ofReal_ne_zero.mpr (largeScale_pos hn).ne')
   · exact (differentiableOn_kernel α₁ α₂ j n).comp
@@ -130,4 +132,4 @@ theorem norm_primitive_sub_le_ball {p q F H : ℂ → ℂ} {a b s : ℂ} {r B : 
   congr 1
   abel
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.HankelScaling
 
 /-! Exact truncation of the two infinite horizontal contour pieces. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter MeasureTheory
 open scoped Topology
@@ -45,4 +47,4 @@ theorem norm_hankelIntegral_sub_truncation {f : ℂ → ℂ} {left right height 
   congr 1
   ring
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ReflectedDigamma
 
 /-! Explicit logarithmic sine bounds for the Gamma reflection formula. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -43,4 +45,4 @@ theorem abs_log_norm_sin_sub_abs_im {z : ℂ} (hz : Real.exp (-2 * |z.im|) ≤ 1
   rw [Real.log_exp] at hu
   exact abs_le.mpr ⟨by linarith, by linarith [Real.log_nonneg (show (1 : ℝ) ≤ 4 by norm_num)]⟩
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.UniformTailDecay
 
 /-! Uniform bounds at fixed left-tail anchors. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -51,10 +53,10 @@ theorem norm_left_anchor_le {y H : ℝ} (hy : |y| ≤ H) :
     _ = 1 + |y| := by simp
     _ ≤ 1 + H := add_le_add (le_refl _) hy
 
-theorem uniform_log_norm_kernel_left_anchor {α₁ α₂ η H : ℝ}
+theorem uniform_log_norm_kernel_left_anchor [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H) (j : Branch) :
     ∃ B ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
-      Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-1 + (y : ℂ) * Complex.I))‖ -
+      Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-1 + (y : ℂ) * Complex.I))‖ -
         Real.log (gammaScale α₁ α₂ n) ≤ B * largeScale n := by
   obtain ⟨C₀, hC₀, hb₀⟩ := uniform_gammaNormError_left_anchor hη hH
   obtain ⟨C₁, hC₁, hb₁⟩ := uniform_log_norm_Gamma_affine h₁ (show 0 < 1 + H by positivity)
@@ -81,10 +83,10 @@ theorem uniform_log_norm_kernel_left_anchor {α₁ α₂ η H : ℝ}
 
 /-- Absolute logarithmic tail control normalized by the actual Gamma scale,
 with one constant and index threshold uniform on both horizontal tails. -/
-theorem uniform_log_norm_kernel_left_tail {α₁ α₂ η H : ℝ}
+theorem uniform_log_norm_kernel_left_tail [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H) (j : Branch) :
     ∃ D ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ t : ℝ, 1 ≤ t → ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
-      Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ -
+      Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ -
         Real.log (gammaScale α₁ α₂ n) ≤ largeScale n * (-t * Real.log t + D * t) := by
   obtain ⟨C, hC, hb⟩ := uniform_log_norm_kernel_tail_difference (H := H) h₁ h₂ hη j
   obtain ⟨B, hB, ha⟩ := uniform_log_norm_kernel_left_anchor (H := H) h₁ h₂ hη hH j
@@ -95,18 +97,18 @@ theorem uniform_log_norm_kernel_left_tail {α₁ α₂ η H : ℝ}
   nlinarith [hanchor y hy hyH, (largeScale_pos hn₀).le,
     mul_nonneg (mul_nonneg hB (largeScale_pos hn₀).le) (show 0 ≤ t - 1 by linarith)]
 
-theorem uniform_kernel_left_tail_bound {α₁ α₂ η H : ℝ}
+theorem uniform_kernel_left_tail_bound [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H) (j : Branch) :
     ∃ D ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ t : ℝ, 1 ≤ t → ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
-      ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
+      ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
         gammaScale α₁ α₂ n * Real.exp (largeScale n * (-t * Real.log t + D * t)) := by
   obtain ⟨D, hD, hb⟩ := uniform_log_norm_kernel_left_tail h₁ h₂ hη hH j
   refine ⟨D, hD, hb.mono fun n hn t ht y hy hyH => ?_⟩
   calc
-    _ ≤ Real.exp (Real.log ‖kernel α₁ α₂ j n
+    _ ≤ Real.exp (Real.log ‖normalizedKernel α₁ α₂ j n
         ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖) := Real.le_exp_log _
     _ ≤ Real.exp (Real.log (gammaScale α₁ α₂ n) + largeScale n * (-t * Real.log t + D * t)) :=
       Real.exp_le_exp.mpr (by linarith [hn t ht y hy hyH])
     _ = _ := by rw [Real.exp_add, Real.exp_log (gammaScale_pos h₁ h₂ n)]
 
-end ThisWork
+end ThisWork.Analytic

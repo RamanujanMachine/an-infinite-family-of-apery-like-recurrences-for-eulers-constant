@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.SaddleApproximation
 
 /-! Fixed saddle disks and the uniform exact-equation approximation on them. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -61,7 +63,7 @@ theorem saddleDisk_region {c : ℝ} (hc : 0 < c) (j : Branch) {s : ℂ} (hs : s 
 
 /-- The uniform saddle-equation estimate in Step 1 of Appendix A, proved for
 the actual Gamma-product integrands on explicit disks around all three roots. -/
-theorem uniform_exactSaddleEquation_disk {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem uniform_exactSaddleEquation_disk [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       ‖exactSaddleEquation α₁ α₂ j n s - limitingEquation j (saddleScale α₁ α₂) s‖ ≤ C * smallParameter n := by
   let c := saddleScale α₁ α₂
@@ -99,7 +101,7 @@ theorem saddleDisk_mem_slitPlane {c : ℝ} (hc : 0 < c) (j : Branch) {s : ℂ} (
     change c / 2 ≤ s.re at h
     linarith
 
-theorem eventually_saddleDisk_mapsTo_kernelDomain {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem eventually_saddleDisk_mapsTo_kernelDomain [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, 0 < n ∧ MapsTo (fun s : ℂ => (largeScale n : ℂ) * s)
       (saddleDisk (saddleScale α₁ α₂) j) (kernelDomain α₁ α₂ n) := by
   let c := saddleScale α₁ α₂
@@ -120,7 +122,7 @@ theorem eventually_saddleDisk_mapsTo_kernelDomain {α₁ α₂ : ℝ} (h₁ : 0 
   · change ((largeScale n : ℂ) * s).re < min (α₁ * n + 1) (α₂ * n + 1)
     exact lt_min (by linarith [hn₁.1, hn₁.2]) (by linarith [hn₂.1, hn₂.2])
 
-theorem eventually_differentiableOn_exactSaddleEquation {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem eventually_differentiableOn_exactSaddleEquation [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, DifferentiableOn ℂ (exactSaddleEquation α₁ α₂ j n)
       (ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 4)) := by
   filter_upwards [eventually_saddleDisk_mapsTo_kernelDomain h₁ h₂ j] with n hn
@@ -129,7 +131,7 @@ theorem eventually_differentiableOn_exactSaddleEquation {α₁ α₂ : ℝ} (h�
     (differentiableOn_id.const_mul (largeScale n : ℂ))
     (fun s hs => hn.2 (ball_subset_closedBall hs))
 
-theorem exactSaddleEquation_tendsto_uniform_disk {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem exactSaddleEquation_tendsto_uniform_disk [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     TendstoUniformlyOn (fun n => exactSaddleEquation α₁ α₂ j n)
       (limitingEquation j (saddleScale α₁ α₂)) atTop (saddleDisk (saddleScale α₁ α₂) j) := by
   obtain ⟨C, hC, hb⟩ := uniform_exactSaddleEquation_disk h₁ h₂ j
@@ -147,4 +149,4 @@ theorem differentiableOn_limitingEquation_disk {c : ℝ} (hc : 0 < c) (j : Branc
     ((div_pos_real_mem_slitPlane_iff hc s).mpr
       (saddleDisk_mem_slitPlane hc j (ball_subset_closedBall hs)))).differentiableAt.differentiableWithinAt
 
-end ThisWork
+end ThisWork.Analytic

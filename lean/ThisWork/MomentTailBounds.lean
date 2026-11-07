@@ -1,28 +1,30 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.IntegratedTails
 
 /-! Uniform infinite-tail bounds for the scaled power moments used for independence. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
 
-noncomputable def scaledLeftMomentKernel (α₁ α₂ : ℝ) (j : Branch) (n k : ℕ)
+noncomputable def scaledLeftMomentKernel [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n k : ℕ)
     (y t : ℝ) : ℂ :=
   (-(t : ℂ) + (y : ℂ) * Complex.I) ^ k *
-    kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))
+    normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))
 
-theorem uniform_moment_normalized_far_tail {α₁ α₂ η H : ℝ}
+theorem uniform_moment_normalized_far_tail [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H)
     (j : Branch) (k : ℕ) (q : ℝ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ∀ t : ℝ, T ≤ t → ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
       ‖scaledLeftMomentKernel α₁ α₂ j n k y t‖ ≤
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-q * largeScale n * t) := by
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-q * largeScale n * t) := by
   obtain ⟨T, hT, hb⟩ := uniform_kernel_normalized_far_tail h₁ h₂ hη hH j (q + 1)
   obtain ⟨A, hA⟩ := eventually_atTop.mp
     (eventually_shifted_pow_le_exp (D := H + 1) (by positivity) k)
@@ -38,24 +40,24 @@ theorem uniform_moment_normalized_far_tail {α₁ α₂ η H : ℝ}
       (hA t ((le_max_right _ _).trans ht))
   calc
     _ = ‖-(t : ℂ) + (y : ℂ) * Complex.I‖ ^ k *
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ := by
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ := by
       rw [scaledLeftMomentKernel, norm_mul, norm_pow]
-    _ ≤ Real.exp t * (‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+    _ ≤ Real.exp t * (‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
         Real.exp (-(q + 1) * largeScale n * t)) :=
       mul_le_mul hp (hn σ hσ t ((le_max_left _ _).trans ht) y hy hyH) (norm_nonneg _) (by positivity)
-    _ = ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+    _ = ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
         Real.exp (t + (-(q + 1) * largeScale n * t)) := by rw [Real.exp_add]; ring
     _ ≤ _ := mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr
       (by nlinarith [mul_le_mul_of_nonneg_right hR (show 0 ≤ t by linarith)])) (norm_nonneg _)
 
-theorem uniform_integrated_moment_tail_cutoffs {α₁ α₂ η H q : ℝ}
+theorem uniform_integrated_moment_tail_cutoffs [PositiveArgument] {α₁ α₂ η H q : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H) (hq : 0 < q)
     (j : Branch) (k : ℕ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ∀ A : ℝ, T ≤ A → ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
       IntegrableOn (scaledLeftMomentKernel α₁ α₂ j n k y) (Ioi A) ∧
       ‖∫ t in Ioi A, scaledLeftMomentKernel α₁ α₂ j n k y t‖ ≤
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
           Real.exp (-q * largeScale n * A) / (q * largeScale n) := by
   obtain ⟨T, hT, hb⟩ := uniform_moment_normalized_far_tail h₁ h₂ hη hH j k q
   refine ⟨T, hT, ?_⟩
@@ -74,16 +76,16 @@ theorem uniform_integrated_moment_tail_cutoffs {α₁ α₂ η H q : ℝ}
     (mul_pos hq (largeScale_pos hn0)) (hfc.aestronglyMeasurable measurableSet_Ioi)
     (fun t ht => by simpa only [neg_mul] using hn σ hσ t (hA.trans ht.le) y hy hyH)
 
-theorem uniform_integrated_moment_tail {α₁ α₂ η H q : ℝ}
+theorem uniform_integrated_moment_tail [PositiveArgument] {α₁ α₂ η H q : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H) (hq : 0 < q)
     (j : Branch) (k : ℕ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
       IntegrableOn (scaledLeftMomentKernel α₁ α₂ j n k y) (Ioi T) ∧
       ‖∫ t in Ioi T, scaledLeftMomentKernel α₁ α₂ j n k y t‖ ≤
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
           Real.exp (-q * largeScale n * T) / (q * largeScale n) := by
   obtain ⟨T, hT, hb⟩ := uniform_integrated_moment_tail_cutoffs h₁ h₂ hη hH hq j k
   exact ⟨T, hT, hb.mono (fun _ hn σ hσ y hy hyH => hn σ hσ T le_rfl y hy hyH)⟩
 
-end ThisWork
+end ThisWork.Analytic

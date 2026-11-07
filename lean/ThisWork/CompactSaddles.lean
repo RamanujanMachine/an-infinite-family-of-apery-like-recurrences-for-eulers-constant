@@ -1,21 +1,23 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.CompactFamily
 
 /-! A continuous compact family of exact simple saddles and the limiting saddle. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
 
-noncomputable def parameterEquation (α₁ α₂ : ℝ) (j : Branch) (N : ℕ) : ℂ → OnePoint ℕ → ℂ :=
+noncomputable def parameterEquation [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (N : ℕ) : ℂ → OnePoint ℕ → ℂ :=
   sequenceFamily (fun m => exactSaddleEquation α₁ α₂ j (m + N))
     (limitingEquation j (saddleScale α₁ α₂))
 
-structure CompactSaddleFamily (α₁ α₂ : ℝ) (j : Branch) where
+structure CompactSaddleFamily [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) where
   firstIndex : ℕ
   saddle : C(OnePoint ℕ, ℂ)
   errorConstant : ℝ
@@ -31,7 +33,7 @@ structure CompactSaddleFamily (α₁ α₂ : ℝ) (j : Branch) where
   holomorphic_equation : ∀ z, DifferentiableOn ℂ (fun s => parameterEquation α₁ α₂ j firstIndex s z)
     (ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 8))
 
-theorem exists_compactSaddleFamily {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem exists_compactSaddleFamily [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) : Nonempty (CompactSaddleFamily α₁ α₂ j) := by
   obtain ⟨r, _, _, C, hC, hzeros⟩ := exists_exact_saddle h₁ h₂ j
   have hsmall : ∀ᶠ n : ℕ in atTop, C * smallParameter n < saddleScale α₁ α₂ / 16 :=
@@ -83,16 +85,16 @@ theorem exists_compactSaddleFamily {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ 
 
 namespace CompactSaddleFamily
 
-theorem saddle_mem_disk {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem saddle_mem_disk [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) : S.saddle z ∈ saddleDisk (saddleScale α₁ α₂) j :=
   ball_subset_closedBall (ball_subset_ball
     (by linarith [saddleScale_pos h₁ h₂] : saddleScale α₁ α₂ / 16 ≤ saddleScale α₁ α₂ / 4) (S.saddle_mem z))
 
-noncomputable def shiftedEquation {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j)
+noncomputable def shiftedEquation [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j)
     (t : ℂ) (z : OnePoint ℕ) : ℂ :=
   parameterEquation α₁ α₂ j S.firstIndex (t + S.saddle z) z
 
-theorem shifted_mem {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j)
+theorem shifted_mem [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j)
     {t : ℂ} (ht : t ∈ ball 0 (saddleScale α₁ α₂ / 16)) (z : OnePoint ℕ) :
     t + S.saddle z ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 8) := by
   have hσ := S.saddle_mem z
@@ -104,29 +106,29 @@ theorem shifted_mem {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α
     _ ≤ ‖t‖ + ‖S.saddle z - (saddleScale α₁ α₂ : ℂ) * rho j‖ := norm_add_le _ _
     _ < saddleScale α₁ α₂ / 8 := by linarith
 
-theorem continuous_shiftedEquation {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
+theorem continuous_shiftedEquation [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
     ContinuousOn (Function.uncurry S.shiftedEquation) (ball 0 (saddleScale α₁ α₂ / 16) ×ˢ univ) := by
   have hshift : Continuous (fun w : ℂ × OnePoint ℕ => (w.1 + S.saddle w.2, w.2)) :=
     (continuous_fst.add (S.saddle.continuous.comp continuous_snd)).prodMk continuous_snd
   exact S.continuous_equation.comp hshift.continuousOn (fun w hw => ⟨S.shifted_mem hw.1 w.2, hw.2⟩)
 
-theorem differentiableOn_shiftedEquation {α₁ α₂ : ℝ} {j : Branch}
+theorem differentiableOn_shiftedEquation [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     DifferentiableOn ℂ (fun t => S.shiftedEquation t z) (ball 0 (saddleScale α₁ α₂ / 16)) :=
   (S.holomorphic_equation z).comp (differentiableOn_id.add_const (S.saddle z))
     (fun _ ht => S.shifted_mem ht z)
 
-@[simp] theorem shiftedEquation_zero {α₁ α₂ : ℝ} {j : Branch}
+@[simp] theorem shiftedEquation_zero [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) : S.shiftedEquation 0 z = 0 := by
   simpa only [shiftedEquation, zero_add] using S.equation_zero z
 
-theorem shiftedEquation_simple {α₁ α₂ : ℝ} {j : Branch}
+theorem shiftedEquation_simple [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     deriv (fun t => S.shiftedEquation t z) 0 ≠ 0 := by
   have he := deriv_comp_add_const (fun s => parameterEquation α₁ α₂ j S.firstIndex s z) (S.saddle z) 0
   exact (by simpa only [shiftedEquation, zero_add] using he) ▸ S.equation_simple z
 
-theorem shiftedEquation_limit {α₁ α₂ : ℝ} {j : Branch}
+theorem shiftedEquation_limit [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (t : ℂ) :
     S.shiftedEquation t ∞ = limitingEquation j (saddleScale α₁ α₂)
       (t + (saddleScale α₁ α₂ : ℂ) * rho j) := by
@@ -134,4 +136,4 @@ theorem shiftedEquation_limit {α₁ α₂ : ℝ} {j : Branch}
 
 end CompactSaddleFamily
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.UniformTailDerivative
 
-/-! Integration of the uniform tail derivative estimate for the actual kernel. -/
+/-! Integration of the uniform tail derivative estimate for the actual normalizedKernel. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -24,10 +26,10 @@ theorem scaled_left_mem_kernelDomain {α₁ α₂ R t y : ℝ}
     exact lt_min (by nlinarith [mul_pos hR ht, mul_nonneg h₁.le (Nat.cast_nonneg (α := ℝ) n)])
       (by nlinarith [mul_pos hR ht, mul_nonneg h₂.le (Nat.cast_nonneg (α := ℝ) n)])
 
-theorem hasDerivAt_log_norm_kernel_left {α₁ α₂ R t y : ℝ}
+theorem hasDerivAt_log_norm_kernel_left [PositiveArgument] {α₁ α₂ R t y : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) (n : ℕ)
     (hR : 0 < R) (ht : 0 < t) (hy : y ≠ 0) :
-    HasDerivAt (fun u : ℝ => Real.log ‖kernel α₁ α₂ j n
+    HasDerivAt (fun u : ℝ => Real.log ‖normalizedKernel α₁ α₂ j n
       ((R : ℂ) * (-(u : ℂ) + (y : ℂ) * Complex.I))‖)
       (-R * (kernelLogDerivative α₁ α₂ j n
         ((R : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))).re) t := by
@@ -65,12 +67,12 @@ theorem log_decay_of_derivative_bound {f df : ℝ → ℝ} {R C a t : ℝ}
 
 /-- A uniform integrated estimate retaining the superexponential `t log t`
 decay and comparing two points on the same actual horizontal tail. -/
-theorem uniform_log_norm_kernel_tail_difference {α₁ α₂ η H : ℝ}
+theorem uniform_log_norm_kernel_tail_difference [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ a : ℝ, 1 ≤ a → ∀ t : ℝ, a ≤ t →
       ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
-      Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ -
-        Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ ≤
+      Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ -
+        Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ ≤
         -largeScale n * (t * Real.log t - a * Real.log a - (C + 1) * (t - a)) := by
   obtain ⟨C, hC, hb⟩ := uniform_re_exactSaddleEquation_left_lower (H := H) h₁ h₂ hη j
   refine ⟨C, hC, ?_⟩
@@ -82,27 +84,27 @@ theorem uniform_log_norm_kernel_tail_difference {α₁ α₂ η H : ℝ}
     (fun u hu => mul_le_mul_of_nonpos_left (hn u hu y hy hyH) (neg_nonpos.mpr (largeScale_pos hn₀).le))
     ha hat
 
-theorem uniform_kernel_tail_relative_decay {α₁ α₂ η H : ℝ}
+theorem uniform_kernel_tail_relative_decay [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ a : ℝ, 1 ≤ a → ∀ t : ℝ, a ≤ t →
       ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
-      ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
+      ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
           Real.exp (-largeScale n * (t * Real.log t - a * Real.log a - (C + 1) * (t - a))) := by
   obtain ⟨C, hC, hb⟩ := uniform_log_norm_kernel_tail_difference (H := H) h₁ h₂ hη j
   refine ⟨C, hC, ?_⟩
   filter_upwards [hb, eventually_gt_atTop (0 : ℕ)] with n hn hn₀ a ha t hat y hy hyH
-  have hKa : 0 < ‖kernel α₁ α₂ j n
+  have hKa : 0 < ‖normalizedKernel α₁ α₂ j n
       ((largeScale n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ :=
     norm_pos_iff.mpr (kernel_ne_zero j n (scaled_left_mem_kernelDomain h₁ h₂ n (largeScale_pos hn₀)
       (by linarith) (by intro h; rw [h, abs_zero] at hy; linarith)))
   calc
-    _ ≤ Real.exp (Real.log ‖kernel α₁ α₂ j n
+    _ ≤ Real.exp (Real.log ‖normalizedKernel α₁ α₂ j n
         ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖) := Real.le_exp_log _
-    _ ≤ Real.exp (Real.log ‖kernel α₁ α₂ j n
+    _ ≤ Real.exp (Real.log ‖normalizedKernel α₁ α₂ j n
         ((largeScale n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ +
           (-largeScale n * (t * Real.log t - a * Real.log a - (C + 1) * (t - a)))) :=
       Real.exp_le_exp.mpr (by linarith [hn a ha t hat y hy hyH])
     _ = _ := by rw [Real.exp_add, Real.exp_log hKa]
 
-end ThisWork
+end ThisWork.Analytic

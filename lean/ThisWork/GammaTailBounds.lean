@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.KernelNorm
 
 /-! Gamma estimates for horizontal Mellin–Barnes tails. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -95,4 +97,4 @@ theorem uniform_log_norm_Gamma_strip_shift {D H : ℝ} (hD : 0 ≤ D) (hH : 0 < 
       _ ≤ D + H := add_le_add haD hy
   simpa [add_assoc, Complex.mul_re] using hT.2 _ hd
 
-end ThisWork
+end ThisWork.Analytic

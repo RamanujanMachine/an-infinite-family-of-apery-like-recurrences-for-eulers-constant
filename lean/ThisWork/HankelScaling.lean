@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.HankelDeformation
 
 /-! Exact positive-real scaling identities for the original improper contours. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter MeasureTheory
 open scoped Topology
@@ -75,4 +77,4 @@ theorem hankelIntegral_scale (f : ℂ → ℂ) (r h : ℝ) {R : ℝ} (hR : 0 < R
   rw [hlo, hhi, hv]
   ring
 
-end ThisWork
+end ThisWork.Analytic

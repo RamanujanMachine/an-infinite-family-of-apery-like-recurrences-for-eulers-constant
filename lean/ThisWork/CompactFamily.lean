@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.PhaseApproximation
 public import Mathlib.Topology.Compactification.OnePoint.Basic
 public import Mathlib.Topology.UniformSpace.CompactConvergence
@@ -8,7 +9,8 @@ public import Mathlib.Topology.UniformSpace.CompactConvergence
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
@@ -44,7 +46,7 @@ theorem continuousOn_sequenceFamily {F : ℕ → ℂ → ℂ} {f : ℂ → ℂ} 
 
 /-- The exact saddle equations and their limit form a jointly continuous,
 holomorphic family on a common disk with compact parameter space. -/
-theorem eventually_compact_equation_family {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem eventually_compact_equation_family [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) :
     ∀ᶠ N : ℕ in atTop,
       ContinuousOn (Function.uncurry (sequenceFamily
@@ -81,4 +83,4 @@ theorem eventually_compact_equation_family {α₁ α₂ : ℝ} (h₁ : 0 < α₁
     exact (hN (m + N) (Nat.le_add_left N m)).mono
       (fun s hs => hsub (ball_subset_closedBall hs))
 
-end ThisWork
+end ThisWork.Analytic

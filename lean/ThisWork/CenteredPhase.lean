@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.CompactSaddles
 
 /-! Canonical centered primitives and the local phase family at the exact saddles. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology OnePoint
@@ -70,37 +72,37 @@ theorem eq_neg_segmentIntegral_of_derivative {p Q : ℂ → ℂ} {r : ℝ} (hr :
 
 namespace CompactSaddleFamily
 
-noncomputable def phase {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j)
+noncomputable def phase [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j)
     (t : ℂ) (z : OnePoint ℕ) : ℂ :=
   -Neuschel.segmentIntegral (fun u => S.shiftedEquation u z) 0 t
 
-theorem continuous_phase {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
+theorem continuous_phase [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
     ContinuousOn (Function.uncurry S.phase) (ball 0 (saddleScale α₁ α₂ / 16) ×ˢ univ) := by
   exact (continuousOn_segmentIntegral_family S.continuous_shiftedEquation).neg
 
-theorem hasDerivAt_phase {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem hasDerivAt_phase [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) {t : ℂ}
     (ht : t ∈ ball 0 (saddleScale α₁ α₂ / 16)) (z : OnePoint ℕ) :
     HasDerivAt (fun u => S.phase u z) (-S.shiftedEquation t z) t := by
   exact (hasDerivAt_segmentIntegral_ball (div_pos (saddleScale_pos h₁ h₂) (by norm_num))
     (S.differentiableOn_shiftedEquation z) ht).neg
 
-@[simp] theorem phase_zero {α₁ α₂ : ℝ} {j : Branch}
+@[simp] theorem phase_zero [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) : S.phase 0 z = 0 := by
   simp only [phase, Neuschel.segmentIntegral, sub_self, zero_mul, intervalIntegral.integral_zero, neg_zero]
 
-theorem differentiableOn_phase {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem differentiableOn_phase [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     DifferentiableOn ℂ (fun t => S.phase t z) (ball 0 (saddleScale α₁ α₂ / 16)) :=
   fun _ ht => (S.hasDerivAt_phase h₁ h₂ ht z).differentiableAt.differentiableWithinAt
 
-theorem phase_simple_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phase_simple_saddle [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     deriv (fun t => S.phase t z) 0 = 0 ∧ deriv (deriv (fun t => S.phase t z)) 0 ≠ 0 :=
-  ThisWork.phase_simple_saddle (mem_ball_self (div_pos (saddleScale_pos h₁ h₂) (by norm_num)))
+  ThisWork.Analytic.phase_simple_saddle (mem_ball_self (div_pos (saddleScale_pos h₁ h₂) (by norm_num)))
     (fun _ ht => S.hasDerivAt_phase h₁ h₂ ht z) (S.shiftedEquation_zero z) (S.shiftedEquation_simple z)
 
-theorem phase_limit {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phase_limit [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) {t : ℂ} (ht : t ∈ ball 0 (saddleScale α₁ α₂ / 16)) :
     S.phase t ∞ = limitingPhase j (saddleScale α₁ α₂) ((saddleScale α₁ α₂ : ℂ) * rho j) -
       limitingPhase j (saddleScale α₁ α₂) (t + (saddleScale α₁ α₂ : ℂ) * rho j) := by
@@ -121,12 +123,12 @@ theorem phase_limit {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j
     (mem_ball_self (div_pos hc (by norm_num))) ht
   simpa only [phase, zero_add, neg_sub] using congrArg Neg.neg he
 
-theorem eventually_kernel_eq_phase {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem eventually_kernel_eq_phase [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) :
     ∀ᶠ m : ℕ in atTop, ∀ t ∈ ball 0 (saddleScale α₁ α₂ / 16),
-      kernel α₁ α₂ j (m + S.firstIndex)
+      normalizedKernel α₁ α₂ j (m + S.firstIndex)
         ((largeScale (m + S.firstIndex) : ℂ) * (t + S.saddle m)) =
-      kernel α₁ α₂ j (m + S.firstIndex)
+      normalizedKernel α₁ α₂ j (m + S.firstIndex)
         ((largeScale (m + S.firstIndex) : ℂ) * S.saddle m) *
       Complex.exp (-(largeScale (m + S.firstIndex) : ℂ) * S.phase t m) := by
   have hc := saddleScale_pos h₁ h₂
@@ -152,4 +154,4 @@ theorem eventually_kernel_eq_phase {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ 
 
 end CompactSaddleFamily
 
-end ThisWork
+end ThisWork.Analytic

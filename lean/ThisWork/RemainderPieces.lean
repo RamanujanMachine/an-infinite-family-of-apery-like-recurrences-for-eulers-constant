@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.WindowRemainderGeometry
 
 /-! The four finite oriented pieces left after extracting each saddle window. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -212,7 +214,7 @@ theorem remainderPieces_length_le {c a b T : ℝ} (hc : 0 < c) (hT : 2 * c ≤ T
 noncomputable def SaddleRemainderPiece.integral (p : SaddleRemainderPiece) (r h : ℝ) (f : ℂ → ℂ) : ℂ :=
   ∫ t in p.lower..p.upper, p.edge.velocity * f (p.edge.point r h t)
 
-theorem uniform_moment_remainderPiece_bound {α₁ α₂ a b T : ℝ}
+theorem uniform_moment_remainderPiece_bound [PositiveArgument] {α₁ α₂ a b T : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (ha0 : 0 < a) (hb0 : 0 < b)
     (hT : 2 * saddleScale α₁ α₂ ≤ T)
     (ha : a < saddleScale α₁ α₂ / 16) (hb : b < saddleScale α₁ α₂ / 16)
@@ -221,8 +223,8 @@ theorem uniform_moment_remainderPiece_bound {α₁ α₂ a b T : ℝ}
       ‖σ - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n → ∀ i : Fin 4,
       ‖(remainderPieces (saddleScale α₁ α₂) j σ a b T i).integral
         (saddleContourRight (saddleScale α₁ α₂) j σ) (saddleContourHeight (saddleScale α₁ α₂) j σ)
-        (fun s => s ^ k * kernel α₁ α₂ j n ((largeScale n : ℂ) * s))‖ ≤
-      ((T + 4 * saddleScale α₁ α₂) ^ k * ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+        (fun s => s ^ k * normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s))‖ ≤
+      ((T + 4 * saddleScale α₁ α₂) ^ k * ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
         Real.exp (-ε * largeScale n)) * (2 * T + 8 * saddleScale α₁ α₂) := by
   have hc := saddleScale_pos h₁ h₂
   have hT0 : 0 ≤ T := by linarith
@@ -237,4 +239,4 @@ theorem uniform_moment_remainderPiece_bound {α₁ α₂ a b T : ℝ}
   exact hp.trans (mul_le_mul_of_nonneg_left
     (remainderPieces_length_le hc hT ha0 hb0 ha hb j hσ i) (by positivity))
 
-end ThisWork
+end ThisWork.Analytic

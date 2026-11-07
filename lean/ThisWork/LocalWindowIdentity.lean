@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LocalSaddleExpansion
 public import ThisWork.ContourWindows
 
@@ -7,7 +8,8 @@ public import ThisWork.ContourWindows
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set MeasureTheory Filter
 
@@ -73,11 +75,11 @@ theorem two_sided_rayIntegral_eq_window_of_ball {f : ℂ → ℂ} {r d cplus cmi
 
 namespace CompactSaddleFamily
 
-theorem eventually_differentiableOn_localMomentKernel {α₁ α₂ : ℝ}
+theorem eventually_differentiableOn_localMomentKernel [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) (k : ℕ) :
     ∀ᶠ m : ℕ in atTop,
       DifferentiableOn ℂ (fun t => (t + S.saddle m) ^ k *
-        kernel α₁ α₂ j (m + S.firstIndex)
+        normalizedKernel α₁ α₂ j (m + S.firstIndex)
           ((largeScale (m + S.firstIndex) : ℂ) * (t + S.saddle m)))
         (Metric.ball 0 (saddleScale α₁ α₂ / 16)) := by
   filter_upwards [(tendsto_add_atTop_nat S.firstIndex).eventually
@@ -97,21 +99,21 @@ end CompactSaddleFamily
 
 namespace CompactSaddleFamily.LocalSaddleData
 
-noncomputable def localKernelMoment {α₁ α₂ : ℝ} {j : Branch}
+noncomputable def localKernelMoment [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) (n : ℕ) (σ : ℂ) (k : ℕ) : ℂ :=
   (∫ u in 0..D.positive.cutoff, D.velocity *
     (((u : ℂ) * D.velocity + σ) ^ k *
-      kernel α₁ α₂ j n ((largeScale n : ℂ) * ((u : ℂ) * D.velocity + σ)))) -
+      normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * ((u : ℂ) * D.velocity + σ)))) -
   (∫ u in 0..D.negative.cutoff, (-D.velocity) *
     (((u : ℂ) * (-D.velocity) + σ) ^ k *
-      kernel α₁ α₂ j n ((largeScale n : ℂ) * ((u : ℂ) * (-D.velocity) + σ))))
+      normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * ((u : ℂ) * (-D.velocity) + σ))))
 
-theorem eventually_localKernelMoment_eq_phase {α₁ α₂ : ℝ}
+theorem eventually_localKernelMoment_eq_phase [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (k : ℕ) :
     ∀ᶠ m : ℕ in Filter.atTop,
       D.localKernelMoment (m + D.shift + S.firstIndex) (S.saddle (m + D.shift)) k =
-        kernel α₁ α₂ j (m + D.shift + S.firstIndex)
+        normalizedKernel α₁ α₂ j (m + D.shift + S.firstIndex)
           ((largeScale (m + D.shift + S.firstIndex) : ℂ) * S.saddle (m + D.shift)) *
         D.localMoment (largeScale (m + D.shift + S.firstIndex)) k m := by
   filter_upwards [(tendsto_add_atTop_nat D.shift).eventually (S.eventually_kernel_eq_phase h₁ h₂)]
@@ -121,8 +123,8 @@ theorem eventually_localKernelMoment_eq_phase {α₁ α₂ : ℝ}
   have hhalf (v : ℂ) (c : ℝ)
       (hball : ∀ u ∈ uIcc 0 c, (u : ℂ) * v ∈ Metric.ball 0 (saddleScale α₁ α₂ / 16)) :
       (∫ u in 0..c, v * (((u : ℂ) * v + σ) ^ k *
-        kernel α₁ α₂ j n ((largeScale n : ℂ) * ((u : ℂ) * v + σ)))) =
-      kernel α₁ α₂ j n ((largeScale n : ℂ) * σ) *
+        normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * ((u : ℂ) * v + σ)))) =
+      normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ) *
         ∫ u in 0..c, v *
           (Complex.exp (-(largeScale n : ℂ) * S.phase ((u : ℂ) * v) (parameterShift D.shift m)) *
             S.momentAmplitude D.shift k ((u : ℂ) * v) m) := by
@@ -142,14 +144,14 @@ theorem eventually_localKernelMoment_eq_phase {α₁ α₂ : ℝ}
       (D.negative.contour_in_source u
         (by simpa only [uIcc_of_le D.negative.cutoff_mem.1.le] using hu) m).1)
 
-theorem eventually_localKernelMoment_eq_rayWindow {α₁ α₂ : ℝ}
+theorem eventually_localKernelMoment_eq_rayWindow [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (k : ℕ) :
     ∀ᶠ m : ℕ in atTop,
       D.localKernelMoment (m + D.shift + S.firstIndex) (S.saddle (m + D.shift)) k =
         ∫ t in -D.leftWidth..D.rightWidth, saddleTangent j *
           (((t : ℂ) * saddleTangent j + S.saddle (m + D.shift)) ^ k *
-            kernel α₁ α₂ j (m + D.shift + S.firstIndex)
+            normalizedKernel α₁ α₂ j (m + D.shift + S.firstIndex)
               ((largeScale (m + D.shift + S.firstIndex) : ℂ) *
                 ((t : ℂ) * saddleTangent j + S.saddle (m + D.shift)))) := by
   filter_upwards [(tendsto_add_atTop_nat D.shift).eventually
@@ -160,4 +162,4 @@ theorem eventually_localKernelMoment_eq_rayWindow {α₁ α₂ : ℝ}
 
 end CompactSaddleFamily.LocalSaddleData
 
-end ThisWork
+end ThisWork.Analytic

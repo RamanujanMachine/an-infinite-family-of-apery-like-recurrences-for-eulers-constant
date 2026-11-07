@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.HankelMoments
 
 /-! Elementary norm bounds for the three-component moment coordinate change. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter
 open scoped Topology
@@ -95,4 +97,4 @@ theorem norm_first_normalized_moment_le (n : ℕ) (R : ℝ) (a : ℂ) (v : Fin 3
   rw [norm_mul]
   exact mul_le_mul_of_nonneg_left (norm_le_pi_norm v 0) (norm_nonneg _)
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.UniformWeightedTails
 public import ThisWork.AbsoluteConvergence
 
@@ -7,7 +8,8 @@ public import ThisWork.AbsoluteConvergence
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -30,19 +32,19 @@ theorem integral_norm_le_exp_tail {f : ℝ → ℂ} {C a T : ℝ} (ha : 0 < a)
       rw [integral_const_mul, integral_exp_mul_Ioi (neg_neg_of_pos ha)]
       ring
 
-noncomputable def scaledLeftWeightedKernel (α₁ α₂ : ℝ) (j : Branch) (n k : ℕ)
+noncomputable def scaledLeftWeightedKernel [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n k : ℕ)
     (y t : ℝ) : ℂ :=
   ((n : ℂ) - (largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I)) ^ k *
-    kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))
+    normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))
 
-theorem uniform_integrated_weighted_tail {α₁ α₂ η H q : ℝ}
+theorem uniform_integrated_weighted_tail [PositiveArgument] {α₁ α₂ η H q : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H) (hq : 0 < q)
     (j : Branch) (k : ℕ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
       IntegrableOn (scaledLeftWeightedKernel α₁ α₂ j n k y) (Ioi T) ∧
       ‖∫ t in Ioi T, scaledLeftWeightedKernel α₁ α₂ j n k y t‖ ≤
-        (n : ℝ) ^ k * ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+        (n : ℝ) ^ k * ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
           Real.exp (-q * largeScale n * T) / (q * largeScale n) := by
   obtain ⟨T, hT, hb⟩ := uniform_weighted_kernel_normalized_far_tail h₁ h₂ hη hH j k q
   refine ⟨T, hT, ?_⟩
@@ -60,4 +62,4 @@ theorem uniform_integrated_weighted_tail {α₁ α₂ η H q : ℝ}
     (fun t ht => by
       simpa only [scaledLeftWeightedKernel, neg_mul] using hn σ hσ t ht.le y hy hyH)
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.OriginalMomentLimits
 
 /-! The original vector shape recovered from the common Gaussian moment limits. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter
 open scoped Topology
@@ -84,10 +86,10 @@ theorem vector_norm_tendsto_of_profile {V : ℕ → Fin 3 → ℂ} {a : ℕ → 
 namespace CompactSaddleFamily.LocalSaddleData
 
 /-- Dividing coordinate `k` by the Gaussian amplitude and `n^k` gives limit one. -/
-theorem vector_profile_tendsto {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem vector_profile_tendsto [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
     Tendsto (fun n => fun k : Fin 3 =>
-      branchIntegral α₁ α₂ j n k / (D.gaussianAmplitude n * (n : ℂ) ^ k.val))
+      normalizedBranchIntegral α₁ α₂ j n k / (D.gaussianAmplitude n * (n : ℂ) ^ k.val))
       atTop (𝓝 (fun _ => 1)) := by
   have hm := D.gaussian_moment_asymptotics h₁ h₂
   have hp := vector_profile_tendsto_of_moment_limits
@@ -96,12 +98,12 @@ theorem vector_profile_tendsto {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 
   simpa only [div_eq_mul_inv, mul_inv_rev, mul_comm, mul_left_comm, mul_assoc] using hp
 
 /-- The original vector norm has the precise leading polynomial factor `n²`. -/
-theorem vector_norm_asymptotic {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem vector_norm_asymptotic [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
-    Tendsto (fun n => ‖branchIntegral α₁ α₂ j n‖ /
+    Tendsto (fun n => ‖normalizedBranchIntegral α₁ α₂ j n‖ /
       ((n : ℝ) ^ 2 * ‖D.gaussianAmplitude n‖)) atTop (𝓝 1) := by
   have hp : Tendsto (fun n => fun k : Fin 3 =>
-      (D.gaussianAmplitude n)⁻¹ * branchIntegral α₁ α₂ j n k / (n : ℂ) ^ k.val)
+      (D.gaussianAmplitude n)⁻¹ * normalizedBranchIntegral α₁ α₂ j n k / (n : ℂ) ^ k.val)
       atTop (𝓝 (fun _ => 1)) := by
     simpa only [div_eq_mul_inv, mul_inv_rev, mul_comm, mul_left_comm, mul_assoc] using
       D.vector_profile_tendsto h₁ h₂
@@ -109,12 +111,12 @@ theorem vector_norm_asymptotic {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 
     vector_norm_tendsto_of_profile hp
 
 /-- Taking logarithms of the vector shape costs only a bounded error. -/
-theorem eventually_vector_log_norm_shape {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem eventually_vector_log_norm_shape [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
-    ∀ᶠ n : ℕ in atTop, 0 < ‖branchIntegral α₁ α₂ j n‖ ∧
-      |Real.log ‖branchIntegral α₁ α₂ j n‖ - Real.log ‖D.gaussianAmplitude n‖ -
+    ∀ᶠ n : ℕ in atTop, 0 < ‖normalizedBranchIntegral α₁ α₂ j n‖ ∧
+      |Real.log ‖normalizedBranchIntegral α₁ α₂ j n‖ - Real.log ‖D.gaussianAmplitude n‖ -
         2 * Real.log (n : ℝ)| ≤ 1 := by
-  have hl : Tendsto (fun n => Real.log (‖branchIntegral α₁ α₂ j n‖ /
+  have hl : Tendsto (fun n => Real.log (‖normalizedBranchIntegral α₁ α₂ j n‖ /
       ((n : ℝ) ^ 2 * ‖D.gaussianAmplitude n‖))) atTop (𝓝 0) := by
     simpa only [Real.log_one] using (D.vector_norm_asymptotic h₁ h₂).log one_ne_zero
   filter_upwards [(D.gaussian_moment_asymptotics h₁ h₂).1, eventually_gt_atTop (0 : ℕ),
@@ -123,7 +125,7 @@ theorem eventually_vector_log_norm_shape {α₁ α₂ : ℝ} (h₁ : 0 < α₁) 
   have hn0 : (0 : ℝ) < n := Nat.cast_pos.mpr hn
   have hB0 : 0 < ‖D.gaussianAmplitude n‖ := norm_pos_iff.mpr hB
   have hd : 0 < (n : ℝ) ^ 2 * ‖D.gaussianAmplitude n‖ := mul_pos (pow_pos hn0 _) hB0
-  have hx : 0 < ‖branchIntegral α₁ α₂ j n‖ := by
+  have hx : 0 < ‖normalizedBranchIntegral α₁ α₂ j n‖ := by
     simpa only [zero_mul] using (lt_div_iff₀ hd).mp hpos
   rw [Real.log_div hx.ne' hd.ne', Real.log_mul (pow_ne_zero 2 hn0.ne') hB0.ne',
     Real.log_pow] at hlog
@@ -135,4 +137,4 @@ theorem eventually_vector_log_norm_shape {α₁ α₂ : ℝ} (h₁ : 0 < α₁) 
 
 end CompactSaddleFamily.LocalSaddleData
 
-end ThisWork
+end ThisWork.Analytic

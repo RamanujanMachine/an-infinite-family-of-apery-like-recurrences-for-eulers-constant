@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.SaddleDisks
 public import ThisWork.SaddleStability
 
@@ -7,7 +8,8 @@ public import ThisWork.SaddleStability
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -15,7 +17,7 @@ open scoped Topology
 /-- Step 1 of Appendix A: for each branch, the actual scaled Gamma-product
 equation has a unique simple zero in a fixed neighborhood of its limiting zero,
 with displacement bounded by a constant times `n^(-1/3)`. -/
-theorem exists_exact_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem exists_exact_saddle [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ r > 0, ball ((saddleScale α₁ α₂ : ℂ) * rho j) r ⊆ saddleDisk (saddleScale α₁ α₂) j ∧
       ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop,
         ∃ s ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) r,
@@ -39,12 +41,12 @@ theorem exists_exact_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < �
         hn _ (ball_subset_closedBall ha)))
   exact ⟨r, hr, fun s hs => ball_subset_closedBall (hrG hs), K, hK, hzeros⟩
 
-/-- These are stationary points of the original Gamma-product kernel, with the
+/-- These are stationary points of the original Gamma-product normalizedKernel, with the
 scaled equation simple and the displacement estimate from the appendix. -/
-theorem exists_exact_kernel_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem exists_exact_kernel_saddle [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∃ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       (largeScale n : ℂ) * s ∈ kernelDomain α₁ α₂ n ∧
-      deriv (kernel α₁ α₂ j n) ((largeScale n : ℂ) * s) = 0 ∧
+      deriv (normalizedKernel α₁ α₂ j n) ((largeScale n : ℂ) * s) = 0 ∧
       deriv (exactSaddleEquation α₁ α₂ j n) s ≠ 0 ∧
       ‖s - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ C * smallParameter n := by
   obtain ⟨r, hr, hrD, C, hC, hn⟩ := exists_exact_saddle h₁ h₂ j
@@ -54,4 +56,4 @@ theorem exists_exact_kernel_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ 
   exact ⟨s, hrD hs, hdom.2 (hrD hs),
     (kernelLogDerivative_eq_zero_iff j n (hdom.2 (hrD hs))).mp hz, hd, he⟩
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.HankelDeformation
 
 /-! Admissible polygonal contours through the moving exact saddles. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -69,7 +71,7 @@ theorem hankelTrace_scale {R r h : ℝ} (hR : 0 ≤ R) {s : ℂ}
       mul_le_mul_of_nonneg_left hv.2 hR⟩, by push_cast; ring⟩)
   · exact Or.inr ⟨R * u, mul_le_mul_of_nonneg_left hu hR, by push_cast; ring⟩
 
-theorem eventually_saddleContours_admissible {α₁ α₂ : ℝ}
+theorem eventually_saddleContours_admissible [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, 0 < n ∧ ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       0 < largeScale n * saddleContourRight (saddleScale α₁ α₂) j s ∧
@@ -94,31 +96,31 @@ theorem eventually_saddleContours_admissible {α₁ α₂ : ℝ}
   nlinarith [(div_le_iff₀ hc).mp hsize,
     mul_le_mul_of_nonneg_left (saddleContourHeight_bounds hc j hs).1 hR.le]
 
-theorem eventually_branchIntegral_eq_saddleContour {α₁ α₂ : ℝ}
+theorem eventually_branchIntegral_eq_saddleContour [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j, ∀ k : Fin 3,
-      branchIntegral α₁ α₂ j n k = (2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
+      normalizedBranchIntegral α₁ α₂ j n k = (2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
         hankelIntegral (largeScale n * saddleContourRight (saddleScale α₁ α₂) j s)
           (largeScale n * saddleContourHeight (saddleScale α₁ α₂) j s)
-          (fun x => ((n : ℂ) - x) ^ k.val * kernel α₁ α₂ j n x) := by
+          (fun x => ((n : ℂ) - x) ^ k.val * normalizedKernel α₁ α₂ j n x) := by
   exact (eventually_saddleContours_admissible h₁ h₂ j).mono fun n hn s hs k =>
     branchIntegral_eq_deformed h₁ h₂ j n k (hn.2 s hs).1 (hn.2 s hs).2.1 (hn.2 s hs).2.2.1
 
 /-- For every sufficiently large index, the original vector integral has an
-admissible contour through a simple exact stationary point of its actual kernel. -/
-theorem exists_exact_saddle_contour {α₁ α₂ : ℝ}
+admissible contour through a simple exact stationary point of its actual normalizedKernel. -/
+theorem exists_exact_saddle_contour [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∃ s ∈ saddleDisk (saddleScale α₁ α₂) j,
-      deriv (kernel α₁ α₂ j n) ((largeScale n : ℂ) * s) = 0 ∧
+      deriv (normalizedKernel α₁ α₂ j n) ((largeScale n : ℂ) * s) = 0 ∧
       deriv (exactSaddleEquation α₁ α₂ j n) s ≠ 0 ∧
       ‖s - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ C * smallParameter n ∧
       (largeScale n : ℂ) * s ∈ hankelTrace
         (largeScale n * saddleContourRight (saddleScale α₁ α₂) j s)
         (largeScale n * saddleContourHeight (saddleScale α₁ α₂) j s) ∧
-      ∀ k : Fin 3, branchIntegral α₁ α₂ j n k = (2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
+      ∀ k : Fin 3, normalizedBranchIntegral α₁ α₂ j n k = (2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
         hankelIntegral (largeScale n * saddleContourRight (saddleScale α₁ α₂) j s)
           (largeScale n * saddleContourHeight (saddleScale α₁ α₂) j s)
-          (fun x => ((n : ℂ) - x) ^ k.val * kernel α₁ α₂ j n x) := by
+          (fun x => ((n : ℂ) - x) ^ k.val * normalizedKernel α₁ α₂ j n x) := by
   obtain ⟨C, hC, hb⟩ := exists_exact_kernel_saddle h₁ h₂ j
   refine ⟨C, hC, ?_⟩
   filter_upwards [hb, eventually_saddleContours_admissible h₁ h₂ j,
@@ -126,4 +128,4 @@ theorem exists_exact_saddle_contour {α₁ α₂ : ℝ}
   obtain ⟨s, hs, _, hz, hd, he⟩ := hn
   exact ⟨s, hs, hz, hd, he, (ha.2 s hs).2.2.2, hi s hs⟩
 
-end ThisWork
+end ThisWork.Analytic

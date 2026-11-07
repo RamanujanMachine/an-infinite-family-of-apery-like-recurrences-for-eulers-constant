@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.CenteredPhase
 public import Neuschel.LocalExpansion
 
@@ -7,7 +8,8 @@ public import Neuschel.LocalExpansion
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
@@ -24,11 +26,11 @@ theorem hasSum_quadratic_of_analytic {p : ℂ → ℂ} (hp : AnalyticAt ℂ p 0)
 
 namespace CompactSaddleFamily
 
-noncomputable def phaseCoefficients {α₁ α₂ : ℝ} {j : Branch}
+noncomputable def phaseCoefficients [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (n : ℕ) (z : OnePoint ℕ) : ℂ :=
   iteratedDeriv (n + 2) (fun t => S.phase t z) 0 / ((n + 2).factorial : ℂ)
 
-theorem phase_expansion {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phase_expansion [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     ∀ᶠ t in 𝓝 (0 : ℂ), HasSum
       (fun n => S.phaseCoefficients n z * (t - 0) ^ (2 + n)) (S.phase t z - S.phase 0 z) := by
@@ -38,12 +40,12 @@ theorem phase_expansion {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂
         (ball_mem_nhds 0 (div_pos (saddleScale_pos h₁ h₂) (by norm_num))))
       (S.phase_zero z) (S.phase_simple_saddle h₁ h₂ z).1
 
-theorem phaseCoefficients_zero_ne {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phaseCoefficients_zero_ne [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) : S.phaseCoefficients 0 z ≠ 0 := by
   simpa [phaseCoefficients, iteratedDeriv_succ, iteratedDeriv_zero] using
     div_ne_zero (S.phase_simple_saddle h₁ h₂ z).2 (show (2 : ℂ) ≠ 0 by norm_num)
 
-theorem continuous_phaseCoefficients {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem continuous_phaseCoefficients [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (n : ℕ) : Continuous (S.phaseCoefficients n) := by
   change Continuous (fun z => iteratedDeriv (n + 2) (fun t => S.phase t z) 0 / ((n + 2).factorial : ℂ))
   simpa only [FormalMultilinearSeries.coeff_ofScalars] using
@@ -53,7 +55,7 @@ theorem continuous_phaseCoefficients {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h�
       (fun z => ((S.differentiableOn_phase h₁ h₂ z).analyticAt
         (ball_mem_nhds 0 (div_pos (saddleScale_pos h₁ h₂) (by norm_num)))).hasFPowerSeriesAt)
 
-theorem phase_second_deriv {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phase_second_deriv [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     deriv (deriv (fun t => S.phase t z)) 0 = -deriv (fun t => S.shiftedEquation t z) 0 := by
   have he : deriv (fun t => S.phase t z) =ᶠ[𝓝 (0 : ℂ)] fun t => -S.shiftedEquation t z :=
@@ -62,7 +64,7 @@ theorem phase_second_deriv {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α
       (fun t ht => (S.hasDerivAt_phase h₁ h₂ ht z).deriv)
   exact he.deriv_eq.trans (deriv.fun_neg)
 
-theorem phaseCoefficients_zero_limit {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phaseCoefficients_zero_limit [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) :
     S.phaseCoefficients 0 ∞ = -3 / (2 * (saddleScale α₁ α₂ : ℂ) * rho j) := by
   have he : (fun t => S.shiftedEquation t ∞) =
@@ -74,11 +76,11 @@ theorem phaseCoefficients_zero_limit {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h�
   norm_num [Nat.factorial]
   ring
 
-noncomputable def quadraticFactor {α₁ α₂ : ℝ} {j : Branch}
+noncomputable def quadraticFactor [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) : ℂ → OnePoint ℕ → ℂ :=
   Neuschel.phaseQuotient 2 0 S.phase
 
-theorem quadraticFactor_regular {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem quadraticFactor_regular [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) :
     ContinuousOn (Function.uncurry S.quadraticFactor) (ball 0 (saddleScale α₁ α₂ / 16) ×ˢ univ) ∧
       ∀ z, DifferentiableOn ℂ (fun t => S.quadraticFactor t z) (ball 0 (saddleScale α₁ α₂ / 16)) :=
@@ -86,13 +88,13 @@ theorem quadraticFactor_regular {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0
     (mem_ball_self (div_pos (saddleScale_pos h₁ h₂) (by norm_num)))
     S.continuous_phase (S.differentiableOn_phase h₁ h₂)
 
-theorem quadraticFactor_center {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem quadraticFactor_center [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (z : OnePoint ℕ) :
     S.quadraticFactor 0 z = S.phaseCoefficients 0 z := by
   apply Neuschel.phaseQuotient_center_of_expansion 2
   simpa only [phase_zero, sub_zero] using S.phase_expansion h₁ h₂ z
 
-theorem phase_eq_quadratic {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem phase_eq_quadratic [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) (t : ℂ) (z : OnePoint ℕ) :
     S.phase t z = t ^ 2 * S.quadraticFactor t z := by
   have hs : ∀ᶠ u in 𝓝 (0 : ℂ), HasSum
@@ -123,4 +125,4 @@ theorem limiting_quadratic_positive {c : ℝ} (hc : 0 < c) (j : Branch) :
     simp only [Complex.ofReal_re, Complex.ofReal_im, zero_mul, add_zero]
     linarith
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,38 +1,40 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ScaledGammaNorm
 public import ThisWork.AffineGammaNorm
 
-/-! Logarithmic norm of the actual Gamma-product kernel near its saddles. -/
+/-! Logarithmic norm of the actual Gamma-product normalizedKernel near its saddles. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
 
-theorem log_norm_kernel {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
+theorem log_norm_kernel [PositiveArgument] {α₁ α₂ : ℝ} (j : Branch) (n : ℕ) {x : ℂ}
     (hx : x ∈ kernelDomain α₁ α₂ n) :
-    Real.log ‖kernel α₁ α₂ j n x‖ = 3 * Real.log ‖Complex.Gamma x‖ +
+    Real.log ‖normalizedKernel α₁ α₂ j n x‖ = 3 * Real.log ‖Complex.Gamma x‖ +
       Real.log ‖Complex.Gamma ((α₁ : ℂ) * n - x + 1)‖ +
-      Real.log ‖Complex.Gamma ((α₂ : ℂ) * n - x + 1)‖ + (twist j * x).re := by
+      Real.log ‖Complex.Gamma ((α₂ : ℂ) * n - x + 1)‖ + (kernelTwist j * x).re := by
   have hr := kernelDomain_right_re_pos hx
   have h₀ := norm_ne_zero_iff.mpr (Complex.Gamma_ne_zero (not_neg_nat_of_mem_slitPlane hx.1))
   have h₁ := norm_ne_zero_iff.mpr (Complex.Gamma_ne_zero_of_re_pos hr.1)
   have h₂ := norm_ne_zero_iff.mpr (Complex.Gamma_ne_zero_of_re_pos hr.2)
-  simp only [kernel, norm_mul, norm_pow, Complex.norm_exp]
+  simp only [normalizedKernel, norm_mul, norm_pow, Complex.norm_exp]
   rw [Real.log_mul (mul_ne_zero (mul_ne_zero (pow_ne_zero 3 h₀) h₁) h₂) (Real.exp_ne_zero _),
     Real.log_mul (mul_ne_zero (pow_ne_zero 3 h₀) h₁) h₂,
     Real.log_mul (pow_ne_zero 3 h₀) h₁, Real.log_pow, Real.log_exp]
   norm_num
 
-theorem scaled_stirlingMain_kernel {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem scaled_stirlingMain_kernel [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {n : ℕ} (hn : 0 < n) {s : ℂ} (hs : s ≠ 0) :
     3 * stirlingMain ((largeScale n : ℂ) * s) -
       (largeScale n : ℂ) * s * (Real.log (α₁ * n) : ℂ) -
       (largeScale n : ℂ) * s * (Real.log (α₂ * n) : ℂ) +
-      twist j * ((largeScale n : ℂ) * s) =
+      kernelTwist j * ((largeScale n : ℂ) * s) =
       (largeScale n : ℂ) * limitingPhase j (saddleScale α₁ α₂) s := by
   have hR := largeScale_pos hn
   have hscale : (3 : ℂ) * (Real.log (largeScale n) : ℂ) = 2 * (Real.log (n : ℝ) : ℂ) := by
@@ -42,11 +44,11 @@ theorem scaled_stirlingMain_kernel {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ 
   simp only [Complex.ofReal_add]
   linear_combination (largeScale n : ℂ) * s * hscale
 
-theorem scaled_stirlingMain_kernel_re {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem scaled_stirlingMain_kernel_re [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {n : ℕ} (hn : 0 < n) {s : ℂ} (hs : s ≠ 0) :
     3 * (stirlingMain ((largeScale n : ℂ) * s)).re -
       largeScale n * s.re * Real.log (α₁ * n) - largeScale n * s.re * Real.log (α₂ * n) +
-      (twist j * ((largeScale n : ℂ) * s)).re =
+      (kernelTwist j * ((largeScale n : ℂ) * s)).re =
       largeScale n * (limitingPhase j (saddleScale α₁ α₂) s).re := by
   simpa [Complex.mul_re] using congrArg Complex.re (scaled_stirlingMain_kernel h₁ h₂ j hn hs)
 
@@ -63,10 +65,10 @@ theorem log_gammaScale {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
   Real.log ‖Complex.Gamma ((α : ℂ) * n - (largeScale n : ℂ) * s + 1)‖ -
     Real.log ‖Complex.Gamma ((α * n + 1 : ℝ) : ℂ)‖ + largeScale n * s.re * Real.log (α * n)
 
-theorem log_norm_kernel_error {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem log_norm_kernel_error [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {n : ℕ} (hn : 0 < n) {s : ℂ} (hs : s ≠ 0)
     (hx : (largeScale n : ℂ) * s ∈ kernelDomain α₁ α₂ n) :
-    Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) -
+    Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) -
       largeScale n * (limitingPhase j (saddleScale α₁ α₂) s).re =
       3 * gammaNormError ((largeScale n : ℂ) * s) +
         rightGammaNormError α₁ n s + rightGammaNormError α₂ n s := by
@@ -76,11 +78,11 @@ theorem log_norm_kernel_error {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 <
   dsimp only [gammaNormError, rightGammaNormError]
   linarith
 
-/-- The normalized logarithmic kernel has the limiting phase with the
+/-- The normalized logarithmic normalizedKernel has the limiting phase with the
 `O(n^(1/3))` error asserted in Appendix A, uniformly on all three saddle disks. -/
-theorem uniform_log_norm_kernel_disk {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem uniform_log_norm_kernel_disk [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j,
-      |Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) -
+      |Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) -
         largeScale n * (limitingPhase j (saddleScale α₁ α₂) s).re| ≤ C * (n : ℝ) ^ (1 / 3 : ℝ) := by
   obtain ⟨C₀, hC₀, hb₀⟩ := uniform_gammaNormError_disk h₁ h₂ j
   have hM : 0 < 5 * saddleScale α₁ α₂ / 4 := by have hc := saddleScale_pos h₁ h₂; positivity
@@ -116,11 +118,11 @@ theorem limitingPhase_saddle_lipschitz {c : ℝ} (hc : 0 < c) (j : Branch) :
       (saddleDisk_mem_slitPlane hc j hu))).hasDerivWithinAt)
     (fun u hu => (hB u hu).trans (le_max_left _ _)) (mem_closedBall_self (by positivity)) hs
 
-theorem uniform_log_norm_kernel_near_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem uniform_log_norm_kernel_near_saddle [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {D : ℝ} (hD : 0 ≤ D) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       ‖s - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n →
-      |Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) +
+      |Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) +
         3 * saddleScale α₁ α₂ * (rho j).re * largeScale n| ≤ C * (n : ℝ) ^ (1 / 3 : ℝ) := by
   obtain ⟨C, hC, hk⟩ := uniform_log_norm_kernel_disk h₁ h₂ j
   obtain ⟨B, hB, hφ⟩ := limitingPhase_saddle_lipschitz (saddleScale_pos h₁ h₂) j
@@ -144,37 +146,37 @@ theorem uniform_log_norm_kernel_near_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α�
   obtain ⟨hl₁, hu₁⟩ := abs_le.mp hscaled
   exact abs_le.mpr ⟨by nlinarith, by nlinarith⟩
 
-theorem uniform_kernel_norm_near_saddle {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem uniform_kernel_norm_near_saddle [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) {D : ℝ} (hD : 0 ≤ D) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       ‖s - (saddleScale α₁ α₂ : ℂ) * rho j‖ ≤ D * smallParameter n →
       ∃ E : ℝ, |E| ≤ C * (n : ℝ) ^ (1 / 3 : ℝ) ∧
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ = gammaScale α₁ α₂ n *
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ = gammaScale α₁ α₂ n *
           Real.exp (-3 * saddleScale α₁ α₂ * (rho j).re * largeScale n + E) := by
   obtain ⟨C, hC, hb⟩ := uniform_log_norm_kernel_near_saddle h₁ h₂ j hD
   refine ⟨C, hC, ?_⟩
   filter_upwards [hb, eventually_saddleDisk_mapsTo_kernelDomain h₁ h₂ j] with n hn hdom s hs hdisp
-  refine ⟨Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) +
+  refine ⟨Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) +
     3 * saddleScale α₁ α₂ * (rho j).re * largeScale n, hn s hs hdisp, ?_⟩
   calc
-    _ = Real.exp (Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖) :=
+    _ = Real.exp (Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖) :=
       (Real.exp_log (norm_pos_iff.mpr (kernel_ne_zero j n (hdom.2 hs)))).symm
     _ = Real.exp (Real.log (gammaScale α₁ α₂ n)) *
         Real.exp (-3 * saddleScale α₁ α₂ * (rho j).re * largeScale n +
-          (Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) +
+          (Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ - Real.log (gammaScale α₁ α₂ n) +
             3 * saddleScale α₁ α₂ * (rho j).re * largeScale n)) := by
       rw [← Real.exp_add]
       congr 1
       ring
     _ = _ := by rw [Real.exp_log (gammaScale_pos h₁ h₂ n)]
 
-/-- The actual simple Gamma saddles have the exponential kernel size used
+/-- The actual simple Gamma saddles have the exponential normalizedKernel size used
 as the prefactor in the appendix's Laplace argument. -/
-theorem exists_exact_saddle_kernel_norm {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
+theorem exists_exact_saddle_kernel_norm [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∃ s ∈ saddleDisk (saddleScale α₁ α₂) j,
       exactSaddleEquation α₁ α₂ j n s = 0 ∧ deriv (exactSaddleEquation α₁ α₂ j n) s ≠ 0 ∧
       ∃ E : ℝ, |E| ≤ C * (n : ℝ) ^ (1 / 3 : ℝ) ∧
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ = gammaScale α₁ α₂ n *
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ = gammaScale α₁ α₂ n *
           Real.exp (-3 * saddleScale α₁ α₂ * (rho j).re * largeScale n + E) := by
   obtain ⟨r, _, hr, D, hD, hzeros⟩ := exists_exact_saddle h₁ h₂ j
   obtain ⟨C, hC, hnorm⟩ := uniform_kernel_norm_near_saddle h₁ h₂ j hD
@@ -183,4 +185,4 @@ theorem exists_exact_saddle_kernel_norm {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (
   obtain ⟨s, hs, hz, hd, hdisp, _⟩ := hn
   exact ⟨s, hr hs, hz, hd, he s (hr hs) hdisp⟩
 
-end ThisWork
+end ThisWork.Analytic

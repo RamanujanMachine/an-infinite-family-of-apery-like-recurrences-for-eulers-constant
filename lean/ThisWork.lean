@@ -2,4 +2,4 @@ module
 
 public import ThisWork.Lemma8
 
-/-! Public entry point for the complete proof of Lemma 8 of this work. -/
+/-! Public entry point for Lemma 8 at arbitrary positive real Meijer G argument. -/

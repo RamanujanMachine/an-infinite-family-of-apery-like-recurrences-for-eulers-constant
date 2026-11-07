@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.QuadraticPhase
 
 /-! Uniform positive local contour halves at the moving exact saddles. -/
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
@@ -22,7 +24,7 @@ noncomputable def parameterShift (N : ℕ) : C(OnePoint ℕ, OnePoint ℕ) :=
 
 namespace CompactSaddleFamily
 
-theorem exists_shift_quadratic_positive {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem exists_shift_quadratic_positive [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     (S : CompactSaddleFamily α₁ α₂ j) :
     ∃ N : ℕ, ∀ z : OnePoint ℕ,
       0 < (S.phaseCoefficients 0 (parameterShift N z) * saddleTangent j ^ 2).re := by
@@ -39,7 +41,7 @@ theorem exists_shift_quadratic_positive {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (
   | infty => exact hp
   | coe m => exact hN (m + N) (Nat.le_add_left N m)
 
-theorem exists_uniform_quadratic_neighborhood {α₁ α₂ : ℝ}
+theorem exists_uniform_quadratic_neighborhood [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
     ∃ N : ℕ, ∃ r > 0, ball (0 : ℂ) r ⊆ ball 0 (saddleScale α₁ α₂ / 16) ∧
       ∀ t ∈ ball (0 : ℂ) r, ∀ z : OnePoint ℕ,
@@ -62,7 +64,7 @@ theorem exists_uniform_quadratic_neighborhood {α₁ α₂ : ℝ}
       exact hN z)
   exact ⟨N, r, hr, hrG, fun t ht z => hb z ht⟩
 
-theorem exists_uniform_tangent_positivity {α₁ α₂ : ℝ}
+theorem exists_uniform_tangent_positivity [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
     ∃ N : ℕ, ∃ r > 0, ∀ u : ℝ, |u| < r → u ≠ 0 → ∀ z : OnePoint ℕ,
       (u : ℂ) * saddleTangent j ∈ ball 0 (saddleScale α₁ α₂ / 16) ∧
@@ -81,7 +83,7 @@ theorem exists_uniform_tangent_positivity {α₁ α₂ : ℝ}
       Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
   exact he ▸ mul_pos (sq_pos_of_ne_zero hne) (hb _ ht z)
 
-theorem exists_local_saddle_contour_models {α₁ α₂ : ℝ}
+theorem exists_local_saddle_contour_models [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch} (S : CompactSaddleFamily α₁ α₂ j) :
     ∃ N : ℕ, ∃ d > 0, ∀ e : ℝ, e = 1 ∨ e = -1 →
       Nonempty (Neuschel.LocalContourModel 2 0 (((e * d : ℝ) : ℂ) * saddleTangent j)
@@ -124,4 +126,4 @@ theorem exists_local_saddle_contour_models {α₁ α₂ : ℝ}
 
 end CompactSaddleFamily
 
-end ThisWork
+end ThisWork.Analytic

@@ -1,17 +1,19 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.LocalKernelPhase
 
 /-! Uniform comparison of the exact local Gamma phases with the limiting phase. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
 
-theorem uniform_local_phase_approximation {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+theorem uniform_local_phase_approximation [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ (p : ℂ → ℂ) (a : ℂ),
       a ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 4) →
@@ -40,8 +42,8 @@ theorem uniform_local_phase_approximation {α₁ α₂ : ℝ} (h₁ : 0 < α₁)
 
 /-- Exact local phases at the moving Gamma saddles, with a uniform quantitative
 comparison to the limiting phase. Every object here belongs to the actual
-kernel, rather than to a separately assumed asymptotic model. -/
-theorem eventually_exists_exact_local_phase {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
+normalizedKernel, rather than to a separately assumed asymptotic model. -/
+theorem eventually_exists_exact_local_phase [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂)
     (j : Branch) :
     ∃ C ≥ 0, ∃ D ≥ 0, ∀ᶠ n : ℕ in atTop,
       ∃ a ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 4),
@@ -52,8 +54,8 @@ theorem eventually_exists_exact_local_phase {α₁ α₂ : ℝ} (h₁ : 0 < α�
           (∀ s ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 4),
             HasDerivAt p (-exactSaddleEquation α₁ α₂ j n s) s) ∧
           (∀ s ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 4),
-            kernel α₁ α₂ j n ((largeScale n : ℂ) * s) =
-              kernel α₁ α₂ j n ((largeScale n : ℂ) * a) *
+            normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s) =
+              normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * a) *
                 Complex.exp (-(largeScale n : ℂ) * p s)) ∧
           ∀ s ∈ ball ((saddleScale α₁ α₂ : ℂ) * rho j) (saddleScale α₁ α₂ / 4),
             ‖p s - (limitingPhase j (saddleScale α₁ α₂) a - limitingPhase j (saddleScale α₁ α₂) s)‖ ≤
@@ -76,4 +78,4 @@ theorem eventually_exists_exact_local_phase {α₁ α₂ : ℝ} (h₁ : 0 < α�
   exact ⟨a, ha, hz, hd, hdist, p, hpa, hsimple.1, hsimple.2, hp, hkernel,
     happrox p a ha hpa hp⟩
 
-end ThisWork
+end ThisWork.Analytic

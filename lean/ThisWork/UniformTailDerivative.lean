@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.SaddleContours
 
 /-! Uniform bounds for the actual logarithmic derivative on the horizontal tails. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -77,12 +79,12 @@ theorem re_digamma_left_tail_ge {R t y D : ℝ} (hR : 1 ≤ R) (ht : 1 ≤ t)
 
 /-- The exact logarithmic derivative grows at least logarithmically toward
 the far left, with a constant and index threshold uniform along both tails. -/
-theorem uniform_re_exactSaddleEquation_left_lower {α₁ α₂ η H : ℝ}
+theorem uniform_re_exactSaddleEquation_left_lower [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (j : Branch) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ t : ℝ, 1 ≤ t → ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
       Real.log t - C ≤ (exactSaddleEquation α₁ α₂ j n (-(t : ℂ) + (y : ℂ) * Complex.I)).re := by
   refine ⟨max 0 (Real.log (α₁ + H + 2) + Real.log (α₂ + H + 2) +
-    3 * (2 + 4 * Real.pi) + 2), le_max_left _ _, ?_⟩
+    3 * (2 + 4 * Real.pi) + 2 + |Real.log PositiveArgument.value|), le_max_left _ _, ?_⟩
   filter_upwards [largeScale_tendsto.eventually (uniform_scaled_digamma_left zero_lt_one hη),
     eventually_right_factor_conditions h₁ 0, eventually_right_factor_conditions h₂ 0,
     largeScale_tendsto.eventually (eventually_ge_atTop (1 : ℝ)), eventually_ge_atTop (1 : ℕ)]
@@ -93,12 +95,12 @@ theorem uniform_re_exactSaddleEquation_left_lower {α₁ α₂ η H : ℝ}
       Complex.log ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤ 2 + 4 * Real.pi := by
     have h := hψ.2 (-(t : ℂ) + (y : ℂ) * Complex.I) (by simpa using neg_le_neg ht) (by simpa using hy)
     exact h.trans (by simpa only [div_one] using div_le_self (by positivity : 0 ≤ 2 + 4 * Real.pi) hR)
-  simp only [exactSaddleEquation, kernelLogDerivative, Complex.add_re, Complex.sub_re,
-    Complex.mul_re, Complex.re_ofNat, Complex.im_ofNat, zero_mul, sub_zero, twist_re, add_zero]
-  linarith [re_digamma_left_tail_ge hR ht hb,
+  simp only [exactSaddleEquation, kernelLogDerivative, kernelTwist, Complex.ofReal_re, Complex.add_re, Complex.sub_re,
+    Complex.mul_re, Complex.re_ofNat, Complex.im_ofNat, zero_mul, sub_zero, twist_re]
+  linarith [le_abs_self (Real.log PositiveArgument.value), re_digamma_left_tail_ge hR ht hb,
     re_digamma_right_tail_le h₁.le hψ.1.le hRn hn ht hyH hA₁.1,
     re_digamma_right_tail_le h₂.le hψ.1.le hRn hn ht hyH hA₂.1,
     log_largeScale (show 0 < n by omega),
-    le_max_right 0 (Real.log (α₁ + H + 2) + Real.log (α₂ + H + 2) + 3 * (2 + 4 * Real.pi) + 2)]
+    le_max_right 0 (Real.log (α₁ + H + 2) + Real.log (α₂ + H + 2) + 3 * (2 + 4 * Real.pi) + 2 + |Real.log PositiveArgument.value|)]
 
-end ThisWork
+end ThisWork.Analytic

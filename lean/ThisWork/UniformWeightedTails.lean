@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.UniformNormalizedTails
 
 /-! Uniform saddle-normalized tail bounds for the actual vector components. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -26,14 +28,14 @@ theorem norm_scaled_polynomial_left_le {R t y H : ℝ} {n : ℕ}
     _ ≤ (n : ℝ) + n * (t + H) := add_le_add (le_refl _) (mul_le_mul_of_nonneg_left hs (Nat.cast_nonneg n))
     _ = _ := by ring
 
-theorem uniform_weighted_kernel_normalized_far_tail {α₁ α₂ η H : ℝ}
+theorem uniform_weighted_kernel_normalized_far_tail [PositiveArgument] {α₁ α₂ η H : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hη : 0 < η) (hH : 0 ≤ H)
     (j : Branch) (k : ℕ) (q : ℝ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ σ ∈ saddleDisk (saddleScale α₁ α₂) j,
       ∀ t : ℝ, T ≤ t → ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
       ‖((n : ℂ) - (largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I)) ^ k *
-        kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
-        (n : ℝ) ^ k * ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
+        normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
+        (n : ℝ) ^ k * ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ *
           Real.exp (-q * largeScale n * t) := by
   obtain ⟨T, hT, hb⟩ := uniform_kernel_normalized_far_tail h₁ h₂ hη hH j (q + 1)
   obtain ⟨A, hA⟩ := eventually_atTop.mp
@@ -54,13 +56,13 @@ theorem uniform_weighted_kernel_normalized_far_tail {α₁ α₂ η H : ℝ}
       _ ≤ _ := mul_le_mul_of_nonneg_left (hA t ((le_max_right _ _).trans ht)) (by positivity)
   calc
     _ = ‖(n : ℂ) - (largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I)‖ ^ k *
-        ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ := by rw [norm_mul, norm_pow]
+        ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ := by rw [norm_mul, norm_pow]
     _ ≤ ((n : ℝ) ^ k * Real.exp t) *
-        (‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-(q + 1) * largeScale n * t)) :=
+        (‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖ * Real.exp (-(q + 1) * largeScale n * t)) :=
       mul_le_mul hp (hn σ hσ t ((le_max_left _ _).trans ht) y hy hyH) (norm_nonneg _) (by positivity)
-    _ = ((n : ℝ) ^ k * ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖) *
+    _ = ((n : ℝ) ^ k * ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * σ)‖) *
         Real.exp (t + (-(q + 1) * largeScale n * t)) := by rw [Real.exp_add]; ring
     _ ≤ _ := mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr
       (by nlinarith [mul_le_mul_of_nonneg_right hR (show 0 ≤ t by linarith)])) (by positivity)
 
-end ThisWork
+end ThisWork.Analytic

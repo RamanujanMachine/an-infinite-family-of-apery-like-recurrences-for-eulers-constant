@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ContourEquationApproximation
 public import ThisWork.LogNorm
 
@@ -7,16 +8,17 @@ public import ThisWork.LogNorm
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
 
-noncomputable def kernelPhaseError (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) (s : ℂ) : ℝ :=
-  Real.log ‖kernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ -
+noncomputable def kernelPhaseError [PositiveArgument] (α₁ α₂ : ℝ) (j : Branch) (n : ℕ) (s : ℂ) : ℝ :=
+  Real.log ‖normalizedKernel α₁ α₂ j n ((largeScale n : ℂ) * s)‖ -
     largeScale n * (limitingPhase j (saddleScale α₁ α₂) s).re
 
-theorem hasDerivAt_kernelPhaseError_comp {α₁ α₂ : ℝ}
+theorem hasDerivAt_kernelPhaseError_comp [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) {n : ℕ}
     {γ : ℝ → ℂ} {v : ℂ} {t : ℝ} (hγ : HasDerivAt γ v t)
     (hslit : γ t ∈ Complex.slitPlane)
@@ -36,7 +38,7 @@ theorem hasDerivAt_kernelPhaseError_comp {α₁ α₂ : ℝ}
       mul_sub, Complex.sub_re, mul_assoc, Complex.mul_re, Complex.ofReal_re,
       Complex.ofReal_im, zero_mul, sub_zero]
 
-theorem kernelPhaseError_curve_bound {α₁ α₂ : ℝ}
+theorem kernelPhaseError_curve_bound [PositiveArgument] {α₁ α₂ : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (j : Branch) {n : ℕ} (hn : 0 < n)
     {γ : ℝ → ℂ} {v : ℂ} {a b ε : ℝ}
     (hγ : ∀ t ∈ uIcc a b, HasDerivAt γ v t)
@@ -111,7 +113,7 @@ theorem lineMap_mem_comparison_region {κ η M : ℝ} (hκ : 0 < κ) (hη : 0 �
     nlinarith [mul_le_mul_of_nonneg_left hi (show 0 ≤ 1 - u by linarith [hu.2]),
       mul_nonneg (show 0 ≤ 1 / 2 - u by linarith) hη]
 
-theorem uniform_kernelPhaseError_to_base {α₁ α₂ κ η M ε : ℝ}
+theorem uniform_kernelPhaseError_to_base [PositiveArgument] {α₁ α₂ κ η M ε : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hκ : 0 < κ) (hη : 0 < η)
     (hM : 0 ≤ M) (hε : 0 < ε) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, ∀ s : ℂ, ‖s‖ ≤ M → κ ≤ s.re ∨ η ≤ |s.im| →
@@ -164,7 +166,7 @@ theorem uniform_kernelPhaseError_to_base {α₁ α₂ κ η M ε : ℝ}
       mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hv (largeScale_pos hF.1).le) (div_pos hε hL).le
     _ = _ := by field_simp [hL.ne']
 
-theorem uniform_kernelPhaseError_difference {α₁ α₂ κ η M ε : ℝ}
+theorem uniform_kernelPhaseError_difference [PositiveArgument] {α₁ α₂ κ η M ε : ℝ}
     (h₁ : 0 < α₁) (h₂ : 0 < α₂) (hκ : 0 < κ) (hη : 0 < η)
     (hM : 0 ≤ M) (hε : 0 < ε) (j : Branch) :
     ∀ᶠ n : ℕ in atTop, ∀ s : ℂ, ‖s‖ ≤ M → κ ≤ s.re ∨ η ≤ |s.im| →
@@ -175,4 +177,4 @@ theorem uniform_kernelPhaseError_difference {α₁ α₂ κ η M ε : ℝ}
   exact abs_le.mpr ⟨by linarith [(abs_le.mp (hn s hs hsr)).1, (abs_le.mp (hn t ht htr)).2],
     by linarith [(abs_le.mp (hn s hs hsr)).2, (abs_le.mp (hn t ht htr)).1]⟩
 
-end ThisWork
+end ThisWork.Analytic

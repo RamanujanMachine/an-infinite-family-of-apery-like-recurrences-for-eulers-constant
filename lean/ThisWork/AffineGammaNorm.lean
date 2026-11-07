@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.GammaNorm
 public import ThisWork.AffineDigamma
 public import ThisWork.SaddleApproximation
@@ -8,7 +9,8 @@ public import ThisWork.SaddleApproximation
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -94,4 +96,4 @@ theorem uniform_log_norm_Gamma_affine {α M : ℝ} (hα : 0 < α) (hM : 0 < M) :
       rw [← largeScale_mul_smallParameter (show 0 < n by omega)]
       ring
 
-end ThisWork
+end ThisWork.Analytic

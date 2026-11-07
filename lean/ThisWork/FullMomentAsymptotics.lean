@@ -1,5 +1,6 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.FullWindowRemainder
 public import ThisWork.NormalizedLocalMoments
 
@@ -7,7 +8,8 @@ public import ThisWork.NormalizedLocalMoments
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology OnePoint
@@ -34,41 +36,41 @@ namespace CompactSaddleFamily
 
 namespace LocalSaddleData
 
-noncomputable def index {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def index [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (m : ℕ) : ℕ := m + D.shift + S.firstIndex
 
-noncomputable def center {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def center [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (m : ℕ) : ℂ := S.saddle (m + D.shift)
 
-noncomputable def saddleKernel {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def saddleKernel [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (m : ℕ) : ℂ :=
-  kernel α₁ α₂ j (D.index m) ((largeScale (D.index m) : ℂ) * D.center m)
+  normalizedKernel α₁ α₂ j (D.index m) ((largeScale (D.index m) : ℂ) * D.center m)
 
-noncomputable def fullMoment {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def fullMoment [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (m k : ℕ) : ℂ :=
   hankelIntegral (saddleContourRight (saddleScale α₁ α₂) j (D.center m))
     (saddleContourHeight (saddleScale α₁ α₂) j (D.center m))
-    (fun s => s ^ k * kernel α₁ α₂ j (D.index m) ((largeScale (D.index m) : ℂ) * s))
+    (fun s => s ^ k * normalizedKernel α₁ α₂ j (D.index m) ((largeScale (D.index m) : ℂ) * s))
 
-noncomputable def gaussianNormalizer {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def gaussianNormalizer [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (m : ℕ) : ℂ :=
   D.quadraticRoot m * ((largeScale (D.index m) ^ (1 / 2 : ℝ) / Real.Gamma (1 / 2 : ℝ) : ℝ) : ℂ)
 
-noncomputable def normalizedFullMoment {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+noncomputable def normalizedFullMoment [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) (m k : ℕ) : ℂ :=
   D.gaussianNormalizer m * (branchOrientation j * D.saddleKernel m)⁻¹ * D.fullMoment m k
 
-theorem index_tendsto {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
+theorem index_tendsto [PositiveArgument] {α₁ α₂ : ℝ} {j : Branch} {S : CompactSaddleFamily α₁ α₂ j}
     (D : S.LocalSaddleData) : Tendsto D.index atTop atTop :=
   (tendsto_add_atTop_nat S.firstIndex).comp (tendsto_add_atTop_nat D.shift)
 
-theorem eventually_saddleKernel_ne_zero {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem eventually_saddleKernel_ne_zero [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
     ∀ᶠ m : ℕ in atTop, D.saddleKernel m ≠ 0 := by
   filter_upwards [D.index_tendsto.eventually (eventually_saddleDisk_mapsTo_kernelDomain h₁ h₂ j)] with m hm
   exact kernel_ne_zero j (D.index m) (hm.2 (S.saddle_mem_disk h₁ h₂ (m + D.shift)))
 
-theorem fullMoment_leading_error {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem fullMoment_leading_error [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) (k : ℕ) :
     ∃ ε > 0, ∃ C ≥ 0, ∀ᶠ m : ℕ in atTop,
       ‖D.fullMoment m k - branchOrientation j * D.saddleKernel m *
@@ -83,7 +85,7 @@ theorem fullMoment_leading_error {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 
   rw [hw] at he
   exact he
 
-theorem gaussianNormalizer_bound {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem gaussianNormalizer_bound [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) :
     ∃ B ≥ 0, ∀ m : ℕ, ‖D.gaussianNormalizer m‖ ≤ B * largeScale (D.index m) ^ (1 / 2 : ℝ) := by
   obtain ⟨B, hB, hb⟩ := D.uniform_quadraticRoot_bounds h₁ h₂
@@ -97,7 +99,7 @@ theorem gaussianNormalizer_bound {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 
       mul_le_mul_of_nonneg_right (hb m).1 (div_nonneg hp hG.le)
     _ = _ := by ring
 
-theorem normalizedFullMoment_tendsto {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
+theorem normalizedFullMoment_tendsto [PositiveArgument] {α₁ α₂ : ℝ} (h₁ : 0 < α₁) (h₂ : 0 < α₂) {j : Branch}
     {S : CompactSaddleFamily α₁ α₂ j} (D : S.LocalSaddleData) (k : ℕ) :
     Tendsto (fun m : ℕ => D.normalizedFullMoment m k) atTop
       (𝓝 (((saddleScale α₁ α₂ : ℂ) * rho j) ^ k)) := by
@@ -129,4 +131,4 @@ end LocalSaddleData
 
 end CompactSaddleFamily
 
-end ThisWork
+end ThisWork.Analytic

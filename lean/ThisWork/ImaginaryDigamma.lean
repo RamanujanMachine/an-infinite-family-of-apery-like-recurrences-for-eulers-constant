@@ -1,12 +1,14 @@
 module
 
+public import ThisWork.Argument
 public import ThisWork.ScaledDigamma
 
 /-! Digamma estimates controlled by distance from the real axis. -/
 
 public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Metric
 open scoped Topology
@@ -171,4 +173,4 @@ theorem uniform_scaled_digamma_region {κ η ε : ℝ}
   exact (hright.2 s hre).trans ((div_le_iff₀ hright.1).mpr
     (by nlinarith [(div_le_iff₀ hε).mp hlarge]))
 
-end ThisWork
+end ThisWork.Analytic

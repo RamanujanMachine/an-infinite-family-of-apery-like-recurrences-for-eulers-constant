@@ -1,6 +1,7 @@
 module
 
-public import ThisWork.Definitions
+public import ThisWork.Argument
+public import ThisWork.NormalizedDefinitions
 public import Mathlib.LinearAlgebra.Vandermonde
 public import Mathlib.Topology.Instances.Matrix
 
@@ -8,7 +9,8 @@ public import Mathlib.Topology.Instances.Matrix
 
 @[expose] public section
 
-namespace ThisWork
+namespace ThisWork.Analytic
+
 
 open Set Filter Matrix
 open scoped Topology
@@ -87,4 +89,4 @@ theorem linearIndependent_branches_of_moment_limits {c : ℝ} (hc : 0 < c)
     (ha.mono (fun n hn i => hn (branchEquiv i))) (fun i k => hlim (branchEquiv i) k)
   exact (linearIndependent_equiv branchEquiv).mp hv
 
-end ThisWork
+end ThisWork.Analytic

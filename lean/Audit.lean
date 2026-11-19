@@ -15,6 +15,9 @@ import Lean.Util.CollectAxioms
 #print axioms ThisWork.Analytic.lemma8
 #print axioms ThisWork.lemma8_normEstimate
 #print axioms ThisWork.lemma8_one
+#print axioms ThisWork.Trajectory.equal_normEstimate
+#print axioms ThisWork.Trajectory.equal_linearIndependent
+#print axioms ThisWork.Trajectory.equal_lemma8
 
 -- Select by defining module so generated declarations and private helpers are
 -- covered along with the named theorems. New project modules need no audit-list edit.
@@ -32,8 +35,11 @@ run_elab do
   unless names.contains ``Neuschel.neuschel_theorem_3_1_published &&
       names.contains ``ThisWork.lemma8 &&
       names.contains ``ThisWork.lemma8_normEstimate &&
-      names.contains ``ThisWork.lemma8_one do
-    throwError "Axiom audit did not find the general-argument final theorems and their z=1 specialization"
+      names.contains ``ThisWork.lemma8_one &&
+      names.contains ``ThisWork.Trajectory.equal_normEstimate &&
+      names.contains ``ThisWork.Trajectory.equal_linearIndependent &&
+      names.contains ``ThisWork.Trajectory.equal_lemma8 do
+    throwError "Axiom audit did not find the general-argument and trajectory theorems"
   for name in names.qsort Name.lt do
     let dependencies ← Lean.collectAxioms name
     for dependency in dependencies do

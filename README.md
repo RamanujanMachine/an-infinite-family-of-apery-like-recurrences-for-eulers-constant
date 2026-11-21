@@ -54,6 +54,15 @@ include the full Mellin–Barnes factor `z^(n-x)`. Their common growth scale is
 The theorem includes complex linear independence of the three integral sequences.
 The specialization `ThisWork.lemma8_one` recovers the result at `z = 1`.
 
+[`ThisWork.lemma8_with_strongRecessiveness`](lean/ThisWork/Recessiveness.lean)
+also proves that branch three is strongly recessive relative to the span of
+branches one and two: every nontrivial fixed complex combination of these two
+branches is eventually nonzero, and the ratio of
+branch three's vector norm to its norm decays faster than every inverse power
+of `n`. [`ThisWork.Trajectory.equal_stronglyRecessive`](lean/ThisWork/Trajectory/Recessiveness.lean)
+extends this conclusion to all equal lower slopes `(m,m,m)`, `m ≥ 1`, with
+symbolic `z > 0`.
+
 With [elan](https://github.com/leanprover/elan) installed, verify the proofs with:
 
 ```bash

@@ -18,6 +18,13 @@ import Lean.Util.CollectAxioms
 #print axioms ThisWork.Trajectory.equal_normEstimate
 #print axioms ThisWork.Trajectory.equal_linearIndependent
 #print axioms ThisWork.Trajectory.equal_lemma8
+#print axioms ThisWork.Analytic.eventually_noncancellation_of_normalized_moments
+#print axioms ThisWork.Analytic.eventually_noncancellation_of_rank_three_moments
+#print axioms ThisWork.branchIntegral_noncancellation
+#print axioms ThisWork.branchIntegral_separation_bound
+#print axioms ThisWork.branchIntegral_stronglyRecessive
+#print axioms ThisWork.lemma8_with_strongRecessiveness
+#print axioms ThisWork.Trajectory.equal_stronglyRecessive
 
 -- Select by defining module so generated declarations and private helpers are
 -- covered along with the named theorems. New project modules need no audit-list edit.
@@ -38,7 +45,11 @@ run_elab do
       names.contains ``ThisWork.lemma8_one &&
       names.contains ``ThisWork.Trajectory.equal_normEstimate &&
       names.contains ``ThisWork.Trajectory.equal_linearIndependent &&
-      names.contains ``ThisWork.Trajectory.equal_lemma8 do
+      names.contains ``ThisWork.Trajectory.equal_lemma8 &&
+      names.contains ``ThisWork.branchIntegral_noncancellation &&
+      names.contains ``ThisWork.branchIntegral_stronglyRecessive &&
+      names.contains ``ThisWork.lemma8_with_strongRecessiveness &&
+      names.contains ``ThisWork.Trajectory.equal_stronglyRecessive do
     throwError "Axiom audit did not find the general-argument and trajectory theorems"
   for name in names.qsort Name.lt do
     let dependencies ← Lean.collectAxioms name

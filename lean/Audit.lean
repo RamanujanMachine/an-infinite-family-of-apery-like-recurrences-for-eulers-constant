@@ -17,7 +17,20 @@ import Lean.Util.CollectAxioms
 #print axioms ThisWork.lemma8_one
 #print axioms ThisWork.Trajectory.equal_normEstimate
 #print axioms ThisWork.Trajectory.equal_linearIndependent
+#print axioms ThisWork.Trajectory.branchIntegral_linearIndependent
+#print axioms ThisWork.Trajectory.SqrtSaddleFamily.eventually_kernel_eq_phase
+#print axioms ThisWork.Trajectory.double_normEstimate
+#print axioms ThisWork.Trajectory.double_lemma8
+#print axioms ThisWork.Trajectory.canonical_normEstimate
+#print axioms ThisWork.Trajectory.ReflectedSaddleData.normalizedWindowMoment_tendsto
+#print axioms ThisWork.Trajectory.uniform_growing_reflection_error
 #print axioms ThisWork.Trajectory.equal_lemma8
+#print axioms ThisWork.Trajectory.eventually_exists_exact_sqrt_phase
+#print axioms ThisWork.Trajectory.norm_kernel_one_sub_reflected_le
+#print axioms ThisWork.Trajectory.elementaryIntegral_eq_reflected
+#print axioms ThisWork.Trajectory.uniform_re_exactSqrtEquation_left_lower
+#print axioms ThisWork.Trajectory.uniform_integrated_leftMoment_tail
+#print axioms ThisWork.Trajectory.uniform_full_canonical_window_remainder
 
 -- Select by defining module so generated declarations and private helpers are
 -- covered along with the named theorems. New project modules need no audit-list edit.
@@ -38,7 +51,20 @@ run_elab do
       names.contains ``ThisWork.lemma8_one &&
       names.contains ``ThisWork.Trajectory.equal_normEstimate &&
       names.contains ``ThisWork.Trajectory.equal_linearIndependent &&
-      names.contains ``ThisWork.Trajectory.equal_lemma8 do
+      names.contains ``ThisWork.Trajectory.branchIntegral_linearIndependent &&
+      names.contains ``ThisWork.Trajectory.SqrtSaddleFamily.eventually_kernel_eq_phase &&
+      names.contains ``ThisWork.Trajectory.double_normEstimate &&
+      names.contains ``ThisWork.Trajectory.double_lemma8 &&
+      names.contains ``ThisWork.Trajectory.canonical_normEstimate &&
+      names.contains ``ThisWork.Trajectory.ReflectedSaddleData.normalizedWindowMoment_tendsto &&
+      names.contains ``ThisWork.Trajectory.uniform_growing_reflection_error &&
+      names.contains ``ThisWork.Trajectory.equal_lemma8 &&
+      names.contains ``ThisWork.Trajectory.eventually_exists_exact_sqrt_phase &&
+      names.contains ``ThisWork.Trajectory.norm_kernel_one_sub_reflected_le &&
+      names.contains ``ThisWork.Trajectory.elementaryIntegral_eq_reflected &&
+      names.contains ``ThisWork.Trajectory.uniform_re_exactSqrtEquation_left_lower &&
+      names.contains ``ThisWork.Trajectory.uniform_integrated_leftMoment_tail &&
+      names.contains ``ThisWork.Trajectory.uniform_full_canonical_window_remainder do
     throwError "Axiom audit did not find the general-argument and trajectory theorems"
   for name in names.qsort Name.lt do
     let dependencies ← Lean.collectAxioms name

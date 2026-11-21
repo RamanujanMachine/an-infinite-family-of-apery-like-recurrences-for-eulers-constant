@@ -28,6 +28,20 @@ noncomputable def branchIntegral (m d : ℕ) (A₁ A₂ z : ℝ)
 noncomputable def equalScale (m : ℕ) (A₁ A₂ z : ℝ) (n : ℕ) : ℝ :=
   gammaScale A₁ A₂ n * z ^ (m * n)
 
+/-- The common factor when exactly two lower slopes attain the minimum. -/
+noncomputable def doubleScale (m d : ℕ) (A₁ A₂ z : ℝ) (n : ℕ) : ℝ :=
+  Real.Gamma ((d : ℝ) * n) * equalScale m A₁ A₂ z n
+
+/-- The square-root saddle coefficient in the double-minimum regime. -/
+noncomputable def doubleSaddleScale (d : ℕ) (A₁ A₂ z : ℝ) : ℝ :=
+  Real.sqrt (A₁ * A₂ * z / d)
+
+/-- The elementary mode exposed by the exact branch cancellation. -/
+noncomputable def elementaryIntegral (m d : ℕ) (A₁ A₂ z : ℝ)
+    (n : ℕ) : Fin 3 → ℂ :=
+  branchIntegral m d A₁ A₂ z .one n + branchIntegral m d A₁ A₂ z .two n -
+    2 • branchIntegral m d A₁ A₂ z .three n
+
 @[simp] theorem kernel_one_zero (A₁ A₂ z : ℝ) (j : Branch) (n : ℕ) (x : ℂ) :
     kernel 1 0 A₁ A₂ z j n x = ThisWork.kernel A₁ A₂ z j n x := by
   simp only [kernel, ThisWork.kernel, Nat.cast_zero, zero_mul, zero_add,
@@ -37,5 +51,15 @@ noncomputable def equalScale (m : ℕ) (A₁ A₂ z : ℝ) (n : ℕ) : ℝ :=
     branchIntegral 1 0 A₁ A₂ z j n = ThisWork.branchIntegral A₁ A₂ z j n := by
   unfold branchIntegral ThisWork.branchIntegral
   simp only [kernel_one_zero, Nat.cast_one, one_mul]
+
+theorem doubleSaddleScale_pos {d : ℕ} {A₁ A₂ z : ℝ} (hd : 0 < d)
+    (h₁ : 0 < A₁) (h₂ : 0 < A₂) (hz : 0 < z) :
+    0 < doubleSaddleScale d A₁ A₂ z :=
+  Real.sqrt_pos.mpr (div_pos (mul_pos (mul_pos h₁ h₂) hz) (Nat.cast_pos.mpr hd))
+
+theorem doubleSaddleScale_sq {d : ℕ} {A₁ A₂ z : ℝ} (hd : 0 < d)
+    (h₁ : 0 < A₁) (h₂ : 0 < A₂) (hz : 0 < z) :
+    doubleSaddleScale d A₁ A₂ z ^ 2 = A₁ * A₂ * z / d :=
+  Real.sq_sqrt (div_pos (mul_pos (mul_pos h₁ h₂) hz) (Nat.cast_pos.mpr hd)).le
 
 end ThisWork.Trajectory

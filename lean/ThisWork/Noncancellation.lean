@@ -60,8 +60,9 @@ theorem eventually_noncancellation_of_moment_limits {d : ℕ} {ζ : Fin d → �
 /-- Version for rescaled integral vectors. The only loss is the operator norm
 of the common moment transform; the normalizers remain explicit. -/
 theorem eventually_noncancellation_of_normalized_moments {d : ℕ} {ζ : Fin d → ℂ}
-    (hζ : Function.Injective ζ) {V : Fin d → ℕ → Fin d → ℂ}
-    (T : ℕ → (Fin d → ℂ) →L[ℂ] (Fin d → ℂ)) (b : ℕ → Fin d → ℂ)
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (hζ : Function.Injective ζ) {V : Fin d → ℕ → E}
+    (T : ℕ → E →L[ℂ] (Fin d → ℂ)) (b : ℕ → Fin d → ℂ)
     (hb : ∀ᶠ n : ℕ in atTop, ∀ i, b n i ≠ 0)
     (hlim : ∀ i k, Tendsto (fun n => b n i * T n (V i n) k) atTop (𝓝 (ζ i ^ k.val))) :
     ∃ C > 0, ∀ᶠ n : ℕ in atTop, ∀ a : Fin d → ℂ,

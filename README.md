@@ -45,6 +45,7 @@ The lean formalization was generated using GPT-6.1-Sol which prompted to generat
 | Result | Entry point | Final theorem |
 | --- | --- | --- |
 | Lemma 8 | [ThisWork.lean](lean/ThisWork.lean) | [`ThisWork.lemma8`](lean/ThisWork/Lemma8.lean) |
+| Arbitrary-rank Lemma 8 | [HigherRank.lean](lean/ThisWork/HigherRank.lean) | [`ThisWork.HigherRank.lemma8`](lean/ThisWork/HigherRank/Lemma8.lean) |
 | Neuschel, Theorem 3.1 | [Neuschel.lean](lean/Neuschel.lean) | [`Neuschel.neuschel_theorem_3_1_published`](lean/Neuschel/PublishedTheorem.lean) |
 
 Lemma 8 is stated for every real `z > 0`. The integrals `branchIntegral α₁ α₂ z`
@@ -62,6 +63,16 @@ branch three's vector norm to its norm decays faster than every inverse power
 of `n`. [`ThisWork.Trajectory.equal_stronglyRecessive`](lean/ThisWork/Trajectory/Recessiveness.lean)
 extends this conclusion to all equal lower slopes `(m,m,m)`, `m ≥ 1`, with
 symbolic `z > 0`.
+
+The arbitrary-rank theorem covers every integer `r ≥ 3`, equal lower slope
+`m ≥ 1`, positive real upper gaps `A₁,…,Aᵣ₋₁`, and real `z > 0`.
+Writing `c = (z ∏ Aᵢ)^(1/r)`, its exponential term is
+`−r c Re(ρ) n^(1−1/r)`, with error `O(n^(1−2/r))`, for each `r`th root
+of unity `ρ`. The common scale is `z^(mn) ∏ Γ(Aᵢ n+1)`.
+It proves independence of all `r` integral sequences and strong recessiveness
+of the positive-real-saddle branch against every nontrivial fixed combination
+of the other branches. Even ranks include the saddle on the negative real
+axis, handled by reflection and a finite Fourier identity.
 
 With [elan](https://github.com/leanprover/elan) installed, verify the proofs with:
 

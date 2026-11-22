@@ -44,8 +44,9 @@ theorem saddle_locations_injective {c : ℝ} (hc : 0 < c) :
   exact rho_injective (mul_left_cancel₀ (Complex.ofReal_ne_zero.mpr hc.ne') he)
 
 theorem linearIndependent_sequences_of_moment_limits {d : ℕ} {ζ : Fin d → ℂ}
-    (hζ : Function.Injective ζ) {V : Fin d → ℕ → Fin d → ℂ}
-    (T : ℕ → (Fin d → ℂ) →ₗ[ℂ] (Fin d → ℂ)) (a : ℕ → Fin d → ℂ)
+    {E : Type*} [AddCommGroup E] [Module ℂ E]
+    (hζ : Function.Injective ζ) {V : Fin d → ℕ → E}
+    (T : ℕ → E →ₗ[ℂ] (Fin d → ℂ)) (a : ℕ → Fin d → ℂ)
     (ha : ∀ᶠ n : ℕ in atTop, ∀ i, a n i ≠ 0)
     (hlim : ∀ i k, Tendsto (fun n => a n i * T n (V i n) k) atTop (𝓝 (ζ i ^ k.val))) :
     LinearIndependent ℂ V := by

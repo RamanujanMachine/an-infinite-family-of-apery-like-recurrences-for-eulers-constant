@@ -48,13 +48,13 @@ theorem logDeriv_reflected_lower {r : ℕ} {x : ℂ} (hx : x.re < 0) :
   logDeriv_reflected_lower_of_re_lt_one (hx.trans zero_lt_one)
 
 theorem logDeriv_reflectedKernel_of_re_lt_one {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 1) :
-    logDeriv (reflectedKernel r m A z n) x =
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 1) :
+    logDeriv (reflectedKernel r b A z n) x =
       (r : ℂ) * Complex.digamma (1 - x) -
         (∑ i, Complex.digamma ((A i : ℂ) * n - x + 1)) - (Real.log z : ℂ) := by
   let l : ℂ → ℂ := fun t => (Complex.Gamma (1 - t))⁻¹ ^ r
   let g : ℂ → ℂ := fun t => ∏ i, Complex.Gamma ((A i : ℂ) * n - t + 1)
-  let e : ℂ → ℂ := fun t => (Real.log z : ℂ) * ((m : ℂ) * n - t)
+  let e : ℂ → ℂ := fun t => (Real.log z : ℂ) * ((b : ℂ) * n - t)
   have hpos : 0 < (1 - x).re := by simp only [Complex.sub_re, Complex.one_re]; linarith
   have hl : l x ≠ 0 := pow_ne_zero r (inv_ne_zero (Complex.Gamma_ne_zero_of_re_pos hpos))
   have hdl : DifferentiableAt ℂ l x :=
@@ -67,7 +67,7 @@ theorem logDeriv_reflectedKernel_of_re_lt_one {r : ℕ} {A : Fin (r - 1) → ℝ
     (fun i _ => (Complex.hasDerivAt_Gamma_of_re_pos (hu i)).differentiableAt.comp x
       (show DifferentiableAt ℂ (fun t : ℂ => (A i : ℂ) * n - t + 1) x by fun_prop))
   have hde : HasDerivAt e (-(Real.log z : ℂ)) x := by
-    convert (((hasDerivAt_const x ((m : ℂ) * n)).sub (hasDerivAt_id x)).const_mul (Real.log z : ℂ)) using 1
+    convert (((hasDerivAt_const x ((b : ℂ) * n)).sub (hasDerivAt_id x)).const_mul (Real.log z : ℂ)) using 1
     · rfl
     · ring
   have he : logDeriv (fun t => Complex.exp (e t)) x = -(Real.log z : ℂ) := by
@@ -81,15 +81,15 @@ theorem logDeriv_reflectedKernel_of_re_lt_one {r : ℕ} {A : Fin (r - 1) → ℝ
   ring
 
 theorem logDeriv_reflectedKernel {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 0) :
-    logDeriv (reflectedKernel r m A z n) x =
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 0) :
+    logDeriv (reflectedKernel r b A z n) x =
       (r : ℂ) * Complex.digamma (1 - x) -
         (∑ i, Complex.digamma ((A i : ℂ) * n - x + 1)) - (Real.log z : ℂ) :=
-  logDeriv_reflectedKernel_of_re_lt_one hA m z n (hx.trans zero_lt_one)
+  logDeriv_reflectedKernel_of_re_lt_one hA b z n (hx.trans zero_lt_one)
 
 theorem reflectedKernel_ne_zero_of_re_lt_one {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 1) :
-    reflectedKernel r m A z n x ≠ 0 := by
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 1) :
+    reflectedKernel r b A z n x ≠ 0 := by
   have hpos : 0 < (1 - x).re := by simp only [Complex.sub_re, Complex.one_re]; linarith
   exact mul_ne_zero (mul_ne_zero
     (pow_ne_zero r (inv_ne_zero (Complex.Gamma_ne_zero_of_re_pos hpos)))

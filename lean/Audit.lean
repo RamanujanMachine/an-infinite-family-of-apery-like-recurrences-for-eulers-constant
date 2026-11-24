@@ -79,7 +79,8 @@ import Lean.Util.CollectAxioms
 #print axioms ThisWork.HigherRank.branch_normEstimate
 #print axioms ThisWork.HigherRank.branch_linearIndependent
 #print axioms ThisWork.HigherRank.branch_stronglyRecessive
-#print axioms ThisWork.HigherRank.lemma8
+#print axioms ThisWork.HigherRank.equalSlope_mellinBarnes_asymptotics
+#print axioms ThisWork.HigherRank.TStar.mellinBarnes_asymptotics
 #print axioms ThisWork.HigherRank.shifted_hankel_eq_parabolic_with_tails
 #print axioms ThisWork.HigherRank.uniform_integrated_cone_moment_tail
 #print axioms ThisWork.HigherRank.eventually_branchIntegral_eq_parabolic_with_tails
@@ -150,7 +151,8 @@ run_elab do
       names.contains ``ThisWork.HigherRank.branch_normEstimate &&
       names.contains ``ThisWork.HigherRank.branch_linearIndependent &&
       names.contains ``ThisWork.HigherRank.branch_stronglyRecessive &&
-      names.contains ``ThisWork.HigherRank.lemma8 &&
+      names.contains ``ThisWork.HigherRank.equalSlope_mellinBarnes_asymptotics &&
+      names.contains ``ThisWork.HigherRank.TStar.mellinBarnes_asymptotics &&
       names.contains ``ThisWork.HigherRank.eventually_branchIntegral_eq_parabolic_with_tails &&
       names.contains ``ThisWork.HigherRank.uniform_integrated_cone_moment_tail &&
       names.contains ``ThisWork.HigherRank.uniform_parabolic_power_tail_bound &&

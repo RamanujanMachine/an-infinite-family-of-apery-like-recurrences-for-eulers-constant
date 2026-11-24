@@ -23,11 +23,11 @@ theorem linear_log_decay_of_derivative_bound {f df : ℝ → ℝ} {a t L : ℝ}
 
 theorem uniform_kernel_cone_tail_decay {r : ℕ} (hr : 3 ≤ r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) {η : ℝ} (hη : 0 < η)
-    (m : ℕ) (z : ℝ) (j : ℤ) (q : ℝ) :
+    (b : ℕ) (z : ℝ) (j : ℤ) (q : ℝ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ a : ℝ, T ≤ a → ∀ t : ℝ, a ≤ t →
       ∀ y : ℝ, η ≤ |y| → |y| ≤ a →
-      ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
-        ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
+      ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖ ≤
+        ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
           Real.exp (-q * largeScale r n * (t - a)) := by
   obtain ⟨C, _, hb⟩ := uniform_re_exactSaddleEquation_cone_lower hr hA hη z j
   let T := Real.exp (C + q) + 1
@@ -42,34 +42,34 @@ theorem uniform_kernel_cone_tail_decay {r : ℕ} (hr : 3 ≤ r)
     simpa only [Real.log_exp] using Real.log_le_log (Real.exp_pos (C + q))
       (by dsimp only [T] at ha; linarith : Real.exp (C + q) ≤ a)
   have hd := linear_log_decay_of_derivative_bound
-    (f := fun u => Real.log ‖kernel r m A z j n
+    (f := fun u => Real.log ‖kernel r b A z j n
       ((largeScale r n : ℂ) * (-(u : ℂ) + (y : ℂ) * Complex.I))‖)
     (L := q * largeScale r n)
-    (fun u hu => hasDerivAt_log_norm_kernel_left hA m z j hn0 (hapos.trans_le hu) hy0)
+    (fun u hu => hasDerivAt_log_norm_kernel_left hA b z j hn0 (hapos.trans_le hu) hy0)
     (fun u hu => by
       have h := hn u (ha1.trans hu) y hy (hya.trans hu)
       have hl := Real.log_le_log hapos hu
       nlinarith [mul_le_mul_of_nonneg_left (show q ≤
         (exactSaddleEquation r A z j n (-(u : ℂ) + (y : ℂ) * Complex.I)).re by linarith) hR.le]) hat
-  have hKa : 0 < ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ :=
-    norm_pos_iff.mpr (kernel_ne_zero m z j n (scaled_left_mem_kernelDomain hA n hR hapos hy0))
+  have hKa : 0 < ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ :=
+    norm_pos_iff.mpr (kernel_ne_zero b z j n (scaled_left_mem_kernelDomain hA n hR hapos hy0))
   calc
-    _ ≤ Real.exp (Real.log ‖kernel r m A z j n
+    _ ≤ Real.exp (Real.log ‖kernel r b A z j n
         ((largeScale r n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))‖) := Real.le_exp_log _
-    _ ≤ Real.exp (Real.log ‖kernel r m A z j n
+    _ ≤ Real.exp (Real.log ‖kernel r b A z j n
         ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ - q * largeScale r n * (t - a)) :=
       Real.exp_le_exp.mpr (by linarith)
     _ = _ := by rw [Real.exp_sub, Real.exp_log hKa, div_eq_mul_inv, ← Real.exp_neg]; congr 2; ring
 
 theorem uniform_integrated_cone_moment_tail {r : ℕ} (hr : 3 ≤ r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) {η : ℝ} (hη : 0 < η)
-    (m : ℕ) (z : ℝ) (j : ℤ) (k : ℕ) :
+    (b : ℕ) (z : ℝ) (j : ℤ) (k : ℕ) :
     ∃ T ≥ 2, ∀ᶠ n : ℕ in atTop, ∀ a : ℝ, T ≤ a → ∀ y : ℝ, η ≤ |y| → |y| ≤ a →
-      IntegrableOn (scaledLeftMomentKernel r m A z j n k y) (Ioi a) ∧
-        ‖∫ t in Ioi a, scaledLeftMomentKernel r m A z j n k y t‖ ≤
-          Real.exp a * ‖kernel r m A z j n
+      IntegrableOn (scaledLeftMomentKernel r b A z j n k y) (Ioi a) ∧
+        ‖∫ t in Ioi a, scaledLeftMomentKernel r b A z j n k y t‖ ≤
+          Real.exp a * ‖kernel r b A z j n
             ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ / largeScale r n := by
-  obtain ⟨T₀, hT₀, hb⟩ := uniform_kernel_cone_tail_decay hr hA hη m z j 2
+  obtain ⟨T₀, hT₀, hb⟩ := uniform_kernel_cone_tail_decay hr hA hη b z j 2
   obtain ⟨Tp, hTp⟩ := eventually_atTop.mp (Analytic.eventually_shifted_pow_le_exp (D := 0) le_rfl (2 * k))
   let T := max 2 (max T₀ Tp)
   have hTT : T₀ ≤ T := (le_max_left _ _).trans (le_max_right _ _)
@@ -80,11 +80,11 @@ theorem uniform_integrated_cone_moment_tail {r : ℕ} (hr : 3 ≤ r)
   have hR0 : 0 < largeScale r n := zero_lt_one.trans_le hR
   have hy0 : y ≠ 0 := by intro he; rw [he, abs_zero] at hy; linarith
   have ha2 : 2 ≤ a := (le_max_left _ _).trans ha
-  have hcont : ContinuousOn (scaledLeftMomentKernel r m A z j n k y) (Ioi a) := by
+  have hcont : ContinuousOn (scaledLeftMomentKernel r b A z j n k y) (Ioi a) := by
     apply ContinuousOn.mul (by fun_prop)
-    exact (show ContinuousOn (kernel r m A z j n) (kernelDomain r A n) from
-      (show DifferentiableOn ℂ (kernel r m A z j n) (kernelDomain r A n) from
-        fun _ hs => (differentiableAt_kernel m z j n hs).differentiableWithinAt).continuousOn).comp
+    exact (show ContinuousOn (kernel r b A z j n) (kernelDomain r A n) from
+      (show DifferentiableOn ℂ (kernel r b A z j n) (kernelDomain r A n) from
+        fun _ hs => (differentiableAt_kernel b z j n hs).differentiableWithinAt).continuousOn).comp
       (by fun_prop) (fun t ht => scaled_left_mem_kernelDomain hA n hR0 (by
         have ht' : a < t := ht
         linarith) hy0)
@@ -103,16 +103,16 @@ theorem uniform_integrated_cone_moment_tail {r : ℕ} (hr : 3 ≤ r)
   have hkernel := hn a (hTT.trans ha) t hat y hy hya
   rw [scaledLeftMomentKernel, norm_mul, norm_pow]
   calc
-    _ ≤ Real.exp t * (‖kernel r m A z j n
+    _ ≤ Real.exp t * (‖kernel r b A z j n
         ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
           Real.exp (-2 * largeScale r n * (t - a))) :=
       mul_le_mul hpoly hkernel (norm_nonneg _) (Real.exp_pos t).le
-    _ = ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
+    _ = ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
         Real.exp (t - 2 * largeScale r n * (t - a)) := by
           rw [show t - 2 * largeScale r n * (t - a) = t + (-2 * largeScale r n * (t - a)) by ring,
             Real.exp_add]
           ring
-    _ ≤ ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
+    _ ≤ ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(a : ℂ) + (y : ℂ) * Complex.I))‖ *
         Real.exp (a - largeScale r n * (t - a)) := mul_le_mul_of_nonneg_left
       (Real.exp_le_exp.mpr (by nlinarith [mul_nonneg (sub_nonneg.mpr hR) (sub_nonneg.mpr hat)])) (norm_nonneg _)
     _ = _ := by

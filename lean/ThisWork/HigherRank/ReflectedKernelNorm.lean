@@ -17,10 +17,10 @@ theorem reflectedPhase_eq_neg_limitingPhase (r : ℕ) (A : Fin (r - 1) → ℝ) 
   ring
 
 theorem log_norm_reflectedKernel {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 1) :
-    Real.log ‖reflectedKernel r m A z n x‖ = -(r : ℝ) * Real.log ‖Complex.Gamma (1 - x)‖ +
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (n : ℕ) {x : ℂ} (hx : x.re < 1) :
+    Real.log ‖reflectedKernel r b A z n x‖ = -(r : ℝ) * Real.log ‖Complex.Gamma (1 - x)‖ +
       (∑ i, Real.log ‖Complex.Gamma ((A i : ℂ) * n - x + 1)‖) +
-      ((Real.log z : ℂ) * ((m : ℂ) * n - x)).re := by
+      ((Real.log z : ℂ) * ((b : ℂ) * n - x)).re := by
   have h0 : ‖Complex.Gamma (1 - x)‖ ≠ 0 := norm_ne_zero_iff.mpr
     (Complex.Gamma_ne_zero_of_re_pos (by simp only [Complex.sub_re, Complex.one_re]; linarith))
   have hi (i : Fin (r - 1)) := norm_ne_zero_iff.mpr
@@ -33,10 +33,10 @@ theorem log_norm_reflectedKernel {r : ℕ} {A : Fin (r - 1) → ℝ}
     Real.log_prod (fun i _ => hi i), Real.log_exp]
   ring
 
-theorem reflectedKernel_ofReal {r : ℕ} (m : ℕ) (A : Fin (r - 1) → ℝ) (z : ℝ) (n : ℕ) (t : ℝ) :
-    reflectedKernel r m A z n (t : ℂ) =
+theorem reflectedKernel_ofReal {r : ℕ} (b : ℕ) (A : Fin (r - 1) → ℝ) (z : ℝ) (n : ℕ) (t : ℝ) :
+    reflectedKernel r b A z n (t : ℂ) =
       (((Real.Gamma (1 - t))⁻¹ ^ r * (∏ i, Real.Gamma (A i * n - t + 1)) *
-        Real.exp (Real.log z * ((m : ℝ) * n - t)) : ℝ) : ℂ) := by
+        Real.exp (Real.log z * ((b : ℝ) * n - t)) : ℝ) : ℂ) := by
   simp only [reflectedKernel, Complex.ofReal_mul, Complex.ofReal_pow, Complex.ofReal_inv,
     Complex.ofReal_prod, Complex.ofReal_exp, Complex.ofReal_sub,
     Complex.ofReal_natCast]
@@ -45,8 +45,8 @@ theorem reflectedKernel_ofReal {r : ℕ} (m : ℕ) (A : Fin (r - 1) → ℝ) (z 
   rfl
 
 theorem reflectedKernel_real_pos {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (n : ℕ) {t : ℝ} (ht : t < 1) :
-    0 < (reflectedKernel r m A z n (t : ℂ)).re := by
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (n : ℕ) {t : ℝ} (ht : t < 1) :
+    0 < (reflectedKernel r b A z n (t : ℂ)).re := by
   rw [reflectedKernel_ofReal, Complex.ofReal_re]
   apply mul_pos
   · apply mul_pos
@@ -57,11 +57,11 @@ theorem reflectedKernel_real_pos {r : ℕ} {A : Fin (r - 1) → ℝ}
   · exact Real.exp_pos _
 
 theorem log_norm_reflectedKernel_error {r : ℕ} (hr : 0 < r)
-    {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (m : ℕ)
+    {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (b : ℕ)
     {n : ℕ} (hn : 0 < n) {s : ℂ} (hs : -s ∈ Complex.slitPlane)
     (hx : ((largeScale r n : ℂ) * s).re < 1) :
-    Real.log ‖reflectedKernel r m A z n ((largeScale r n : ℂ) * s)‖ -
-      Real.log (commonScale r m A z n) - largeScale r n * (reflectedPhase r A z s).re =
+    Real.log ‖reflectedKernel r b A z n ((largeScale r n : ℂ) * s)‖ -
+      Real.log (commonScale r b A z n) - largeScale r n * (reflectedPhase r A z s).re =
         -(r : ℝ) * Analytic.gammaNormError ((largeScale r n : ℂ) * (-s)) -
           (r : ℝ) * Real.log ‖(largeScale r n : ℂ) * (-s)‖ +
             ∑ i, rightGammaNormError r (A i) n s := by
@@ -77,8 +77,8 @@ theorem log_norm_reflectedKernel_error {r : ℕ} (hr : 0 < r)
     rw [show 1 - (largeScale r n : ℂ) * s = w + 1 by dsimp only [w]; ring,
       Complex.Gamma_add_one w hw0, norm_mul,
       Real.log_mul (norm_ne_zero_iff.mpr hw0) (norm_ne_zero_iff.mpr hΓw)]
-  have hkernel := log_norm_reflectedKernel hA m z n hx
-  have hscale := log_commonScale hA hz m n
+  have hkernel := log_norm_reflectedKernel hA b z n hx
+  have hscale := log_commonScale hA hz b n
   have hGammaScale := log_gammaScale hA n
   have hmain := congrArg Complex.re (scaled_stirlingMain_kernel hr hA z 0 hn (Complex.slitPlane_ne_zero hs))
   have hflip : limitingPhase r A z 0 (-s) = -reflectedPhase r A z s := by

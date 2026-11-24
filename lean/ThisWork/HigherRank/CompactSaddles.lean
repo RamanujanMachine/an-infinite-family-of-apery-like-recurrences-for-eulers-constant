@@ -13,7 +13,7 @@ open scoped Topology OnePoint
 
 noncomputable def parameterEquation (r : ℕ) (A : Fin (r - 1) → ℝ)
     (z : ℝ) (j : ℤ) (N : ℕ) : ℂ → OnePoint ℕ → ℂ :=
-  Analytic.sequenceFamily (fun m => exactSaddleEquation r A z j (m + N)) (limitingEquation r A z j)
+  Analytic.sequenceFamily (fun b => exactSaddleEquation r A z j (b + N)) (limitingEquation r A z j)
 
 structure CompactSaddleFamily (r : ℕ) (A : Fin (r - 1) → ℝ) (z : ℝ) (j : ℤ)
     (ζ : ℂ) (δ : ℝ) where
@@ -25,7 +25,7 @@ structure CompactSaddleFamily (r : ℕ) (A : Fin (r - 1) → ℝ) (z : ℝ) (j :
   saddle_mem : ∀ q, saddle q ∈ ball ζ (δ / 4)
   equation_zero : ∀ q, parameterEquation r A z j firstIndex (saddle q) q = 0
   equation_simple : ∀ q, deriv (fun s => parameterEquation r A z j firstIndex s q) (saddle q) ≠ 0
-  displacement : ∀ m : ℕ, ‖saddle m - ζ‖ ≤ errorConstant * smallParameter r (m + firstIndex)
+  displacement : ∀ b : ℕ, ‖saddle b - ζ‖ ≤ errorConstant * smallParameter r (b + firstIndex)
   continuous_equation : ContinuousOn (Function.uncurry (parameterEquation r A z j firstIndex))
     (ball ζ δ ×ˢ univ)
   holomorphic_equation : ∀ q, DifferentiableOn ℂ (fun s => parameterEquation r A z j firstIndex s q) (ball ζ δ)
@@ -42,18 +42,18 @@ theorem exists_compactSaddleFamily {r : ℕ} (hr : 3 ≤ r)
     exact ht.eventually_lt_const (by positivity)
   obtain ⟨N₀, hN₀⟩ := eventually_atTop.mp (hzeros.and hsmall)
   obtain ⟨N, hNge, hcont, hhol⟩ := ((eventually_ge_atTop N₀).and hcompact).exists
-  have hselect : ∀ m : ℕ, ∃ s ∈ ball ζ (δ / 4),
-      exactSaddleEquation r A z j (m + N) s = 0 ∧
-      deriv (exactSaddleEquation r A z j (m + N)) s ≠ 0 ∧
-      ‖s - ζ‖ ≤ C * smallParameter r (m + N) := by
-    intro m
-    obtain ⟨hzero, hnear⟩ := hN₀ (m + N) (hNge.trans (Nat.le_add_left N m))
+  have hselect : ∀ b : ℕ, ∃ s ∈ ball ζ (δ / 4),
+      exactSaddleEquation r A z j (b + N) s = 0 ∧
+      deriv (exactSaddleEquation r A z j (b + N)) s ≠ 0 ∧
+      ‖s - ζ‖ ≤ C * smallParameter r (b + N) := by
+    intro b
+    obtain ⟨hzero, hnear⟩ := hN₀ (b + N) (hNge.trans (Nat.le_add_left N b))
     obtain ⟨s, _, hs, hds, hdist, _⟩ := hzero
     exact ⟨s, by simpa only [mem_ball, dist_eq_norm] using hdist.trans_lt hnear, hs, hds, hdist⟩
   choose σ hmem hzero hsimple herr using hselect
   have hσ : Tendsto σ atTop (𝓝 ζ) := by
     rw [tendsto_iff_norm_sub_tendsto_zero]
-    exact squeeze_zero (fun m => norm_nonneg _) herr
+    exact squeeze_zero (fun b => norm_nonneg _) herr
       (by simpa only [mul_zero, Function.comp_def] using
         ((smallParameter_tendsto (show 0 < r by omega)).comp (tendsto_add_atTop_nat N)).const_mul C)
   let S : C(OnePoint ℕ, ℂ) := OnePoint.continuousMapMkNat σ ζ hσ
@@ -72,18 +72,18 @@ theorem exists_compactSaddleFamily {r : ℕ} (hr : 3 ≤ r)
   · intro q
     cases q with
     | infty => exact mem_ball_self (by positivity)
-    | coe m => exact hmem m
+    | coe b => exact hmem b
   · intro q
     cases q with
     | infty => exact hz
-    | coe m => exact hzero m
+    | coe b => exact hzero b
   · intro q
     cases q with
     | infty =>
       change deriv (limitingEquation r A z j) ζ ≠ 0
       rw [(hasDerivAt_limitingEquation r A z j hζ).deriv]
       exact div_ne_zero (Nat.cast_ne_zero.mpr (by omega : r ≠ 0)) (Complex.slitPlane_ne_zero hζ)
-    | coe m => exact hsimple m
+    | coe b => exact hsimple b
 
 namespace CompactSaddleFamily
 

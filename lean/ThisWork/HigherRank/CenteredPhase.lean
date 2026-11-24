@@ -52,11 +52,11 @@ theorem phase_limit (hslit : ball ζ δ ⊆ Complex.slitPlane) {t : ℂ} (ht : t
   simpa only [phase, zero_add, neg_sub] using congrArg Neg.neg he
 
 theorem eventually_kernel_eq_phase (hr : 0 < r) (hA : ∀ i, 0 < A i)
-    (hslit : ball ζ δ ⊆ Complex.slitPlane) (m : ℕ) :
+    (hslit : ball ζ δ ⊆ Complex.slitPlane) (b : ℕ) :
     ∀ᶠ k : ℕ in atTop, ∀ t ∈ ball 0 (δ / 2),
-      kernel r m A z j (k + S.firstIndex)
+      kernel r b A z j (k + S.firstIndex)
         ((largeScale r (k + S.firstIndex) : ℂ) * (t + S.saddle k)) =
-      kernel r m A z j (k + S.firstIndex)
+      kernel r b A z j (k + S.firstIndex)
         ((largeScale r (k + S.firstIndex) : ℂ) * S.saddle k) *
           Complex.exp (-(largeScale r (k + S.firstIndex) : ℂ) * S.phase t k) := by
   filter_upwards [(tendsto_add_atTop_nat S.firstIndex).eventually
@@ -69,7 +69,7 @@ theorem eventually_kernel_eq_phase (hr : 0 < r) (hA : ∀ i, 0 < A i)
     exact hn s (by linarith [Complex.re_le_norm s, norm_sub_norm_le s ζ]) (hslit hs)
   have ha : S.saddle k ∈ ball ζ δ :=
     ball_subset_ball (by linarith [S.radius_pos] : δ / 4 ≤ δ) (S.saddle_mem k)
-  obtain ⟨p, hp0, hp, hk⟩ := exists_scaled_kernel_phase m z j hn0 ha hmap
+  obtain ⟨p, hp0, hp, hk⟩ := exists_scaled_kernel_phase b z j hn0 ha hmap
   have hcomp : ∀ t ∈ ball 0 (δ / 2),
       HasDerivAt (fun u => p (u + S.saddle k)) (-S.shiftedEquation t k) t := by
     intro t ht

@@ -17,10 +17,10 @@ theorem exists_compact_equation_neighborhood {r : ℕ} (hr : 3 ≤ r)
     {ζ : ℂ} (hζ : ζ ∈ Complex.slitPlane) :
     ∃ δ > 0, ball ζ δ ⊆ Complex.slitPlane ∧ ∀ᶠ N : ℕ in atTop,
       ContinuousOn (Function.uncurry (Analytic.sequenceFamily
-        (fun m => exactSaddleEquation r A z j (m + N)) (limitingEquation r A z j)))
+        (fun b => exactSaddleEquation r A z j (b + N)) (limitingEquation r A z j)))
         (ball ζ δ ×ˢ univ) ∧
       ∀ q : OnePoint ℕ, DifferentiableOn ℂ
-        (fun s => Analytic.sequenceFamily (fun m => exactSaddleEquation r A z j (m + N))
+        (fun s => Analytic.sequenceFamily (fun b => exactSaddleEquation r A z j (b + N))
           (limitingEquation r A z j) s q) (ball ζ δ) := by
   obtain ⟨d, hd, κ, hκ, η, hη, M, hM, hregion⟩ := exists_local_slit_region hζ
   have hslit : ball ζ d ⊆ Complex.slitPlane := fun s hs =>
@@ -47,14 +47,14 @@ theorem exists_compact_equation_neighborhood {r : ℕ} (hr : 3 ≤ r)
   obtain ⟨N₀, hN₀⟩ := eventually_atTop.mp hF
   refine ⟨d / 2, half_pos hd, (fun s hs => hslit (hsub (ball_subset_closedBall hs))), ?_⟩
   filter_upwards [eventually_ge_atTop N₀] with N hN
-  have hhol (m : ℕ) := hN₀ (m + N) (hN.trans (Nat.le_add_left N m))
+  have hhol (b : ℕ) := hN₀ (b + N) (hN.trans (Nat.le_add_left N b))
   have hcont := Analytic.continuousOn_sequenceFamily (isCompact_closedBall ζ (d / 2))
-    (fun m => ((hhol m).mono hsub).continuousOn) ((hf.mono hsub).continuousOn)
-    (hlim.seq_tendstoUniformlyOn (fun m => m + N) (tendsto_add_atTop_nat N))
+    (fun b => ((hhol b).mono hsub).continuousOn) ((hf.mono hsub).continuousOn)
+    (hlim.seq_tendstoUniformlyOn (fun b => b + N) (tendsto_add_atTop_nat N))
   refine ⟨hcont.mono (Set.prod_mono ball_subset_closedBall Subset.rfl), ?_⟩
   intro q
   cases q with
   | infty => exact hf.mono (fun _ hs => hsub (ball_subset_closedBall hs))
-  | coe m => exact (hhol m).mono (fun _ hs => hsub (ball_subset_closedBall hs))
+  | coe b => exact (hhol b).mono (fun _ hs => hsub (ball_subset_closedBall hs))
 
 end ThisWork.HigherRank

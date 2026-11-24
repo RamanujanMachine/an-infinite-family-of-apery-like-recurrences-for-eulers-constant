@@ -58,11 +58,11 @@ theorem hasDerivAt_limitingEquation (r : ℕ) (A : Fin (r - 1) → ℝ) (z : ℝ
   · rw [div_eq_mul_inv]
 
 theorem exactSaddleEquation_eq_logDeriv {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {s : ℂ}
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {s : ℂ}
     (hs : (largeScale r n : ℂ) * s ∈ kernelDomain r A n) :
     exactSaddleEquation r A z j n s =
-      logDeriv (kernel r m A z j n) ((largeScale r n : ℂ) * s) :=
-  (logDeriv_kernel m z j n hs).symm
+      logDeriv (kernel r b A z j n) ((largeScale r n : ℂ) * s) :=
+  (logDeriv_kernel b z j n hs).symm
 
 theorem differentiableOn_exactSaddleEquation (r : ℕ) (A : Fin (r - 1) → ℝ)
     (z : ℝ) (j : ℤ) (n : ℕ) :

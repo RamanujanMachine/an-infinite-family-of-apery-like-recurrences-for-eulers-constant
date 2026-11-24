@@ -1,10 +1,15 @@
 # Equal lower slopes in arbitrary rank
 
-The analytic extension is proved in `lean/ThisWork/HigherRank/Lemma8.lean`:
-`ThisWork.HigherRank.lemma8`. It covers every fixed integer `r ≥ 3`, equal
-lower slope `m ≥ 1`, upper gaps `A_i > 0`, and fixed real `z > 0`.
-The proof actually permits `m = 0` as well. The parameter `z` remains symbolic
-throughout. Constants may depend on `r,m,A,z`; no uniformity as rank grows or
+The analytic extension is proved in `lean/ThisWork/HigherRank/MellinBarnesAsymptotics.lean`:
+`ThisWork.HigherRank.equalSlope_mellinBarnes_asymptotics`.
+The entry point has a stable descriptive name independent of paper numbering.
+`Trajectories.lean` defines signed integer trajectories and `TStar r` explicitly;
+`TStar.mellinBarnes_asymptotics` derives all three conclusions for every
+member, with its common positive lower slope `b` and gaps `A_i = b-a_i`.
+The analytic theorem covers every fixed integer `r ≥ 3`, equal lower slope
+`b ≥ 1`, upper gaps `A_i > 0`, and fixed real `z > 0`. Its lower-slope
+parameter can also be zero, whereas membership in `TStar` requires `b > 0`. The parameter `z` remains symbolic
+throughout. Constants may depend on `r,b,A,z`; no uniformity as rank grows or
 `z` tends to zero is asserted. Recurrences and CMFs are outside this theorem.
 
 ## Statement and indexing
@@ -20,13 +25,13 @@ These give every `r`th root of unity once. The corresponding actual kernel is
 
 \[
  K_j(n,x)=\Gamma(x)^r\prod_{i=1}^{r-1}\Gamma(A_i n-x+1)
-          e^{2\pi i jx}z^{mn-x}.
+          e^{2\pi i jx}z^{bn-x}.
 \]
 
 The vector `I_j(n)` has components
 
 \[
- \frac1{2\pi i}\int_H(mn-x)^hK_j(n,x)\,dx,\qquad 0\le h<r,
+ \frac1{2\pi i}\int_H(bn-x)^hK_j(n,x)\,dx,\qquad 0\le h<r,
 \]
 
 on the reference left Hankel contour, with right edge `1/2` and banks at
@@ -35,7 +40,7 @@ convergent. Put
 
 \[
  c=(z\prod_i A_i)^{1/r},\quad R=n^{1-1/r},\quad
- \varepsilon=n^{-1/r},\quad H_r=z^{mn}\prod_i\Gamma(A_i n+1).
+ \varepsilon=n^{-1/r},\quad H_r=z^{bn}\prod_i\Gamma(A_i n+1).
 \]
 
 The proved estimates are
@@ -99,8 +104,8 @@ claimed norm estimates (`OffCutGrowth.lean`).
 The exact kernel relation and the binomial theorem give
 
 \[
- I_m(n)=z^{mn}P(mn)I_0(n),\qquad
- I_0(n)=z^{-mn}P(-mn)I_m(n),
+ I_b(n)=z^{bn}P(bn)I_0(n),\qquad
+ I_0(n)=z^{-bn}P(-bn)I_b(n),
 \]
 
 where `P(w)` is the lower triangular Pascal translation matrix. Here the
@@ -119,7 +124,7 @@ an auxiliary kernel
 
 \[
  B(x)=\pi(\cot(\pi x)+i)Q(x),\quad
- Q(x)=\Gamma(1-x)^{-r}\prod_i\Gamma(A_i n-x+1)z^{mn-x}.
+ Q(x)=\Gamma(1-x)^{-r}\prod_i\Gamma(A_i n-x+1)z^{bn-x}.
 \]
 
 The reflected kernel `Q` is positive on the real axis `x<1`. On the fixed
@@ -177,4 +182,4 @@ its branch is separated from every such combination.
 
 `GrowthRates.lean` proves the general fact that `exp(−aR+O(Rε))` absorbs every
 fixed polynomial for `a>0`. `CanonicalRecessiveness.lean` combines this with
-the preceding lower bounds; `Lemma8.lean` exposes the complete theorem.
+the preceding lower bounds; `MellinBarnesAsymptotics.lean` exposes the complete theorem.

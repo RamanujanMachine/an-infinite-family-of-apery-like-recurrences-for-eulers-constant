@@ -18,36 +18,36 @@ noncomputable def gaussianFactor (n : ℕ) : ℂ :=
   D.localData.quadraticRoot n *
     (((largeScale r (D.index n)) ^ (1 / 2 : ℝ) / Real.Gamma (1 / 2 : ℝ) : ℝ) : ℂ)
 
-noncomputable def normalizedGlobalMoment (B : ℝ) (m k n : ℕ) : ℂ :=
+noncomputable def normalizedGlobalMoment (B : ℝ) (b k n : ℕ) : ℂ :=
   D.gaussianFactor n *
-    (parabolicPowerMoment r m A z j (D.index n) k D.a B (D.translation n) / D.saddleKernel m n)
+    (parabolicPowerMoment r b A z j (D.index n) k D.a B (D.translation n) / D.saddleKernel b n)
 
 theorem exists_normalizedGlobalMoment_tendsto (hr : 3 ≤ r) (hA : ∀ i, 0 < A i) (hz : 0 < z)
-    (m k : ℕ) :
-    ∃ B > 0, Tendsto (D.normalizedGlobalMoment B m k) atTop
+    (b k : ℕ) :
+    ∃ B > 0, Tendsto (D.normalizedGlobalMoment B b k) atTop
       (𝓝 (((saddleScale r A z : ℂ) * Phase.rho θ) ^ k)) := by
-  obtain ⟨B, hB, g, hg, C, hC, hrem⟩ := D.exists_full_moment_remainder_bound hr hA hz m k
+  obtain ⟨B, hB, g, hg, C, hC, hrem⟩ := D.exists_full_moment_remainder_bound hr hA hz b k
   obtain ⟨U, hU, hroot⟩ := D.localData.uniform_quadraticRoot_bounds D.tangent_ne_zero
   have hU0 : 0 ≤ U := by linarith
   have hG : 0 < Real.Gamma (1 / 2 : ℝ) := Real.Gamma_pos_of_pos (by norm_num)
   have hRlim : Tendsto (fun n => largeScale r (D.index n)) atTop atTop :=
     (largeScale_tendsto (show 1 < r by omega)).comp D.index_tendsto
-  have hlocal := D.localData.eventually_localKernelMoment_eq_phase (by omega : 0 < r) hA D.disk_slit m k
+  have hlocal := D.localData.eventually_localKernelMoment_eq_phase (by omega : 0 < r) hA D.disk_slit b k
   have hsmall : ∀ᶠ n : ℕ in atTop,
-      ‖D.normalizedGlobalMoment B m k n -
+      ‖D.normalizedGlobalMoment B b k n -
         D.localData.normalizedLocalMoment (largeScale r (D.index n)) k n‖ ≤
         (U * C / Real.Gamma (1 / 2 : ℝ)) *
           ((largeScale r (D.index n)) ^ (1 / 2 : ℝ) * Real.exp (-g * largeScale r (D.index n))) := by
-    filter_upwards [hrem, hlocal, D.eventually_saddleKernel_ne_zero (by omega : 0 < r) hA m,
+    filter_upwards [hrem, hlocal, D.eventually_saddleKernel_ne_zero (by omega : 0 < r) hA b,
       hRlim.eventually (eventually_gt_atTop (0 : ℝ))] with n hnR hnL hnK hR
     let R := largeScale r (D.index n)
-    let P := parabolicPowerMoment r m A z j (D.index n) k D.a B (D.translation n)
-    let L := D.localData.localKernelMoment m (D.index n) (D.center n) k
-    let K := D.saddleKernel m n
+    let P := parabolicPowerMoment r b A z j (D.index n) k D.a B (D.translation n)
+    let L := D.localData.localKernelMoment b (D.index n) (D.center n) k
+    let K := D.saddleKernel b n
     have hK : 0 < ‖K‖ := norm_pos_iff.mpr hnK
     have hK0 : K ≠ 0 := hnK
     have hKL : L = K * D.localData.localMoment R k n := hnL
-    have hid : D.normalizedGlobalMoment B m k n - D.localData.normalizedLocalMoment R k n =
+    have hid : D.normalizedGlobalMoment B b k n - D.localData.normalizedLocalMoment R k n =
         D.gaussianFactor n * ((P - L) / K) := by
       change D.gaussianFactor n * (P / K) - D.gaussianFactor n * D.localData.localMoment R k n = _
       rw [hKL]
@@ -72,7 +72,7 @@ theorem exists_normalizedGlobalMoment_tendsto (hr : 3 ≤ r) (hA : ∀ i, 0 < A 
         (U * C / Real.Gamma (1 / 2 : ℝ))
   have hdiff := squeeze_zero_norm' hsmall hdecay
   refine ⟨B, hB, ?_⟩
-  change Tendsto (fun n => D.normalizedGlobalMoment B m k n) atTop _
+  change Tendsto (fun n => D.normalizedGlobalMoment B b k n) atTop _
   simpa only [index, sub_add_cancel, zero_add] using
     hdiff.add (D.normalizedLocalMoment_tendsto (by omega : 1 < r) k)
 

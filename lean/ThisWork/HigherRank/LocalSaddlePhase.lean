@@ -12,7 +12,7 @@ open Set Filter Metric
 open scoped Topology
 
 theorem eventually_exists_exact_local_phase {r : ℕ} (hr : 3 ≤ r)
-    {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (j : ℤ)
+    {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (j : ℤ)
     {ζ : ℂ} (hζ : ζ ∈ Complex.slitPlane) (hz : limitingEquation r A z j ζ = 0) :
     ∃ δ > 0, ball ζ δ ⊆ Complex.slitPlane ∧ ∃ C ≥ 0, ∃ D ≥ 0,
       ∀ᶠ n : ℕ in atTop, ∃ a ∈ ball ζ δ,
@@ -21,8 +21,8 @@ theorem eventually_exists_exact_local_phase {r : ℕ} (hr : 3 ≤ r)
         ∃ p : ℂ → ℂ, p a = 0 ∧ deriv p a = 0 ∧ deriv (deriv p) a ≠ 0 ∧
           (∀ s ∈ ball ζ δ, HasDerivAt p (-exactSaddleEquation r A z j n s) s) ∧
           (∀ s ∈ ball ζ δ,
-            kernel r m A z j n ((largeScale r n : ℂ) * s) =
-              kernel r m A z j n ((largeScale r n : ℂ) * a) *
+            kernel r b A z j n ((largeScale r n : ℂ) * s) =
+              kernel r b A z j n ((largeScale r n : ℂ) * a) *
                 Complex.exp (-(largeScale r n : ℂ) * p s)) ∧
           ∀ s ∈ ball ζ δ,
             ‖p s + limitingPhase r A z j s - limitingPhase r A z j a‖ ≤
@@ -46,7 +46,7 @@ theorem eventually_exists_exact_local_phase {r : ℕ} (hr : 3 ≤ r)
   have hmap : MapsTo (fun s : ℂ => (largeScale r n : ℂ) * s) (ball ζ δ) (kernelDomain r A n) := by
     intro s hs
     exact hdom s ((Complex.re_le_norm s).trans (hregion s (ball_subset_closedBall hs)).1) (hslit hs)
-  obtain ⟨p, hpa, hp, hkernel⟩ := exists_scaled_kernel_phase m z j hn0 ha hmap
+  obtain ⟨p, hpa, hp, hkernel⟩ := exists_scaled_kernel_phase b z j hn0 ha hmap
   have hsimple := Analytic.phase_simple_saddle ha hp ha0 haderiv
   refine ⟨a, ha, ha0, haderiv, hdist, p, hpa, hsimple.1, hsimple.2, hp, hkernel, ?_⟩
   intro s hs

@@ -43,16 +43,16 @@ theorem rho_re_lt_one {θ : ℝ} (hθ : θ ∈ Ioo (-Real.pi) Real.pi) (hθ0 : �
 
 theorem offCut_hasLogNormGrowth {r : ℕ} (hr : 3 ≤ r)
     {A : Fin (r - 1) → ℝ} {z θ : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z)
-    (m : ℕ) (j : ℤ) (hθ : θ ∈ Ioo (-Real.pi) Real.pi)
+    (b : ℕ) (j : ℤ) (hθ : θ ∈ Ioo (-Real.pi) Real.pi)
     (hj : (r : ℝ) * θ = -2 * Real.pi * j) :
-    HasLogNormGrowth r (commonScale r m A z)
-      (-(r : ℝ) * saddleScale r A z * (Phase.rho θ).re) (branchIntegral r m A z j) := by
+    HasLogNormGrowth r (commonScale r b A z)
+      (-(r : ℝ) * saddleScale r A z * (Phase.rho θ).re) (branchIntegral r b A z j) := by
   obtain ⟨D⟩ := exists_offCutLocalData hr hA hz j hθ hj
-  obtain ⟨C, hC, hb⟩ := D.logNorm_growth hr hA hz m
+  obtain ⟨C, hC, hb⟩ := D.logNorm_growth hr hA hz b
   refine ⟨C, hC, hb.mono (fun n hn => ⟨hn.1, ?_⟩)⟩
-  have hid : Real.log ‖branchIntegral r m A z j n‖ - Real.log (commonScale r m A z n) -
+  have hid : Real.log ‖branchIntegral r b A z j n‖ - Real.log (commonScale r b A z n) -
       (-(r : ℝ) * saddleScale r A z * (Phase.rho θ).re) * largeScale r n =
-      Real.log ‖branchIntegral r m A z j n‖ - Real.log (commonScale r m A z n) +
+      Real.log ‖branchIntegral r b A z j n‖ - Real.log (commonScale r b A z n) +
         largeScale r n * ((r : ℝ) * saddleScale r A z * (Phase.rho θ).re) := by ring
   rw [hid]
   exact hn.2

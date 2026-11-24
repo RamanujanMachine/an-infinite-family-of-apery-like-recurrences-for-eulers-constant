@@ -12,44 +12,44 @@ namespace ThisWork.HigherRank
 
 open Set MeasureTheory
 
-theorem kernel_change_center (r m q : ℕ) (A : Fin (r - 1) → ℝ)
+theorem kernel_change_center (r b q : ℕ) (A : Fin (r - 1) → ℝ)
     (z : ℝ) (j : ℤ) (n : ℕ) (x : ℂ) :
-    kernel r m A z j n x =
-      Complex.exp ((Real.log z : ℂ) * (((m : ℂ) - q) * n)) * kernel r q A z j n x := by
+    kernel r b A z j n x =
+      Complex.exp ((Real.log z : ℂ) * (((b : ℂ) - q) * n)) * kernel r q A z j n x := by
   unfold kernel
-  rw [show (Real.log z : ℂ) * ((m : ℂ) * n - x) =
-    (Real.log z : ℂ) * (((m : ℂ) - q) * n) +
+  rw [show (Real.log z : ℂ) * ((b : ℂ) * n - x) =
+    (Real.log z : ℂ) * (((b : ℂ) - q) * n) +
       (Real.log z : ℂ) * ((q : ℂ) * n - x) by ring, Complex.exp_add]
   ring
 
-noncomputable def momentIntegral (r m : ℕ) (A : Fin (r - 1) → ℝ)
+noncomputable def momentIntegral (r b : ℕ) (A : Fin (r - 1) → ℝ)
     (z : ℝ) (j : ℤ) (n k : ℕ) : ℂ :=
   (2 * (Real.pi : ℂ) * Complex.I)⁻¹ * hankelIntegral (1 / 2) 1
-    (fun x => ((m : ℂ) * n - x) ^ k * kernel r m A z j n x)
+    (fun x => ((b : ℂ) * n - x) ^ k * kernel r b A z j n x)
 
-theorem momentIntegral_eq_component (r m : ℕ) (A : Fin (r - 1) → ℝ)
+theorem momentIntegral_eq_component (r b : ℕ) (A : Fin (r - 1) → ℝ)
     (z : ℝ) (j : ℤ) (n : ℕ) (k : Fin r) :
-    momentIntegral r m A z j n k.val = branchIntegral r m A z j n k := rfl
+    momentIntegral r b A z j n k.val = branchIntegral r b A z j n k := rfl
 
 theorem momentIntegral_change_center {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i)
-    (m q : ℕ) (z : ℝ) (j : ℤ) (n k : ℕ) :
-    momentIntegral r m A z j n k =
-      Complex.exp ((Real.log z : ℂ) * (((m : ℂ) - q) * n)) *
+    (b q : ℕ) (z : ℝ) (j : ℤ) (n k : ℕ) :
+    momentIntegral r b A z j n k =
+      Complex.exp ((Real.log z : ℂ) * (((b : ℂ) - q) * n)) *
         ∑ i ∈ Finset.range (k + 1),
-          ((((m : ℂ) - q) * n) ^ (k - i) * (k.choose i : ℂ)) *
+          ((((b : ℂ) - q) * n) ^ (k - i) * (k.choose i : ℂ)) *
             momentIntegral r q A z j n i := by
-  let c : ℂ := Complex.exp ((Real.log z : ℂ) * (((m : ℂ) - q) * n))
-  let a : ℕ → ℂ := fun i => (((m : ℂ) - q) * n) ^ (k - i) * (k.choose i : ℂ)
+  let c : ℂ := Complex.exp ((Real.log z : ℂ) * (((b : ℂ) - q) * n))
+  let a : ℕ → ℂ := fun i => (((b : ℂ) - q) * n) ^ (k - i) * (k.choose i : ℂ)
   have hconv (i : ℕ) : Analytic.HankelIntegrable (1 / 2) 1
       (fun x => ((q : ℂ) * n - x) ^ i * kernel r q A z j n x) :=
     weighted_hankel_absolutely_convergent hr hA q z j n i (by norm_num)
       (fun t => by nlinarith [mul_nonneg (hA t).le (Nat.cast_nonneg (α := ℝ) n)]) le_rfl
-  have hid (x : ℂ) : ((m : ℂ) * n - x) ^ k * kernel r m A z j n x =
+  have hid (x : ℂ) : ((b : ℂ) * n - x) ^ k * kernel r b A z j n x =
       c * ∑ i ∈ Finset.range (k + 1),
         a i * (((q : ℂ) * n - x) ^ i * kernel r q A z j n x) := by
-    rw [kernel_change_center r m q A z j n x]
-    rw [show (m : ℂ) * n - x = ((q : ℂ) * n - x) + (((m : ℂ) - q) * n) by ring,
+    rw [kernel_change_center r b q A z j n x]
+    rw [show (b : ℂ) * n - x = ((q : ℂ) * n - x) + (((b : ℂ) - q) * n) by ring,
       add_pow, Finset.sum_mul]
     rw [Finset.mul_sum]
     apply Finset.sum_congr rfl

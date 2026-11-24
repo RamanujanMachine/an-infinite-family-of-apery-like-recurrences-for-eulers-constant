@@ -6,11 +6,11 @@ The existing rank-three theorem and proof are unchanged.
 
 ## Proposed statement
 
-For rank `r`, take equal lower slopes `(m,...,m)`, `m >= 1`, and upper gaps
-`A_i = m-a_i > 0`, `1 <= i <= r-1`. Write
+For rank `r`, take equal lower slopes `(b,...,b)`, `b >= 1`, and upper gaps
+`A_i = b-a_i > 0`, `1 <= i <= r-1`. Write
 
 \[
- H_r(n,z)=z^{mn}\prod_{i=1}^{r-1}\Gamma(A_i n+1),\qquad
+ H_r(n,z)=z^{bn}\prod_{i=1}^{r-1}\Gamma(A_i n+1),\qquad
  c=\left(z\prod_i A_i\right)^{1/r},\qquad R=n^{(r-1)/r}.
 \]
 
@@ -18,8 +18,8 @@ The kernel and moment vectors are
 
 \[
  K_j(n,x)=\Gamma(x)^r\prod_i\Gamma(A_i n-x+1)
-             e^{2\pi i jx}z^{mn-x},\qquad
- I_j^{(h)}=\frac1{2\pi i}\int_H(mn-x)^hK_j(n,x)\,dx.
+             e^{2\pi i jx}z^{bn-x},\qquad
+ I_j^{(h)}=\frac1{2\pi i}\int_H(bn-x)^hK_j(n,x)\,dx.
 \]
 
 Here `H` is the existing left Hankel contour. Integer labels are meaningful
@@ -36,8 +36,8 @@ All constants may depend on the fixed positive real parameters; no uniformity
 as `z -> 0` or `z -> infinity` is claimed. Rational values of `z` are only
 computational samples, not a restriction on the analytic statement.
 
-Equal slopes `m > 1` reduce exactly to `m = 1`: replace `n` by `mn` and every
-`A_i` by `A_i/m`. This is now proved in Lean for arbitrary rank.
+Equal slopes `b > 1` reduce exactly to `b = 1`: replace `n` by `bn` and every
+`A_i` by `A_i/b`. This is now proved in Lean for arbitrary rank.
 
 ## Rank-four predictions and independent checks
 
@@ -52,7 +52,7 @@ exponent, through the last diverging correction, is
 
 The scalar saddle prefactor has power `n^(-9/8)`. The norm of the vector of
 moments of degrees zero through three has power `n^(15/8)`, because its last
-component contributes `(mn)^3`. Constants multiplying these expressions have
+component contributes `(bn)^3`. Constants multiplying these expressions have
 not been proved here.
 
 For the base trajectory `(0,0,0;1,1,1,1)`, the formal scalar recurrence modes,
@@ -86,7 +86,7 @@ that example without interpreting a failed reducer as mathematical evidence.
 `validate.py` independently computes initial Barnes residues and propagates
 them by exact rational matrix walks. At depths `10, 40, 100, 200`, the positive
 series below agrees with propagation to approximately 400 digits for three
-trajectory/argument pairs, including unequal upper slopes and `m = 2`.
+trajectory/argument pairs, including unequal upper slopes and `b = 2`.
 The canonical initial residues and propagation also agree with a direct
 Meijer G evaluation at depth ten to approximately 380 digits. These are
 numerical checks, not substitutes for a proof.
@@ -122,14 +122,14 @@ insert `exp(i pi x)`. Away from the poles, the exact integrand identity is
 \[
  B_n(x):=
  \frac{\Gamma(x)\prod_{i=1}^{3}\Gamma(A_i n-x+1)}{\Gamma(1-x)^3}
- e^{i\pi x}z^{mn-x}
+ e^{i\pi x}z^{bn-x}
  =\frac{K_2-3K_1+3K_0-K_{-1}}{(2\pi i)^3}.
 \]
 
 Closing the left Hankel contour gives the proposed exact series identity
 
 \[
- F_+^{(h)}(n,z)=z^{mn}\sum_{\ell\ge0}(mn+\ell)^h z^\ell
+ F_+^{(h)}(n,z)=z^{bn}\sum_{\ell\ge0}(bn+\ell)^h z^\ell
        \frac{\prod_i\Gamma(A_i n+\ell+1)}{(\ell!)^4},
  \qquad 0\le h\le3.
 \]
@@ -165,7 +165,7 @@ root among the relevant saddles and does not need this boundary replacement.
 
 Use three contour modes with saddles `c,ic,-ic` and the positive series mode
 with saddle `-c`. After applying the common binomial moment transform and
-normalizing each mode, the target moment columns are
+normalizing each mode, the target moment colubns are
 
 \[
  (1,s,s^2,s^3)^T,\qquad s\in\{c,ic,-ic,-c\}.

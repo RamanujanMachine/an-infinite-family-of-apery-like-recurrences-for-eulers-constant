@@ -11,9 +11,9 @@ namespace ThisWork.HigherRank
 open Set Filter Metric
 open scoped Topology OnePoint
 
-theorem quadraticArc_parabolicPoint (a b t : ℝ) :
-    quadraticArc (2 * Complex.I * ((a : ℂ) + (b : ℂ) * Complex.I)) t =
-      parabolicPoint a (b + t) - parabolicPoint a b := by
+theorem quadraticArc_parabolicPoint (a auxB t : ℝ) :
+    quadraticArc (2 * Complex.I * ((a : ℂ) + (auxB : ℂ) * Complex.I)) t =
+      parabolicPoint a (auxB + t) - parabolicPoint a auxB := by
   unfold quadraticArc parabolicPoint
   push_cast
   ring_nf
@@ -25,28 +25,28 @@ variable {r : ℕ} {A : Fin (r - 1) → ℝ} {z : ℝ} {j : ℤ} {ζ : ℂ} {δ 
     {S : CompactSaddleFamily r A z j ζ δ} {v : ℂ} (D : S.LocalParabolicData v)
 
 noncomputable def kernelHalfMoment (A : Fin (r - 1) → ℝ) (z : ℝ) (j : ℤ) (v : ℂ)
-    (m n : ℕ) (σ : ℂ) (k : ℕ) (d cutoff : ℝ) : ℂ :=
+    (b n : ℕ) (σ : ℂ) (k : ℕ) (d cutoff : ℝ) : ℂ :=
   ∫ u in 0..cutoff, ((d : ℂ) * (v - 2 * ((u : ℂ) * (d : ℂ)))) *
     ((quadraticArc v ((u : ℂ) * (d : ℂ)) + σ) ^ k *
-      kernel r m A z j n ((largeScale r n : ℂ) * (quadraticArc v ((u : ℂ) * (d : ℂ)) + σ)))
+      kernel r b A z j n ((largeScale r n : ℂ) * (quadraticArc v ((u : ℂ) * (d : ℂ)) + σ)))
 
-noncomputable def localKernelMoment (m n : ℕ) (σ : ℂ) (k : ℕ) : ℂ :=
-  kernelHalfMoment A z j v m n σ k D.speed D.positive.cutoff -
-    kernelHalfMoment A z j v m n σ k (-D.speed) D.negative.cutoff
+noncomputable def localKernelMoment (b n : ℕ) (σ : ℂ) (k : ℕ) : ℂ :=
+  kernelHalfMoment A z j v b n σ k D.speed D.positive.cutoff -
+    kernelHalfMoment A z j v b n σ k (-D.speed) D.negative.cutoff
 
 theorem eventually_localKernelMoment_eq_phase (hr : 0 < r) (hA : ∀ i, 0 < A i)
-    (hslit : ball ζ δ ⊆ Complex.slitPlane) (m k : ℕ) :
+    (hslit : ball ζ δ ⊆ Complex.slitPlane) (b k : ℕ) :
     ∀ᶠ n : ℕ in atTop,
-      D.localKernelMoment m (n + D.shift + S.firstIndex) (S.saddle (n + D.shift)) k =
-        kernel r m A z j (n + D.shift + S.firstIndex)
+      D.localKernelMoment b (n + D.shift + S.firstIndex) (S.saddle (n + D.shift)) k =
+        kernel r b A z j (n + D.shift + S.firstIndex)
           ((largeScale r (n + D.shift + S.firstIndex) : ℂ) * S.saddle (n + D.shift)) *
             D.localMoment (largeScale r (n + D.shift + S.firstIndex)) k n := by
   filter_upwards [(tendsto_add_atTop_nat D.shift).eventually
-    (S.eventually_kernel_eq_phase hr hA hslit m)] with n hn
+    (S.eventually_kernel_eq_phase hr hA hslit b)] with n hn
   have hhalf (d cutoff : ℝ)
       (hball : ∀ u ∈ uIcc 0 cutoff, quadraticArc v ((u : ℂ) * (d : ℂ)) ∈ ball 0 (δ / 2)) :
-      kernelHalfMoment A z j v m (n + D.shift + S.firstIndex) (S.saddle (n + D.shift)) k d cutoff =
-        kernel r m A z j (n + D.shift + S.firstIndex)
+      kernelHalfMoment A z j v b (n + D.shift + S.firstIndex) (S.saddle (n + D.shift)) k d cutoff =
+        kernel r b A z j (n + D.shift + S.firstIndex)
           ((largeScale r (n + D.shift + S.firstIndex) : ℂ) * S.saddle (n + D.shift)) *
             D.halfMoment (largeScale r (n + D.shift + S.firstIndex)) k n d cutoff := by
     rw [kernelHalfMoment, halfMoment, ← intervalIntegral.integral_const_mul]

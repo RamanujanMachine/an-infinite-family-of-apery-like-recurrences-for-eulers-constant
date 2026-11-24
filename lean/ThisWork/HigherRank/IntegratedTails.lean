@@ -25,20 +25,20 @@ theorem integral_norm_le_shifted_exp_tail {f : ℝ → ℂ} {C a T : ℝ} (ha : 
   refine ⟨h.1, h.2.trans_eq ?_⟩
   rw [mul_assoc, ← Real.exp_add, show a * T + -a * T = 0 by ring, Real.exp_zero, mul_one]
 
-noncomputable def scaledLeftMomentKernel (r m : ℕ) (A : Fin (r - 1) → ℝ)
+noncomputable def scaledLeftMomentKernel (r b : ℕ) (A : Fin (r - 1) → ℝ)
     (z : ℝ) (j : ℤ) (n k : ℕ) (y t : ℝ) : ℂ :=
   (-(t : ℂ) + (y : ℂ) * Complex.I) ^ k *
-    kernel r m A z j n ((largeScale r n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))
+    kernel r b A z j n ((largeScale r n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))
 
 theorem uniform_integrated_moment_tail_from_endpoint {r : ℕ} (hr : 3 ≤ r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) {η H : ℝ} (hη : 0 < η) (hH : 0 ≤ H)
-    (m : ℕ) (z : ℝ) (j : ℤ) (k : ℕ) :
+    (b : ℕ) (z : ℝ) (j : ℤ) (k : ℕ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ y : ℝ, η ≤ |y| → |y| ≤ H →
-      IntegrableOn (scaledLeftMomentKernel r m A z j n k y) (Ioi T) ∧
-        ‖∫ t in Ioi T, scaledLeftMomentKernel r m A z j n k y t‖ ≤
-          Real.exp T * ‖kernel r m A z j n
+      IntegrableOn (scaledLeftMomentKernel r b A z j n k y) (Ioi T) ∧
+        ‖∫ t in Ioi T, scaledLeftMomentKernel r b A z j n k y t‖ ≤
+          Real.exp T * ‖kernel r b A z j n
             ((largeScale r n : ℂ) * (-(T : ℂ) + (y : ℂ) * Complex.I))‖ / largeScale r n := by
-  obtain ⟨T₀, hT₀, hb⟩ := uniform_kernel_tail_exponential_decay (H := H) hr hA hη m z j 2
+  obtain ⟨T₀, hT₀, hb⟩ := uniform_kernel_tail_exponential_decay (H := H) hr hA hη b z j 2
   obtain ⟨Tp, hTp⟩ := eventually_atTop.mp
     (Analytic.eventually_shifted_pow_le_exp (D := H + 1) (by positivity) k)
   let T := max T₀ Tp
@@ -48,12 +48,12 @@ theorem uniform_integrated_moment_tail_from_endpoint {r : ℕ} (hr : 3 ≤ r)
     (eventually_ge_atTop (1 : ℝ))] with n hn hR y hy hyH
   have hR0 : 0 < largeScale r n := zero_lt_one.trans_le hR
   have hy0 : y ≠ 0 := by intro he; rw [he, abs_zero] at hy; linarith
-  have hcont : ContinuousOn (scaledLeftMomentKernel r m A z j n k y) (Ioi T) := by
-    have hk : ContinuousOn (fun t : ℝ => kernel r m A z j n
+  have hcont : ContinuousOn (scaledLeftMomentKernel r b A z j n k y) (Ioi T) := by
+    have hk : ContinuousOn (fun t : ℝ => kernel r b A z j n
         ((largeScale r n : ℂ) * (-(t : ℂ) + (y : ℂ) * Complex.I))) (Ioi T) :=
-      (show ContinuousOn (kernel r m A z j n) (kernelDomain r A n) from
-        (show DifferentiableOn ℂ (kernel r m A z j n) (kernelDomain r A n) from
-          fun _ hs => (differentiableAt_kernel m z j n hs).differentiableWithinAt).continuousOn).comp
+      (show ContinuousOn (kernel r b A z j n) (kernelDomain r A n) from
+        (show DifferentiableOn ℂ (kernel r b A z j n) (kernelDomain r A n) from
+          fun _ hs => (differentiableAt_kernel b z j n hs).differentiableWithinAt).continuousOn).comp
         (by fun_prop) (fun t ht => scaled_left_mem_kernelDomain hA n hR0
           (by linarith [show T < t from ht]) hy0)
     exact (by fun_prop : ContinuousOn (fun t : ℝ => (-(t : ℂ) + (y : ℂ) * Complex.I) ^ k) (Ioi T)).mul hk
@@ -69,13 +69,13 @@ theorem uniform_integrated_moment_tail_from_endpoint {r : ℕ} (hr : 3 ≤ r)
   have hkernel := hn T (le_max_left _ _) t htT y hy hyH
   rw [scaledLeftMomentKernel, norm_mul, norm_pow]
   calc
-    _ ≤ Real.exp t * (‖kernel r m A z j n
+    _ ≤ Real.exp t * (‖kernel r b A z j n
         ((largeScale r n : ℂ) * (-(T : ℂ) + (y : ℂ) * Complex.I))‖ *
           Real.exp (-2 * largeScale r n * (t - T))) :=
       mul_le_mul hpoly hkernel (norm_nonneg _) (Real.exp_pos t).le
-    _ = ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(T : ℂ) + (y : ℂ) * Complex.I))‖ *
+    _ = ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(T : ℂ) + (y : ℂ) * Complex.I))‖ *
         Real.exp (t + (-2 * largeScale r n * (t - T))) := by rw [Real.exp_add]; ring
-    _ ≤ ‖kernel r m A z j n ((largeScale r n : ℂ) * (-(T : ℂ) + (y : ℂ) * Complex.I))‖ *
+    _ ≤ ‖kernel r b A z j n ((largeScale r n : ℂ) * (-(T : ℂ) + (y : ℂ) * Complex.I))‖ *
         Real.exp (T - largeScale r n * (t - T)) := mul_le_mul_of_nonneg_left
       (Real.exp_le_exp.mpr (by nlinarith [mul_nonneg (sub_nonneg.mpr hR) (sub_nonneg.mpr htT)])) (norm_nonneg _)
     _ = _ := by

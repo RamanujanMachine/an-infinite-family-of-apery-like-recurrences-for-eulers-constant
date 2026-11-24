@@ -43,16 +43,16 @@ theorem eventually_translation_lt {d : ℝ} (hd : 0 < d) :
 @[simp] theorem translation_add_point (n : ℕ) :
     D.translation n + parabolicPoint D.a D.b = D.center n := sub_add_cancel _ _
 
-noncomputable def saddleKernel (m n : ℕ) : ℂ :=
-  kernel r m A z j (D.index n) ((largeScale r (D.index n) : ℂ) * D.center n)
+noncomputable def saddleKernel (b n : ℕ) : ℂ :=
+  kernel r b A z j (D.index n) ((largeScale r (D.index n) : ℂ) * D.center n)
 
-theorem eventually_saddleKernel_ne_zero (hr : 0 < r) (hA : ∀ i, 0 < A i) (m : ℕ) :
-    ∀ᶠ n : ℕ in atTop, D.saddleKernel m n ≠ 0 := by
+theorem eventually_saddleKernel_ne_zero (hr : 0 < r) (hA : ∀ i, 0 < A i) (b : ℕ) :
+    ∀ᶠ n : ℕ in atTop, D.saddleKernel b n ≠ 0 := by
   filter_upwards [D.index_tendsto.eventually (eventually_translated_parabola_in_kernelDomain hr hA D.a_pos),
     D.eventually_translation_lt (by have ha := D.a_pos; positivity : 0 < D.a ^ 2 / 8)] with n hn hδ
   have hs := hn (D.translation n) hδ.le D.b
   rw [D.translation_add_point] at hs
-  exact kernel_ne_zero m z j (D.index n) hs
+  exact kernel_ne_zero b z j (D.index n) hs
 
 theorem angle_relation : (r : ℝ) * (2 * Real.arctan (D.b / D.a)) = -2 * Real.pi * j := by
   have hz : limitingEquation r A z j (parabolicPoint D.a D.b) = 0 := by

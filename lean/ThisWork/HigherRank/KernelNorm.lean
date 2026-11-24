@@ -50,12 +50,12 @@ theorem gammaScale_pos {r : ℕ} {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i)
   Finset.prod_pos (fun i _ => Real.Gamma_pos_of_pos (by have hi := hA i; positivity))
 
 theorem commonScale_pos {r : ℕ} {A : Fin (r - 1) → ℝ} {z : ℝ}
-    (hA : ∀ i, 0 < A i) (hz : 0 < z) (m n : ℕ) : 0 < commonScale r m A z n :=
+    (hA : ∀ i, 0 < A i) (hz : 0 < z) (b n : ℕ) : 0 < commonScale r b A z n :=
   mul_pos (gammaScale_pos hA n) (pow_pos hz _)
 
 theorem log_commonScale {r : ℕ} {A : Fin (r - 1) → ℝ} {z : ℝ}
-    (hA : ∀ i, 0 < A i) (hz : 0 < z) (m n : ℕ) :
-    Real.log (commonScale r m A z n) = Real.log (gammaScale r A n) + Real.log z * ((m : ℝ) * n) := by
+    (hA : ∀ i, 0 < A i) (hz : 0 < z) (b n : ℕ) :
+    Real.log (commonScale r b A z n) = Real.log (gammaScale r A n) + Real.log z * ((b : ℝ) * n) := by
   rw [commonScale, Real.log_mul (gammaScale_pos hA n).ne' (pow_pos hz _).ne', Real.log_pow]
   push_cast
   ring
@@ -84,13 +84,13 @@ theorem uniform_rightGammaNormError {r : ℕ} (hr : 1 ≤ r) {α M : ℝ} (hα :
     _ = _ := by ring
 
 theorem log_norm_kernel_error {r : ℕ} (hr : 0 < r) {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (j : ℤ) {n : ℕ} (hn : 0 < n)
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (j : ℤ) {n : ℕ} (hn : 0 < n)
     {s : ℂ} (hs : s ≠ 0) (hx : (largeScale r n : ℂ) * s ∈ kernelDomain r A n) :
-    Real.log ‖kernel r m A z j n ((largeScale r n : ℂ) * s)‖ - Real.log (gammaScale r A n) -
-      Real.log z * ((m : ℝ) * n) - largeScale r n * (limitingPhase r A z j s).re =
+    Real.log ‖kernel r b A z j n ((largeScale r n : ℂ) * s)‖ - Real.log (gammaScale r A n) -
+      Real.log z * ((b : ℝ) * n) - largeScale r n * (limitingPhase r A z j s).re =
       (r : ℝ) * Analytic.gammaNormError ((largeScale r n : ℂ) * s) +
         ∑ i, rightGammaNormError r (A i) n s := by
-  have hk := log_norm_kernel m z j n hx
+  have hk := log_norm_kernel b z j n hx
   have hH := log_gammaScale hA n
   have hm := congrArg Complex.re (scaled_stirlingMain_kernel hr hA z j hn hs)
   simp only [Complex.sub_re, Complex.add_re, Complex.mul_re, Complex.natCast_re,

@@ -14,10 +14,10 @@ open scoped Topology
 
 theorem uniform_log_norm_kernel_positive_anchor {r : ℕ} (hr : 3 ≤ r)
     {A : Fin (r - 1) → ℝ} {z q : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (hq : 0 < q)
-    (m : ℕ) (j : ℤ) :
+    (b : ℕ) (j : ℤ) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop,
-      |Real.log ‖kernel r m A z j n ((largeScale r n : ℂ) * (q : ℂ))‖ -
-        Real.log (commonScale r m A z n) - largeScale r n * (limitingPhase r A z j q).re| ≤
+      |Real.log ‖kernel r b A z j n ((largeScale r n : ℂ) * (q : ℂ))‖ -
+        Real.log (commonScale r b A z n) - largeScale r n * (limitingPhase r A z j q).re| ≤
           C * (largeScale r n * smallParameter r n) := by
   obtain ⟨G, hG, hg⟩ := Analytic.uniform_scaled_gammaNormError_right hq hq
   have hu (i : Fin (r - 1)) := uniform_rightGammaNormError (show 1 ≤ r by omega) (hA i) hq
@@ -41,10 +41,10 @@ theorem uniform_log_norm_kernel_positive_anchor {r : ℕ} (hr : 3 ≤ r)
     exact Finset.sum_le_sum (fun i _ => hnC i q hqnorm)
   have hx : (largeScale r n : ℂ) * (q : ℂ) ∈ kernelDomain r A n :=
     hdom q (by simp) (Complex.mem_slitPlane_iff.mpr (Or.inl (by simpa using hq)))
-  have he := log_norm_kernel_error (by omega : 0 < r) hA m z j (by omega : 0 < n)
+  have he := log_norm_kernel_error (by omega : 0 < r) hA b z j (by omega : 0 < n)
     (Complex.ofReal_ne_zero.mpr hq.ne') hx
-  have herr : Real.log ‖kernel r m A z j n ((largeScale r n : ℂ) * (q : ℂ))‖ -
-      Real.log (commonScale r m A z n) - largeScale r n * (limitingPhase r A z j q).re =
+  have herr : Real.log ‖kernel r b A z j n ((largeScale r n : ℂ) * (q : ℂ))‖ -
+      Real.log (commonScale r b A z n) - largeScale r n * (limitingPhase r A z j q).re =
       (r : ℝ) * Analytic.gammaNormError ((largeScale r n : ℂ) * (q : ℂ)) +
         ∑ i, rightGammaNormError r (A i) n q := by
     rw [log_commonScale hA hz]

@@ -13,7 +13,7 @@ open Set Filter
 open scoped Topology
 
 theorem rho_injective_on_principal : Set.InjOn Phase.rho (Ioo (-Real.pi) Real.pi) := by
-  intro a ha b hb he
+  intro a ha auxB hb he
   have h := Complex.exp_inj_of_neg_pi_lt_of_le_pi
     (by simpa using ha.1) (by simpa using ha.2.le)
     (by simpa using hb.1) (by simpa using hb.2.le) he
@@ -47,20 +47,20 @@ theorem offCut_zeroCenter_linearIndependent {r d : ℕ} (hr : 3 ≤ r) (hd : d �
 
 theorem offCut_linearIndependent {r d : ℕ} (hr : 3 ≤ r) (hd : d ≤ r)
     {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z)
-    (m : ℕ) (J : Fin d → ℤ) (θ : Fin d → ℝ)
+    (b : ℕ) (J : Fin d → ℤ) (θ : Fin d → ℝ)
     (hθ : ∀ i, θ i ∈ Ioo (-Real.pi) Real.pi)
     (hj : ∀ i, (r : ℝ) * θ i = -2 * Real.pi * J i)
     (hinj : Function.Injective θ) :
-    LinearIndependent ℂ (fun i => branchIntegral r m A z (J i)) := by
+    LinearIndependent ℂ (fun i => branchIntegral r b A z (J i)) := by
   let F : (ℕ → Fin r → ℂ) →ₗ[ℂ] (ℕ → Fin r → ℂ) :=
     LinearMap.pi (fun n =>
-      Complex.exp ((Real.log z : ℂ) * (-(m : ℂ) * n)) •
-        ((translateMomentsLinear r (-(m : ℂ) * n)).comp (LinearMap.proj n)))
-  have hF (i : Fin d) : F (branchIntegral r m A z (J i)) = branchIntegral r 0 A z (J i) := by
+      Complex.exp ((Real.log z : ℂ) * (-(b : ℂ) * n)) •
+        ((translateMomentsLinear r (-(b : ℂ) * n)).comp (LinearMap.proj n)))
+  have hF (i : Fin d) : F (branchIntegral r b A z (J i)) = branchIntegral r 0 A z (J i) := by
     funext n
-    have h := branchIntegral_change_center (by omega : 0 < r) hA 0 m z (J i) n
-    change Complex.exp ((Real.log z : ℂ) * (-(m : ℂ) * n)) •
-      translateMoments r (-(m : ℂ) * n) (branchIntegral r m A z (J i) n) = _
+    have h := branchIntegral_change_center (by omega : 0 < r) hA 0 b z (J i) n
+    change Complex.exp ((Real.log z : ℂ) * (-(b : ℂ) * n)) •
+      translateMoments r (-(b : ℂ) * n) (branchIntegral r b A z (J i) n) = _
     simpa only [Nat.cast_zero, zero_sub] using h.symm
   apply LinearIndependent.of_comp F
   simpa only [Function.comp_def, hF] using

@@ -55,24 +55,24 @@ theorem uniform_re_reflectedEquation_real_lower {r : ℕ} (hr : 3 ≤ r)
   nlinarith [le_abs_self (Real.log z)]
 
 theorem hasDerivAt_log_norm_reflectedKernel_left {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (hA : ∀ i, 0 < A i) (m : ℕ) (z : ℝ) (n : ℕ) {R t : ℝ} (hR : 0 < R) (ht : 0 < t) :
-    HasDerivAt (fun u : ℝ => Real.log ‖reflectedKernel r m A z n (-(R : ℂ) * (u : ℂ))‖)
-      (-R * (logDeriv (reflectedKernel r m A z n) (-(R : ℂ) * (t : ℂ))).re) t := by
+    (hA : ∀ i, 0 < A i) (b : ℕ) (z : ℝ) (n : ℕ) {R t : ℝ} (hR : 0 < R) (ht : 0 < t) :
+    HasDerivAt (fun u : ℝ => Real.log ‖reflectedKernel r b A z n (-(R : ℂ) * (u : ℂ))‖)
+      (-R * (logDeriv (reflectedKernel r b A z n) (-(R : ℂ) * (t : ℂ))).re) t := by
   have hγ : HasDerivAt (fun u : ℝ => -(R : ℂ) * (u : ℂ)) (-(R : ℂ)) t := by
     simpa only [id_eq, Complex.ofReal_one, mul_one] using ((hasDerivAt_id t).ofReal_comp).const_mul (-(R : ℂ))
   have hx : (-(R : ℂ) * (t : ℂ)).re < 1 := by simp only [Complex.mul_re, Complex.neg_re,
     Complex.ofReal_re, Complex.neg_im, Complex.ofReal_im, neg_zero, zero_mul, sub_zero]; nlinarith
   have h := Analytic.hasDerivAt_log_norm_comp (isOpen_lt Complex.continuous_re continuous_const)
-    (fun x hx => (differentiableAt_reflectedKernel_of_re_lt_one hA m z n hx).differentiableWithinAt)
-    (fun x hx => reflectedKernel_ne_zero_of_re_lt_one hA m z n hx) hγ hx
+    (fun x hx => (differentiableAt_reflectedKernel_of_re_lt_one hA b z n hx).differentiableWithinAt)
+    (fun x hx => reflectedKernel_ne_zero_of_re_lt_one hA b z n hx) hγ hx
   simpa only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re,
     Complex.neg_im, Complex.ofReal_im, neg_zero, zero_mul, sub_zero, neg_mul] using h
 
 theorem uniform_reflected_real_tail_decay {r : ℕ} (hr : 3 ≤ r)
-    {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) (m : ℕ) (z q : ℝ) :
+    {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) (b : ℕ) (z q : ℝ) :
     ∃ T ≥ 1, ∀ᶠ n : ℕ in atTop, ∀ a : ℝ, T ≤ a → ∀ t : ℝ, a ≤ t →
-      ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (t : ℂ))‖ ≤
-        ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (a : ℂ))‖ *
+      ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (t : ℂ))‖ ≤
+        ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (a : ℂ))‖ *
           Real.exp (-q * largeScale r n * (t - a)) := by
   obtain ⟨C, _, hb⟩ := uniform_re_reflectedEquation_real_lower hr hA z
   let T := Real.exp (C + q + 1) + 1
@@ -83,10 +83,10 @@ theorem uniform_reflected_real_tail_decay {r : ℕ} (hr : 3 ≤ r)
   have ht1 := ha1.trans hat
   have hR : 0 < largeScale r n := Real.rpow_pos_of_pos (Nat.cast_pos.mpr hn0) _
   have hd (u : ℝ) (hu : 1 ≤ u) : HasDerivAt
-      (fun v : ℝ => Real.log ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (v : ℂ))‖)
+      (fun v : ℝ => Real.log ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (v : ℂ))‖)
       (-largeScale r n * (reflectedEquation r A z n (-(u : ℂ))).re) u := by
-    have h := hasDerivAt_log_norm_reflectedKernel_left hA m z n hR (zero_lt_one.trans_le hu)
-    rw [logDeriv_reflectedKernel_of_re_lt_one hA m z n
+    have h := hasDerivAt_log_norm_reflectedKernel_left hA b z n hR (zero_lt_one.trans_le hu)
+    rw [logDeriv_reflectedKernel_of_re_lt_one hA b z n
       (show (-(largeScale r n : ℂ) * (u : ℂ)).re < 1 by
         simp only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re, Complex.neg_im,
           Complex.ofReal_im, neg_zero, zero_mul, sub_zero]; nlinarith)] at h
@@ -100,13 +100,13 @@ theorem uniform_reflected_real_tail_decay {r : ℕ} (hr : 3 ≤ r)
   have hphase : q * (t - a) ≤ t * Real.log t - a * Real.log a - (C + 1) * (t - a) := by
     nlinarith [mul_nonneg (show 0 ≤ t by linarith) (sub_nonneg.mpr hlogt),
       mul_nonneg (sub_nonneg.mpr hat) (sub_nonneg.mpr hloga)]
-  have hKa : 0 < ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (a : ℂ))‖ :=
-    norm_pos_iff.mpr (reflectedKernel_ne_zero_of_re_lt_one hA m z n (by
+  have hKa : 0 < ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (a : ℂ))‖ :=
+    norm_pos_iff.mpr (reflectedKernel_ne_zero_of_re_lt_one hA b z n (by
       simp only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re, Complex.neg_im,
         Complex.ofReal_im, neg_zero, zero_mul, sub_zero]; nlinarith))
   calc
-    _ ≤ Real.exp (Real.log ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (t : ℂ))‖) := Real.le_exp_log _
-    _ ≤ Real.exp (Real.log ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (a : ℂ))‖ -
+    _ ≤ Real.exp (Real.log ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (t : ℂ))‖) := Real.le_exp_log _
+    _ ≤ Real.exp (Real.log ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (a : ℂ))‖ -
         q * largeScale r n * (t - a)) := Real.exp_le_exp.mpr (by nlinarith [mul_le_mul_of_nonneg_left hphase hR.le])
     _ = _ := by rw [Real.exp_sub, Real.exp_log hKa, div_eq_mul_inv, ← Real.exp_neg]; congr 2; ring
 

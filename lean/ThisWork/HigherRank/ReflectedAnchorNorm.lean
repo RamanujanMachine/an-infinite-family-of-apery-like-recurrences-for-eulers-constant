@@ -12,10 +12,10 @@ open Set Filter Metric
 open scoped Topology
 
 theorem uniform_log_norm_reflectedKernel_negative_anchor {r : ℕ} (hr : 3 ≤ r)
-    {A : Fin (r - 1) → ℝ} {z q : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (hq : 0 < q) (m : ℕ) :
+    {A : Fin (r - 1) → ℝ} {z q : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (hq : 0 < q) (b : ℕ) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop,
-      |Real.log ‖reflectedKernel r m A z n ((largeScale r n : ℂ) * (-(q : ℂ)))‖ -
-        Real.log (commonScale r m A z n) - largeScale r n * (reflectedPhase r A z (-(q : ℂ))).re| ≤
+      |Real.log ‖reflectedKernel r b A z n ((largeScale r n : ℂ) * (-(q : ℂ)))‖ -
+        Real.log (commonScale r b A z n) - largeScale r n * (reflectedPhase r A z (-(q : ℂ))).re| ≤
           C * (largeScale r n * smallParameter r n) := by
   obtain ⟨G, hG, hg⟩ := uniform_gamma_error_and_log_positive_anchor hr hq
   have hu (i : Fin (r - 1)) := uniform_rightGammaNormError (show 1 ≤ r by omega) (hA i) hq
@@ -31,7 +31,7 @@ theorem uniform_log_norm_reflectedKernel_negative_anchor {r : ℕ} (hr : 3 ≤ r
     simp only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re, Complex.neg_im,
       Complex.ofReal_im, neg_zero, zero_mul, sub_zero]
     nlinarith [mul_pos hR hq]
-  rw [log_norm_reflectedKernel_error (by omega : 0 < r) hA hz m hn0 hslit hx]
+  rw [log_norm_reflectedKernel_error (by omega : 0 < r) hA hz b hn0 hslit hx]
   simp only [neg_neg]
   have hupper : (∑ i, |rightGammaNormError r (A i) n (-(q : ℂ))|) ≤
       (∑ i, C i) * (largeScale r n * smallParameter r n) := by
@@ -48,13 +48,13 @@ theorem uniform_log_norm_reflectedKernel_negative_anchor {r : ℕ} (hr : 3 ≤ r
   nlinarith [mul_le_mul_of_nonneg_left hnG (Nat.cast_nonneg r : (0 : ℝ) ≤ r)]
 
 theorem reflectedKernel_saddle_growth {r : ℕ} (hr : 3 ≤ r)
-    {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (m : ℕ) :
+    {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (b : ℕ) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop,
-      |Real.log ‖reflectedKernel r m A z n
+      |Real.log ‖reflectedKernel r b A z n
         ((largeScale r n : ℂ) * (-(saddleScale r A z : ℂ)))‖ -
-        Real.log (commonScale r m A z n) - (r : ℝ) * saddleScale r A z * largeScale r n| ≤
+        Real.log (commonScale r b A z n) - (r : ℝ) * saddleScale r A z * largeScale r n| ≤
           C * (largeScale r n * smallParameter r n) := by
-  obtain ⟨C, hC, hb⟩ := uniform_log_norm_reflectedKernel_negative_anchor hr hA hz (saddleScale_pos hA hz) m
+  obtain ⟨C, hC, hb⟩ := uniform_log_norm_reflectedKernel_negative_anchor hr hA hz (saddleScale_pos hA hz) b
   refine ⟨C, hC, ?_⟩
   filter_upwards [hb] with n hn
   rw [reflectedPhase_saddle (by omega : 0 < r) hA hz] at hn

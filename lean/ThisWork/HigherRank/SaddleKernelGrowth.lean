@@ -34,28 +34,28 @@ theorem exists_local_limitingPhase_lipschitz (r : ℕ) (A : Fin (r - 1) → ℝ)
   simpa only [sub_self, sub_zero] using h
 
 theorem uniform_log_norm_kernel_near_saddle {r : ℕ} (hr : 3 ≤ r)
-    {A : Fin (r - 1) → ℝ} {z a b : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (ha : 0 < a)
-    (m : ℕ) (j : ℤ) (E : ℝ) :
-    ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ σ : ℂ, ‖σ - parabolicPoint a b‖ ≤ E * smallParameter r n →
-      |Real.log ‖kernel r m A z j n ((largeScale r n : ℂ) * σ)‖ - Real.log (commonScale r m A z n) -
-        largeScale r n * (limitingPhase r A z j (parabolicPoint a b)).re| ≤
+    {A : Fin (r - 1) → ℝ} {z a auxB : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (ha : 0 < a)
+    (b : ℕ) (j : ℤ) (E : ℝ) :
+    ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ σ : ℂ, ‖σ - parabolicPoint a auxB‖ ≤ E * smallParameter r n →
+      |Real.log ‖kernel r b A z j n ((largeScale r n : ℂ) * σ)‖ - Real.log (commonScale r b A z n) -
+        largeScale r n * (limitingPhase r A z j (parabolicPoint a auxB)).re| ≤
           C * (largeScale r n * smallParameter r n) := by
-  obtain ⟨Ca, hCa, hanchor⟩ := uniform_log_norm_kernel_parabola hr hA hz m j ha (abs_nonneg b)
-  obtain ⟨d, hd, L, hL, hphase⟩ := exists_local_limitingPhase_lipschitz r A z j (parabolicPoint_mem_slitPlane ha b)
+  obtain ⟨Ca, hCa, hanchor⟩ := uniform_log_norm_kernel_parabola hr hA hz b j ha (abs_nonneg auxB)
+  obtain ⟨d, hd, L, hL, hphase⟩ := exists_local_limitingPhase_lipschitz r A z j (parabolicPoint_mem_slitPlane ha auxB)
   have ht : Tendsto (fun n => E * smallParameter r n) atTop (𝓝 0) := by
     simpa only [mul_zero] using (smallParameter_tendsto (show 0 < r by omega)).const_mul E
   refine ⟨Ca + L * |E|, by positivity, ?_⟩
   filter_upwards [hanchor, ht.eventually_lt_const (lt_min hd (by positivity : 0 < a ^ 2 / 8)),
     eventually_gt_atTop (0 : ℕ)] with n hn hsmall hn0 σ hσ
-  have hδ : ‖σ - parabolicPoint a b‖ ≤ a ^ 2 / 8 := hσ.trans
+  have hδ : ‖σ - parabolicPoint a auxB‖ ≤ a ^ 2 / 8 := hσ.trans
     (le_of_lt (hsmall.trans_le (min_le_right _ _)))
-  have hs : σ ∈ ball (parabolicPoint a b) d := by
+  have hs : σ ∈ ball (parabolicPoint a auxB) d := by
     rw [mem_ball, dist_eq_norm]
     exact hσ.trans_lt (hsmall.trans_le (min_le_left _ _))
-  have he := hn (σ - parabolicPoint a b) hδ b le_rfl
+  have he := hn (σ - parabolicPoint a auxB) hδ auxB le_rfl
   rw [sub_add_cancel] at he
   have hp := (Complex.abs_re_le_norm (limitingPhase r A z j σ -
-    limitingPhase r A z j (parabolicPoint a b))).trans
+    limitingPhase r A z j (parabolicPoint a auxB))).trans
       ((hphase σ hs).trans (mul_le_mul_of_nonneg_right hσ hL))
   rw [Complex.sub_re] at hp
   have hR : 0 ≤ largeScale r n := (Real.rpow_pos_of_pos (Nat.cast_pos.mpr hn0) _).le
@@ -70,14 +70,14 @@ theorem uniform_log_norm_kernel_near_saddle {r : ℕ} (hr : 3 ≤ r)
 namespace OffCutLocalData
 
 theorem saddleKernel_growth {r : ℕ} (hr : 3 ≤ r) {A : Fin (r - 1) → ℝ} {z θ : ℝ} {j : ℤ}
-    (D : OffCutLocalData r A z j θ) (hA : ∀ i, 0 < A i) (hz : 0 < z) (m : ℕ) :
+    (D : OffCutLocalData r A z j θ) (hA : ∀ i, 0 < A i) (hz : 0 < z) (b : ℕ) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop,
-      |Real.log ‖kernel r m A z j (n + D.family.firstIndex)
+      |Real.log ‖kernel r b A z j (n + D.family.firstIndex)
         ((largeScale r (n + D.family.firstIndex) : ℂ) * D.family.saddle n)‖ -
-          Real.log (commonScale r m A z (n + D.family.firstIndex)) +
+          Real.log (commonScale r b A z (n + D.family.firstIndex)) +
           largeScale r (n + D.family.firstIndex) * ((r : ℝ) * saddleScale r A z * (Phase.rho θ).re)| ≤
             C * (largeScale r (n + D.family.firstIndex) * smallParameter r (n + D.family.firstIndex)) := by
-  obtain ⟨C, hC, hb⟩ := uniform_log_norm_kernel_near_saddle (b := D.b) hr hA hz D.a_pos m j D.family.errorConstant
+  obtain ⟨C, hC, hb⟩ := uniform_log_norm_kernel_near_saddle (auxB := D.b) hr hA hz D.a_pos b j D.family.errorConstant
   have hzero : limitingEquation r A z j (parabolicPoint D.a D.b) = 0 := by
     simpa only [parameterEquation,
       Analytic.sequenceFamily_infty, D.family.saddle_limit] using D.family.equation_zero ∞

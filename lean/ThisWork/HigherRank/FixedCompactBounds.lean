@@ -71,11 +71,11 @@ theorem uniform_upperGamma_fixed_bound {r : ℕ} (hr : 0 < r)
 
 theorem uniform_upperGamma_weighted_fixed_bound {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} {z M B : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z)
-    (hM : 0 ≤ M) (hB : 0 ≤ B) (m : ℕ) :
+    (hM : 0 ≤ M) (hB : 0 ≤ B) (b : ℕ) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ x : ℂ, ‖x‖ ≤ M → ∀ w : ℂ, ‖w‖ ≤ B →
       ‖w * (∏ i, Complex.Gamma ((A i : ℂ) * n - x + 1)) *
-        Complex.exp ((Real.log z : ℂ) * ((m : ℂ) * n - x))‖ ≤
-        (B * Real.exp (|Real.log z| * M)) * commonScale r m A z n *
+        Complex.exp ((Real.log z : ℂ) * ((b : ℂ) * n - x))‖ ≤
+        (B * Real.exp (|Real.log z| * M)) * commonScale r b A z n *
           Real.exp (C * (1 + Real.log (n : ℝ))) := by
   obtain ⟨C, hC, hb⟩ := uniform_upperGamma_fixed_bound hr hA hM
   refine ⟨C, hC, ?_⟩
@@ -86,10 +86,10 @@ theorem uniform_upperGamma_weighted_fixed_bound {r : ℕ} (hr : 0 < r)
     have hneg := neg_le_abs (Real.log z * x.re)
     rw [abs_mul] at hneg
     nlinarith
-  have he : ‖Complex.exp ((Real.log z : ℂ) * ((m : ℂ) * n - x))‖ ≤
-      z ^ (m * n) * Real.exp (|Real.log z| * M) := by
+  have he : ‖Complex.exp ((Real.log z : ℂ) * ((b : ℂ) * n - x))‖ ≤
+      z ^ (b * n) * Real.exp (|Real.log z| * M) := by
     rw [Complex.norm_exp]
-    have hp : Real.exp (Real.log z * ((m : ℝ) * n)) = z ^ (m * n) := by
+    have hp : Real.exp (Real.log z * ((b : ℝ) * n)) = z ^ (b * n) := by
       rw [mul_comm, ← Nat.cast_mul, Real.exp_nat_mul, Real.exp_log hz]
     rw [← hp, ← Real.exp_add]
     apply Real.exp_le_exp.mpr
@@ -99,16 +99,16 @@ theorem uniform_upperGamma_weighted_fixed_bound {r : ℕ} (hr : 0 < r)
   rw [norm_mul, norm_mul]
   calc
     _ ≤ (B * (gammaScale r A n * Real.exp (C * (1 + Real.log (n : ℝ))))) *
-        (z ^ (m * n) * Real.exp (|Real.log z| * M)) :=
+        (z ^ (b * n) * Real.exp (|Real.log z| * M)) :=
       mul_le_mul (mul_le_mul hw (hn x hx) (norm_nonneg _) hB) he (norm_nonneg _)
         (mul_nonneg hB (mul_nonneg (gammaScale_pos hA n).le (Real.exp_pos _).le))
     _ = _ := by unfold commonScale; ring
 
 theorem uniform_reflectedKernel_fixed_compact_bound {r : ℕ} (hr : 0 < r)
-    {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (m : ℕ)
+    {A : Fin (r - 1) → ℝ} {z : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (b : ℕ)
     {K : Set ℂ} (hK : IsCompact K) (hleft : ∀ x ∈ K, x.re < 1) :
     ∃ B ≥ 0, ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ x ∈ K,
-      ‖reflectedKernel r m A z n x‖ ≤ B * commonScale r m A z n *
+      ‖reflectedKernel r b A z n x‖ ≤ B * commonScale r b A z n *
         Real.exp (C * (1 + Real.log (n : ℝ))) := by
   have hc : ContinuousOn (fun x : ℂ => (Complex.Gamma (1 - x))⁻¹ ^ r) K := by
     intro x hx
@@ -119,7 +119,7 @@ theorem uniform_reflectedKernel_fixed_compact_bound {r : ℕ} (hr : 0 < r)
   obtain ⟨M, hM⟩ := hK.exists_bound_of_continuousOn continuous_id.continuousOn
   obtain ⟨B, hB⟩ := hK.exists_bound_of_continuousOn hc
   obtain ⟨C, hC, hb⟩ := uniform_upperGamma_weighted_fixed_bound hr hA hz
-    (le_max_left 0 M) (le_max_left 0 B) m
+    (le_max_left 0 M) (le_max_left 0 B) b
   refine ⟨max 0 B * Real.exp (|Real.log z| * max 0 M), by positivity, C, hC, ?_⟩
   filter_upwards [hb] with n hn x hx
   exact hn x ((hM x hx).trans (le_max_right 0 M)) _ ((hB x hx).trans (le_max_right 0 B))

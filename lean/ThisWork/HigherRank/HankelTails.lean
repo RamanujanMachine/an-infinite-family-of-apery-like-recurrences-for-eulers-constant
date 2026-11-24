@@ -12,11 +12,11 @@ open Set Filter Metric
 open scoped Topology
 
 theorem log_norm_kernel {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
-    Real.log ‖kernel r m A z j n x‖ = (r : ℝ) * Real.log ‖Complex.Gamma x‖ +
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
+    Real.log ‖kernel r b A z j n x‖ = (r : ℝ) * Real.log ‖Complex.Gamma x‖ +
       (∑ i, Real.log ‖Complex.Gamma ((A i : ℂ) * n - x + 1)‖) +
       (2 * (Real.pi : ℂ) * Complex.I * j * x).re +
-      ((Real.log z : ℂ) * ((m : ℂ) * n - x)).re := by
+      ((Real.log z : ℂ) * ((b : ℂ) * n - x)).re := by
   have h₀ := norm_ne_zero_iff.mpr (Complex.Gamma_ne_zero (Analytic.not_neg_nat_of_mem_slitPlane hx.1))
   have hi (i : Fin (r - 1)) := norm_ne_zero_iff.mpr (Complex.Gamma_ne_zero_of_re_pos (upper_re_pos hx i))
   simp only [kernel, norm_mul, norm_pow, norm_prod, Complex.norm_exp]
@@ -29,9 +29,9 @@ theorem log_norm_kernel {r : ℕ} {A : Fin (r - 1) → ℝ}
 
 theorem uniform_log_norm_kernel_left_strip {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) {H : ℝ} (hH : 1 ≤ H)
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) :
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) :
     ∃ B ≥ 0, ∀ᶠ T : ℝ in atTop, ∀ y : ℝ, 1 ≤ |y| → |y| ≤ H →
-      Real.log ‖kernel r m A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤
+      Real.log ‖kernel r b A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤
         -T * Real.log T + (1 + |Real.log z|) * T +
           ((∑ i, (A i * n + 1)) + 2) * Real.log T + B := by
   let D := (∑ i, (A i * n + 1)) + 1
@@ -46,7 +46,7 @@ theorem uniform_log_norm_kernel_left_strip {r : ℕ} (hr : 0 < r)
   obtain ⟨C, hC, hb⟩ := Analytic.uniform_log_norm_Gamma_strip_shift
     (D := D) (H := H) (by dsimp only [D]; positivity) (by linarith)
   let B := (2 * (r : ℝ)) * C + (r : ℝ) * (Real.log Real.pi + Real.log 4) +
-    2 * Real.pi * |(j : ℝ)| * H + |Real.log z| * (m : ℝ) * n + |Analytic.gammaNormError 2|
+    2 * Real.pi * |(j : ℝ)| * H + |Real.log z| * (b : ℝ) * n + |Analytic.gammaNormError 2|
   refine ⟨max 0 B, le_max_left _ _, ?_⟩
   filter_upwards [hb] with T hT y hy hyH
   let x : ℂ := -(T : ℂ) + (y : ℂ) * Complex.I
@@ -99,44 +99,44 @@ theorem uniform_log_norm_kernel_left_strip {r : ℕ} (hr : 0 < r)
       _ ≤ |2 * Real.pi * (j : ℝ) * y| := neg_le_abs _
       _ = 2 * Real.pi * |(j : ℝ)| * |y| := by rw [abs_mul, abs_mul, abs_of_pos (by positivity : 0 < 2 * Real.pi)]
       _ ≤ _ := mul_le_mul_of_nonneg_left hyH (by positivity)
-  have hz : ((Real.log z : ℂ) * ((m : ℂ) * n - x)).re ≤
-      |Real.log z| * ((m : ℝ) * n + T) := by
+  have hz : ((Real.log z : ℂ) * ((b : ℂ) * n - x)).re ≤
+      |Real.log z| * ((b : ℝ) * n + T) := by
     simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul,
       sub_zero, Complex.sub_re, Complex.natCast_re, Complex.natCast_im, mul_zero, hxre]
     have h := mul_le_mul_of_nonneg_right (le_abs_self (Real.log z))
-      (by nlinarith [hT.1, Nat.cast_nonneg (α := ℝ) m, Nat.cast_nonneg (α := ℝ) n] : 0 ≤ (m : ℝ) * n + T)
+      (by nlinarith [hT.1, Nat.cast_nonneg (α := ℝ) b, Nat.cast_nonneg (α := ℝ) n] : 0 ≤ (b : ℝ) * n + T)
     nlinarith
   have hrleft := mul_le_mul_of_nonneg_left hleft (Nat.cast_nonneg r : (0 : ℝ) ≤ r)
   have hmain := Analytic.log_norm_Gamma_real_lower hT.1
-  rw [log_norm_kernel m z j n hx]
+  rw [log_norm_kernel b z j n hx]
   have hB := le_max_right 0 B
   dsimp only [B] at hB ⊢
   nlinarith
 
 theorem uniform_kernel_left_decay {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) {H : ℝ} (hH : 1 ≤ H)
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) (q : ℝ) :
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) (q : ℝ) :
     ∀ᶠ T : ℝ in atTop, ∀ y : ℝ, 1 ≤ |y| → |y| ≤ H →
-      ‖kernel r m A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
-  obtain ⟨B, _, hb⟩ := uniform_log_norm_kernel_left_strip hr hA hH m z j n
+      ‖kernel r b A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
+  obtain ⟨B, _, hb⟩ := uniform_log_norm_kernel_left_strip hr hA hH b z j n
   filter_upwards [hb, Analytic.eventually_log_tail_le ((∑ i, (A i * n + 1)) + 2) B
     (q + |Real.log z|), eventually_ge_atTop (0 : ℝ)] with T hT hq hT0 y hy hyH
   exact (Real.le_exp_log _).trans (Real.exp_le_exp.mpr (by linarith [hT y hy hyH, hq.2]))
 
 theorem uniform_weighted_kernel_left_decay {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i) {H : ℝ} (hH : 1 ≤ H)
-    (m : ℕ) (z : ℝ) (j : ℤ) (n k : ℕ) (q : ℝ) :
+    (b : ℕ) (z : ℝ) (j : ℤ) (n k : ℕ) (q : ℝ) :
     ∀ᶠ T : ℝ in atTop, ∀ y : ℝ, 1 ≤ |y| → |y| ≤ H →
-      ‖(((m : ℂ) * n - (-(T : ℂ) + (y : ℂ) * Complex.I)) ^ k) *
-        kernel r m A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
-  filter_upwards [uniform_kernel_left_decay hr hA hH m z j n (q + 1),
-    Analytic.eventually_shifted_pow_le_exp (D := ((m * n : ℕ) : ℝ) + H) (by positivity) k,
+      ‖(((b : ℂ) * n - (-(T : ℂ) + (y : ℂ) * Complex.I)) ^ k) *
+        kernel r b A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Real.exp (-q * T) := by
+  filter_upwards [uniform_kernel_left_decay hr hA hH b z j n (q + 1),
+    Analytic.eventually_shifted_pow_le_exp (D := ((b * n : ℕ) : ℝ) + H) (by positivity) k,
     eventually_ge_atTop (0 : ℝ)] with T hK hP hT y hy hyH
-  have hpoly : ‖(m : ℂ) * n - (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ T + (((m * n : ℕ) : ℝ) + H) := by
-    simpa only [Nat.cast_mul] using Analytic.norm_polynomial_left_le hT hyH (m * n)
+  have hpoly : ‖(b : ℂ) * n - (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ≤ T + (((b * n : ℕ) : ℝ) + H) := by
+    simpa only [Nat.cast_mul] using Analytic.norm_polynomial_left_le hT hyH (b * n)
   calc
-    _ = ‖(m : ℂ) * n - (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ^ k *
-        ‖kernel r m A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ := by rw [norm_mul, norm_pow]
+    _ = ‖(b : ℂ) * n - (-(T : ℂ) + (y : ℂ) * Complex.I)‖ ^ k *
+        ‖kernel r b A z j n (-(T : ℂ) + (y : ℂ) * Complex.I)‖ := by rw [norm_mul, norm_pow]
     _ ≤ Real.exp T * Real.exp (-(q + 1) * T) :=
       mul_le_mul ((pow_le_pow_left₀ (norm_nonneg _) hpoly k).trans hP)
         (hK y hy hyH) (norm_nonneg _) (Real.exp_pos T).le

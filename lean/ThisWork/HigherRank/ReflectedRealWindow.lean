@@ -28,10 +28,10 @@ theorem gamma_error_and_log_real_segment {R t T : ℝ} (hR : 1 ≤ R)
     mul_nonneg (abs_nonneg (Real.log T)) (Real.log_nonneg hR)]
 
 theorem uniform_log_norm_reflectedKernel_real_window {r : ℕ} (hr : 3 ≤ r)
-    {A : Fin (r - 1) → ℝ} {z T : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (hT : 0 < T) (m : ℕ) :
+    {A : Fin (r - 1) → ℝ} {z T : ℝ} (hA : ∀ i, 0 < A i) (hz : 0 < z) (hT : 0 < T) (b : ℕ) :
     ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ t : ℝ, 0 < t → t ≤ T → 2 ≤ largeScale r n * t →
-      |Real.log ‖reflectedKernel r m A z n (-(largeScale r n : ℂ) * (t : ℂ))‖ -
-        Real.log (commonScale r m A z n) -
+      |Real.log ‖reflectedKernel r b A z n (-(largeScale r n : ℂ) * (t : ℂ))‖ -
+        Real.log (commonScale r b A z n) -
         largeScale r n * ((r : ℝ) * reflectedRealPhase (saddleScale r A z) t)| ≤
           C * (largeScale r n * smallParameter r n) := by
   have hu (i : Fin (r - 1)) := uniform_rightGammaNormError (show 1 ≤ r by omega) (hA i) hT
@@ -47,7 +47,7 @@ theorem uniform_log_norm_reflectedKernel_real_window {r : ℕ} (hr : 3 ≤ r)
   have hx : ((largeScale r n : ℂ) * (-(t : ℂ))).re < 1 := by
     simp only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re, Complex.neg_im,
       Complex.ofReal_im, neg_zero, zero_mul, sub_zero]; nlinarith
-  have he := log_norm_reflectedKernel_error (by omega : 0 < r) hA hz m (by omega : 0 < n) hslit hx
+  have he := log_norm_reflectedKernel_error (by omega : 0 < r) hA hz b (by omega : 0 < n) hslit hx
   rw [reflectedPhase_neg_real (by omega : 0 < r) hA hz ht] at he
   simp only [neg_neg] at he
   rw [show (largeScale r n : ℂ) * (-(t : ℂ)) = -(largeScale r n : ℂ) * (t : ℂ) by ring] at he

@@ -33,8 +33,8 @@ theorem upper_re_pos {r : ℕ} {A : Fin (r - 1) → ℝ} {n : ℕ} {x : ℂ}
   linarith
 
 theorem kernel_ne_zero {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
-    kernel r m A z j n x ≠ 0 := by
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
+    kernel r b A z j n x ≠ 0 := by
   apply mul_ne_zero
   · apply mul_ne_zero
     · apply mul_ne_zero
@@ -46,8 +46,8 @@ theorem kernel_ne_zero {r : ℕ} {A : Fin (r - 1) → ℝ}
   · exact Complex.exp_ne_zero _
 
 theorem differentiableAt_kernel {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
-    DifferentiableAt ℂ (kernel r m A z j n) x := by
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
+    DifferentiableAt ℂ (kernel r b A z j n) x := by
   have hg := Complex.differentiableAt_Gamma x
     (Analytic.not_neg_nat_of_mem_slitPlane hx.1)
   have hi (i : Fin (r - 1)) :
@@ -57,7 +57,7 @@ theorem differentiableAt_kernel {r : ℕ} {A : Fin (r - 1) → ℝ}
   have he : DifferentiableAt ℂ
       (fun t : ℂ => Complex.exp (2 * (Real.pi : ℂ) * Complex.I * j * t)) x := by fun_prop
   have hz : DifferentiableAt ℂ
-      (fun t : ℂ => Complex.exp ((Real.log z : ℂ) * ((m : ℂ) * n - t))) x := by fun_prop
+      (fun t : ℂ => Complex.exp ((Real.log z : ℂ) * ((b : ℂ) * n - t))) x := by fun_prop
   exact (((hg.pow r).fun_mul hp).fun_mul he).fun_mul hz
 
 theorem referenceContour_mem_kernelDomain {r : ℕ} {A : Fin (r - 1) → ℝ}
@@ -97,13 +97,13 @@ theorem logDeriv_upperProduct {r : ℕ} {A : Fin (r - 1) → ℝ} {n : ℕ} {x :
   logDeriv_upperProduct_of_re_pos (upper_re_pos hx)
 
 theorem logDeriv_kernel {r : ℕ} {A : Fin (r - 1) → ℝ}
-    (m : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
-    logDeriv (kernel r m A z j n) x =
+    (b : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) {x : ℂ} (hx : x ∈ kernelDomain r A n) :
+    logDeriv (kernel r b A z j n) x =
       (r : ℂ) * Complex.digamma x - (∑ i, Complex.digamma ((A i : ℂ) * n - x + 1)) +
         2 * (Real.pi : ℂ) * Complex.I * j - (Real.log z : ℂ) := by
   let τ : ℂ := 2 * (Real.pi : ℂ) * Complex.I * j
   let g : ℂ → ℂ := fun t => ∏ i, Complex.Gamma ((A i : ℂ) * n - t + 1)
-  let e : ℂ → ℂ := fun t => τ * t + (Real.log z : ℂ) * ((m : ℂ) * n - t)
+  let e : ℂ → ℂ := fun t => τ * t + (Real.log z : ℂ) * ((b : ℂ) * n - t)
   have hdΓ := Complex.differentiableAt_Gamma x (Analytic.not_neg_nat_of_mem_slitPlane hx.1)
   have hnΓ := pow_ne_zero r (Complex.Gamma_ne_zero (Analytic.not_neg_nat_of_mem_slitPlane hx.1))
   have hng : g x ≠ 0 := Finset.prod_ne_zero_iff.mpr
@@ -113,10 +113,10 @@ theorem logDeriv_kernel {r : ℕ} {A : Fin (r - 1) → ℝ}
       (show DifferentiableAt ℂ (fun t : ℂ => (A i : ℂ) * n - t + 1) x by fun_prop))
   have hde : HasDerivAt e (τ - (Real.log z : ℂ)) x := by
     convert ((hasDerivAt_id x).const_mul τ).add
-      (((hasDerivAt_const x ((m : ℂ) * n)).sub (hasDerivAt_id x)).const_mul (Real.log z : ℂ)) using 1
+      (((hasDerivAt_const x ((b : ℂ) * n)).sub (hasDerivAt_id x)).const_mul (Real.log z : ℂ)) using 1
     · rfl
     · ring
-  have hfun : kernel r m A z j n =
+  have hfun : kernel r b A z j n =
       (fun t => Complex.Gamma t ^ r * g t * Complex.exp (e t)) := by
     funext t
     simp only [kernel, e, Complex.exp_add, τ, g]

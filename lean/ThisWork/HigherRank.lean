@@ -32,12 +32,14 @@ public import ThisWork.HigherRank.FullParabolicContour
 public import ThisWork.HigherRank.ParabolicTailBounds
 public import ThisWork.HigherRank.ParabolicRemainderBounds
 public import ThisWork.HigherRank.ParabolicWindowIdentity
-public import ThisWork.HigherRank.Lemma8
+public import ThisWork.HigherRank.Trajectories
 
-/-! Arbitrary-rank Lemma 8 for equal lower slopes and symbolic positive `z`.
-`HigherRank.lemma8` proves growth of every original Mellin–Barnes vector
-integral, complex sequence independence, and strong recessiveness against
+/-! Equal-slope Mellin–Barnes asymptotics in arbitrary rank, with symbolic positive `z`.
+`HigherRank.equalSlope_mellinBarnes_asymptotics` proves growth of every original
+Mellin–Barnes vector integral, complex sequence independence, and strong recessiveness against
 all nontrivial fixed combinations of the other branches. Off-cut branches
 use full parabolic contour deformation and uniform Laplace estimates;
 the even-rank boundary branch is recovered by reflection and a finite
-Fourier identity. The existing rank-three theorem statements are preserved. -/
+Fourier identity. `TStar.mellinBarnes_asymptotics` specializes the result to trajectories in
+`𝒯ᵣ*`, using the upper gaps `b - aᵢ`. The existing rank-three theorem
+statements are preserved. -/

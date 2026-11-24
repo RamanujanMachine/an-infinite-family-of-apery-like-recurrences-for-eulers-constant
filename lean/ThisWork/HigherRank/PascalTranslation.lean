@@ -50,16 +50,16 @@ theorem norm_translateMoments_le (r : ℕ) (w : ℂ) (v : Fin r → ℂ) :
 
 theorem branchIntegral_change_center {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i)
-    (m q : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) :
-    branchIntegral r m A z j n =
-      Complex.exp ((Real.log z : ℂ) * (((m : ℂ) - q) * n)) •
-        translateMoments r (((m : ℂ) - q) * n) (branchIntegral r q A z j n) := by
+    (b q : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) :
+    branchIntegral r b A z j n =
+      Complex.exp ((Real.log z : ℂ) * (((b : ℂ) - q) * n)) •
+        translateMoments r (((b : ℂ) - q) * n) (branchIntegral r q A z j n) := by
   funext k
-  have h := momentIntegral_change_center hr hA m q z j n k.val
+  have h := momentIntegral_change_center hr hA b q z j n k.val
   rw [momentIntegral_eq_component] at h
-  change branchIntegral r m A z j n k =
-    Complex.exp ((Real.log z : ℂ) * (((m : ℂ) - q) * n)) *
-      translateMoments r (((m : ℂ) - q) * n) (branchIntegral r q A z j n) k
+  change branchIntegral r b A z j n k =
+    Complex.exp ((Real.log z : ℂ) * (((b : ℂ) - q) * n)) *
+      translateMoments r (((b : ℂ) - q) * n) (branchIntegral r q A z j n) k
   rw [h]
   congr 1
   rw [Finset.sum_range]
@@ -67,14 +67,14 @@ theorem branchIntegral_change_center {r : ℕ} (hr : 0 < r)
 
 theorem norm_branchIntegral_change_center_le {r : ℕ} (hr : 0 < r)
     {A : Fin (r - 1) → ℝ} (hA : ∀ i, 0 < A i)
-    (m q : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) :
-    ‖branchIntegral r m A z j n‖ ≤
-      Real.exp (Real.log z * (((m : ℝ) - q) * n)) *
-        (1 + ‖((m : ℂ) - q) * n‖) ^ (r - 1) * ‖branchIntegral r q A z j n‖ := by
-  rw [branchIntegral_change_center hr hA m q z j n, norm_smul,
+    (b q : ℕ) (z : ℝ) (j : ℤ) (n : ℕ) :
+    ‖branchIntegral r b A z j n‖ ≤
+      Real.exp (Real.log z * (((b : ℝ) - q) * n)) *
+        (1 + ‖((b : ℂ) - q) * n‖) ^ (r - 1) * ‖branchIntegral r q A z j n‖ := by
+  rw [branchIntegral_change_center hr hA b q z j n, norm_smul,
     Complex.norm_exp]
-  have hre : (((Real.log z : ℂ) * (((m : ℂ) - q) * n))).re =
-      Real.log z * (((m : ℝ) - q) * n) := by simp
+  have hre : (((Real.log z : ℂ) * (((b : ℂ) - q) * n))).re =
+      Real.log z * (((b : ℝ) - q) * n) := by simp
   rw [hre]
   exact (mul_le_mul_of_nonneg_left (norm_translateMoments_le _ _ _)
     (Real.exp_pos _).le).trans_eq (by ring)

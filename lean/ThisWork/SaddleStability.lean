@@ -1,14 +1,11 @@
 module
 
-public import ThisWork.Argument
-public import Neuschel.UniformLocal
+public import ThisWork.ComplexLogTools
 
-/-! Quantitative stability of a simple holomorphic zero under uniform perturbations. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology

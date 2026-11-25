@@ -1,5 +1,11 @@
 # Equal lower slopes in rank four
 
+This note records the earlier numerical and analytic exploration. The completed
+proof is now `ThisWork.equalSlope_mellinBarnes_asymptotics` in
+`lean/ThisWork/MellinBarnesAsymptotics.lean`; the exploratory series modules
+described below have been retired from the active Lean sources. This note
+preserves the earlier investigation.
+
 This investigation extends the analytic question behind Lemma 8, with arbitrary
 fixed real `z > 0`. It does not assert a higher-rank Lean asymptotics theorem yet.
 The existing rank-three theorem and proof are unchanged.
@@ -194,7 +200,7 @@ being inferred solely from the formal recurrence output.
 4. Only after rank four works, generalize the contour construction and the
    even-rank series argument to arbitrary rank.
 
-The Lean additions so far are under `ThisWork/HigherRank/`. They provide
+The Lean additions so far are under `ThisWork/`. They provide
 definitions, exact equal-slope reindexing, exact rank-three compatibility,
 and convergence of the positive series and all polynomial moments in arbitrary
 rank. The rank-four series results are specializations of those generic proofs.

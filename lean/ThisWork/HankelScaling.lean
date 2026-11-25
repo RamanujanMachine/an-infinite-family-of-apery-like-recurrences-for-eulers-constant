@@ -1,14 +1,11 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.HankelDeformation
+public import ThisWork.RectangleDeformation
 
-/-! Exact positive-real scaling identities for the original improper contours. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter MeasureTheory
 open scoped Topology

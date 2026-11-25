@@ -1,15 +1,12 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.ScaledDigamma
 public import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
+public import ThisWork.ScaledDigamma
 
-/-! Uniform control of the two right-hand Gamma factors after normalization. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology

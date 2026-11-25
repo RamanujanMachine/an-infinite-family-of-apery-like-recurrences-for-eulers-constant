@@ -1,16 +1,13 @@
 module
 
-public import ThisWork.Argument
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Deriv
-public import Mathlib.Analysis.Complex.LocallyUniformLimit
+public import ThisWork.ComplexLogTools
 
-/-! Analytic prerequisites for the uniform Gamma estimates in Lemma 8. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
 @[expose] public section
-
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric MeasureTheory Asymptotics
 open scoped Topology
@@ -89,19 +86,6 @@ theorem GammaSeq_eq_integral_approx {n : ℕ} (hn : n ≠ 0) {s : ℂ} (hs : 0 <
   filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
   rw [gammaApproxIntegrand, gammaApproxWeight,
     max_eq_left (sub_nonneg.mpr (div_le_one_of_le₀ ht.2 (Nat.cast_nonneg n)))]
-
-/-- Euler's approximants obey a bound independent of the approximation index
-and of the imaginary part. This provides the local analytic domination. -/
-theorem norm_GammaSeq_le {n : ℕ} (hn : n ≠ 0) {s : ℂ} (hs : 0 < s.re) :
-    ‖Complex.GammaSeq s n‖ ≤ Real.Gamma s.re := by
-  rw [GammaSeq_eq_integral_approx hn hs, Real.Gamma_eq_integral hs]
-  exact norm_integral_le_of_norm_le (Real.GammaIntegral_convergent hs)
-    ((ae_restrict_mem measurableSet_Ioi).mono (fun _ ht => norm_gammaApproxIntegrand_le hn s ht))
-
-theorem norm_Gamma_le {s : ℂ} (hs : 0 < s.re) : ‖Complex.Gamma s‖ ≤ Real.Gamma s.re := by
-  apply le_of_tendsto (continuous_norm.tendsto _ |>.comp (Complex.GammaSeq_tendsto_Gamma s))
-  filter_upwards [eventually_ne_atTop (0 : ℕ)] with n hn
-  exact norm_GammaSeq_le hn hs
 
 /-- A scalar error controlling the complex Euler approximants on vertical strips. -/
 noncomputable def gammaApproxError (n : ℕ) (a t : ℝ) : ℝ :=

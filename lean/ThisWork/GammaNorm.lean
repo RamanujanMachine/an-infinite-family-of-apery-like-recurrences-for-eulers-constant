@@ -1,15 +1,11 @@
 module
 
-public import ThisWork.Argument
 public import ThisWork.LogNorm
-public import ThisWork.DigammaBound
 
-/-! Quantitative bounds for the logarithmic norm of Gamma in the right half-plane. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
 @[expose] public section
-
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology

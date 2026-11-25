@@ -1,14 +1,11 @@
 module
 
-public import ThisWork.Argument
 public import ThisWork.ReflectedDigamma
 
-/-! Explicit logarithmic sine bounds for the Gamma reflection formula. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology

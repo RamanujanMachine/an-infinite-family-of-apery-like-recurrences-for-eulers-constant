@@ -1,8 +1,10 @@
 # Equal lower slopes in arbitrary rank
 
-The analytic extension is proved in `lean/ThisWork/HigherRank/MellinBarnesAsymptotics.lean`:
-`ThisWork.HigherRank.equalSlope_mellinBarnes_asymptotics`.
+The analytic extension is proved in `lean/ThisWork/MellinBarnesAsymptotics.lean`:
+`ThisWork.equalSlope_mellinBarnes_asymptotics`.
 The entry point has a stable descriptive name independent of paper numbering.
+The arbitrary-rank proof lives directly under `lean/ThisWork/`; `RankThree.lean`
+contains specialization corollaries rather than an independent analytic proof.
 `Trajectories.lean` defines signed integer trajectories and `TStar r` explicitly;
 `TStar.mellinBarnes_asymptotics` derives all three conclusions for every
 member, with its common positive lower slope `b` and gaps `A_i = b-a_i`.
@@ -97,7 +99,10 @@ integrals, with one common scalar normalizer per branch:
 At zero polynomial center, `T_n` is diagonal with entries `(-R)^{-h}`.
 The limits are for the original index `n`, not merely a shifted subsequence.
 Actual saddle-kernel bounds and polynomial conditioning of `T_n` give the
-claimed norm estimates (`OffCutGrowth.lean`).
+zero-center logarithmic growth (`OffCutGrowth.lean`).
+`BranchCenterGrowth.lean` transfers that rate to general `b` using the same
+argument as for the boundary branch. `GrowthRates.lean` converts logarithmic
+control to the exponential norm estimate in one common lemma.
 
 ## Polynomial recentering
 

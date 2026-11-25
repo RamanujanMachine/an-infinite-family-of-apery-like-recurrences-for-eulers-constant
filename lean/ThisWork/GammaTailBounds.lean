@@ -1,14 +1,12 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.KernelNorm
+public import ThisWork.AffineGammaNorm
+public import ThisWork.ScaledGammaNorm
 
-/-! Gamma estimates for horizontal Mellin–Barnes tails. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology

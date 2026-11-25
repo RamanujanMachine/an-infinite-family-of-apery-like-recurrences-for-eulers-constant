@@ -12,3 +12,5 @@ name = "Neuschel"
 
 [[lean_lib]]
 name = "ThisWork"
+# Build every proof module.
+globs = ["ThisWork.*"]

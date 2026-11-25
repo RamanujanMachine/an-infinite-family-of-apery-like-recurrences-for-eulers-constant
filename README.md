@@ -45,23 +45,23 @@ The lean formalization was generated using GPT-6.1-Sol which prompted to generat
 
 | Result | Entry point | Final theorem |
 | --- | --- | --- |
-| Rank-three specialization | [ThisWork.lean](lean/ThisWork.lean) | [`ThisWork.lemma8`](lean/ThisWork/Lemma8.lean) |
-| Equal-slope Mellin–Barnes asymptotics | [HigherRank.lean](lean/ThisWork/HigherRank.lean) | [`ThisWork.HigherRank.equalSlope_mellinBarnes_asymptotics`](lean/ThisWork/HigherRank/MellinBarnesAsymptotics.lean) |
+| Equal-slope Mellin–Barnes asymptotics | [ThisWork.lean](lean/ThisWork.lean) | [`ThisWork.equalSlope_mellinBarnes_asymptotics`](lean/ThisWork/MellinBarnesAsymptotics.lean) |
+| Rank-three specialization | [RankThree.lean](lean/ThisWork/RankThree.lean) | [`ThisWork.lemma8`](lean/ThisWork/RankThree.lean) |
 | Neuschel, Theorem 3.1 | [Neuschel.lean](lean/Neuschel.lean) | [`Neuschel.neuschel_theorem_3_1_published`](lean/Neuschel/PublishedTheorem.lean) |
 
-The rank-three theorem is stated for every real `z > 0`. The integrals `branchIntegral α₁ α₂ z`
+The rank-three theorem is stated for every real `z > 0`. The integrals `RankThree.branchIntegral α₁ α₂ z`
 include the full Mellin–Barnes factor `z^(n-x)`. Their common growth scale is
 `H(n) z^n`, with limiting saddles `(α₁ α₂ z)^(1/3) ρⱼ` and an
 `O(n^(1/3))` error in the exponent. Constants and thresholds may depend on `z`.
 The theorem includes complex linear independence of the three integral sequences.
 The specialization `ThisWork.lemma8_one` recovers the result at `z = 1`.
 
-[`ThisWork.lemma8_with_strongRecessiveness`](lean/ThisWork/Recessiveness.lean)
+[`ThisWork.lemma8_with_strongRecessiveness`](lean/ThisWork/RankThree.lean)
 also proves that branch three is strongly recessive relative to the span of
 branches one and two: every nontrivial fixed complex combination of these two
 branches is eventually nonzero, and the ratio of
 branch three's vector norm to its norm decays faster than every inverse power
-of `n`. [`ThisWork.Trajectory.equal_stronglyRecessive`](lean/ThisWork/Trajectory/Recessiveness.lean)
+of `n`. [`ThisWork.RankThree.equal_stronglyRecessive`](lean/ThisWork/RankThree.lean)
 extends this conclusion to all equal lower slopes `(b,b,b)`, `b ≥ 1`, with
 symbolic `z > 0`.
 
@@ -75,8 +75,11 @@ of the positive-real-saddle branch against every nontrivial fixed combination
 of the other branches. Even ranks include the saddle on the negative real
 axis, handled by reflection and a finite Fourier identity.
 
+The rank-three results are compatibility corollaries in `RankThree.lean`;
+the arbitrary-rank proof is the primary development directly under `ThisWork`.
+
 The trajectory corollary
-[`ThisWork.HigherRank.TStar.mellinBarnes_asymptotics`](lean/ThisWork/HigherRank/Trajectories.lean)
+[`ThisWork.TStar.mellinBarnes_asymptotics`](lean/ThisWork/Trajectories.lean)
 explicitly assumes membership in `𝒯ᵣ*`: signed integer upper coordinates
 `aᵢ ≤ 0` and equal positive integer lower coordinates `b`.
 It applies the analytic theorem with `Aᵢ = b − aᵢ`, proving growth,

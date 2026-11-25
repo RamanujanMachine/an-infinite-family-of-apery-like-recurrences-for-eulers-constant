@@ -1,15 +1,12 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.DigammaBound
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Cotangent
+public import ThisWork.DigammaBound
 
-/-! Digamma estimates in the reflected sectors containing the complex saddles. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric MeasureTheory
 open scoped Topology
@@ -93,72 +90,5 @@ theorem digamma_reflection_of_im_ne_zero {s : ℂ} (hs : s.im ≠ 0) :
   intro m he
   apply hs
   simp only [he, Complex.intCast_im]
-
-theorem norm_digamma_sub_log_left_upper {s : ℂ} (hre : s.re < 0) (him : 0 < s.im)
-    (hexp : Real.exp (-2 * Real.pi * s.im) ≤ 1 / 2) :
-    ‖Complex.digamma s - Complex.log s‖ ≤
-      2 / (-s.re) + 4 * Real.pi * Real.exp (-2 * Real.pi * s.im) := by
-  let A := Complex.digamma (1 - s) - Complex.log (1 - s)
-  let B := Complex.log (1 - s) - Complex.log (-s)
-  let C := Complex.cot ((Real.pi : ℂ) * s) + Complex.I
-  have hA : ‖A‖ ≤ 1 / (-s.re) := by
-    have h := norm_digamma_sub_log_le (s := 1 - s) (by simp only [Complex.sub_re, Complex.one_re]; linarith)
-    simpa only [Complex.sub_re, Complex.one_re, sub_sub_cancel_left] using h
-  have hB : ‖B‖ ≤ 1 / (-s.re) := by
-    have h := norm_log_add_one_sub_le (s := -s) (by simp only [Complex.neg_re]; linarith)
-    simpa only [Complex.neg_re, neg_add_eq_sub] using h
-  have hC : ‖C‖ ≤ 4 * Real.exp (-2 * Real.pi * s.im) := norm_cot_pi_add_I_le hexp
-  have he : Complex.digamma s - Complex.log s = A + B - (Real.pi : ℂ) * C := by
-    dsimp [A, B, C]
-    rw [digamma_reflection_of_im_ne_zero him.ne', log_neg_of_im_pos him]
-    ring
-  rw [he]
-  have ht := (norm_sub_le (A + B) ((Real.pi : ℂ) * C)).trans
-    (add_le_add (norm_add_le A B) le_rfl)
-  rw [norm_mul, Complex.norm_of_nonneg Real.pi_pos.le] at ht
-  exact (ht.trans (add_le_add (add_le_add hA hB)
-    (mul_le_mul_of_nonneg_left hC Real.pi_pos.le))).trans_eq (by ring)
-
-theorem norm_digamma_sub_log_left_lower {s : ℂ} (hre : s.re < 0) (him : s.im < 0)
-    (hexp : Real.exp (2 * Real.pi * s.im) ≤ 1 / 2) :
-    ‖Complex.digamma s - Complex.log s‖ ≤
-      2 / (-s.re) + 4 * Real.pi * Real.exp (2 * Real.pi * s.im) := by
-  let A := Complex.digamma (1 - s) - Complex.log (1 - s)
-  let B := Complex.log (1 - s) - Complex.log (-s)
-  let C := Complex.cot ((Real.pi : ℂ) * s) - Complex.I
-  have hA : ‖A‖ ≤ 1 / (-s.re) := by
-    have h := norm_digamma_sub_log_le (s := 1 - s) (by simp only [Complex.sub_re, Complex.one_re]; linarith)
-    simpa only [Complex.sub_re, Complex.one_re, sub_sub_cancel_left] using h
-  have hB : ‖B‖ ≤ 1 / (-s.re) := by
-    have h := norm_log_add_one_sub_le (s := -s) (by simp only [Complex.neg_re]; linarith)
-    simpa only [Complex.neg_re, neg_add_eq_sub] using h
-  have hC : ‖C‖ ≤ 4 * Real.exp (2 * Real.pi * s.im) := norm_cot_pi_sub_I_le hexp
-  have he : Complex.digamma s - Complex.log s = A + B - (Real.pi : ℂ) * C := by
-    dsimp [A, B, C]
-    rw [digamma_reflection_of_im_ne_zero him.ne, log_neg_of_im_neg him]
-    ring
-  rw [he]
-  have ht := (norm_sub_le (A + B) ((Real.pi : ℂ) * C)).trans
-    (add_le_add (norm_add_le A B) le_rfl)
-  rw [norm_mul, Complex.norm_of_nonneg Real.pi_pos.le] at ht
-  exact (ht.trans (add_le_add (add_le_add hA hB)
-    (mul_le_mul_of_nonneg_left hC Real.pi_pos.le))).trans_eq (by ring)
-
-theorem norm_digamma_sub_log_left {s : ℂ} (hre : s.re < 0)
-    (hexp : Real.exp (-2 * Real.pi * |s.im|) ≤ 1 / 2) :
-    ‖Complex.digamma s - Complex.log s‖ ≤
-      2 / (-s.re) + 4 * Real.pi * Real.exp (-2 * Real.pi * |s.im|) := by
-  have himne : s.im ≠ 0 := by
-    intro he
-    rw [he, abs_zero, mul_zero, Real.exp_zero] at hexp
-    norm_num at hexp
-  rcases lt_or_gt_of_ne himne with him | him
-  · have he : -2 * Real.pi * |s.im| = 2 * Real.pi * s.im := by
-      rw [abs_of_neg him]
-      ring
-    rw [he] at hexp ⊢
-    exact norm_digamma_sub_log_left_lower hre him hexp
-  · rw [abs_of_pos him] at hexp ⊢
-    exact norm_digamma_sub_log_left_upper hre him hexp
 
 end ThisWork.Analytic

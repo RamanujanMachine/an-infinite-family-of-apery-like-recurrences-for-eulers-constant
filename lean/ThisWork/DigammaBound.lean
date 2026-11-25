@@ -1,17 +1,13 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.GammaLogDerivative
-public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
 public import Mathlib.Analysis.Complex.RealDeriv
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
+public import ThisWork.GammaLogDerivative
 
-/-! Quantitative right-half-plane bounds from Gauss' digamma limit. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric MeasureTheory
 open scoped Topology

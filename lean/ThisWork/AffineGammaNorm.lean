@@ -1,16 +1,11 @@
 module
 
-public import ThisWork.Argument
 public import ThisWork.GammaNorm
-public import ThisWork.AffineDigamma
-public import ThisWork.SaddleApproximation
 
-/-! Logarithmic norm estimates for the shifted right-hand Gamma factors. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology
@@ -72,28 +67,5 @@ theorem abs_log_norm_Gamma_affine_sub_le {A R M : ℝ} (hA : 4 ≤ A) (hR : 0 < 
     ring
   simp [hxa, ← Complex.ofReal_log hA0.le, Complex.mul_re] at hreal
   simpa only [← hlogeq] using hreal
-
-theorem uniform_log_norm_Gamma_affine {α M : ℝ} (hα : 0 < α) (hM : 0 < M) :
-    ∃ C ≥ 0, ∀ᶠ n : ℕ in atTop, ∀ s : ℂ, ‖s‖ ≤ M →
-      |Real.log ‖Complex.Gamma ((α : ℂ) * n - (largeScale n : ℂ) * s + 1)‖ -
-        Real.log ‖Complex.Gamma ((α * n + 1 : ℝ) : ℂ)‖ +
-        largeScale n * s.re * Real.log (α * n)| ≤ C * (n : ℝ) ^ (1 / 3 : ℝ) := by
-  let L := (11 + 3 * (2 * M)) / (2 * α)
-  refine ⟨M * L, by dsimp only [L]; positivity, ?_⟩
-  filter_upwards [eventually_right_factor_conditions hα (2 * M), eventually_ge_atTop (1 : ℕ)]
-    with n hn hn₁ s hs
-  have hR := largeScale_pos (show 0 < n by omega)
-  have h := abs_log_norm_Gamma_affine_sub_le hn.1 hR hM (by nlinarith [hn.2]) hs
-  rw [Complex.ofReal_mul, Complex.ofReal_natCast] at h
-  apply h.trans
-  have hB : 4 / (α * n) + (3 / 2 : ℝ) * ((1 + 2 * largeScale n * M) / (α * n)) ≤
-      L * smallParameter n := by
-    simpa only [L, mul_left_comm, mul_assoc] using affineError_le_smallParameter hα hn₁ (2 * M)
-  calc
-    _ ≤ largeScale n * M * (L * smallParameter n) :=
-      mul_le_mul_of_nonneg_left hB (mul_nonneg hR.le hM.le)
-    _ = M * L * (n : ℝ) ^ (1 / 3 : ℝ) := by
-      rw [← largeScale_mul_smallParameter (show 0 < n by omega)]
-      ring
 
 end ThisWork.Analytic

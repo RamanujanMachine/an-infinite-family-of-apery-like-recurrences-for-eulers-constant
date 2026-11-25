@@ -1,14 +1,11 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.LocalKernelPhase
+public import ThisWork.LocalPhaseTools
 
-/-! Logarithmic norm derivatives, obtained from local holomorphic logarithms. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology

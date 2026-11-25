@@ -1,10 +1,9 @@
 module
 
-public import ThisWork.MomentIndependence
 public import Mathlib.Analysis.Matrix.Normed
+public import ThisWork.MomentIndependence
 
-/-! Uniform noncancellation for matrices converging to a nonsingular limit.
-The bound is uniform in the coefficient vector, which may depend on `n`. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
 @[expose] public section
 namespace ThisWork.Analytic

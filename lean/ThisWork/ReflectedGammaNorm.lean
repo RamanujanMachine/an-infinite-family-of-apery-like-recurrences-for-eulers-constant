@@ -1,15 +1,12 @@
 module
 
-public import ThisWork.Argument
 public import ThisWork.GammaNorm
 public import ThisWork.SineNorm
 
-/-! Logarithmic Gamma bounds in the reflected saddle sectors. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
-public section
-
+@[expose] public section
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric
 open scoped Topology
@@ -45,30 +42,5 @@ theorem gammaNormError_reflection {z : ℂ} (hre : z.re < 0) (him : z.im ≠ 0) 
     Real.log_div Real.pi_ne_zero (norm_ne_zero_iff.mpr hs)] at hl
   dsimp only [gammaNormError]
   linarith [stirlingMain_reflection_re him]
-
-/-- A reflected-sector Stirling bound with an explicit logarithmic error. -/
-theorem abs_gammaNormError_left {z : ℂ} (hre : z.re ≤ -2)
-    (hexp : Real.exp (-2 * Real.pi * |z.im|) ≤ 1 / 2) :
-    |gammaNormError z| ≤ (|gammaNormError 2| + |Real.log Real.pi| + Real.log 4) +
-      3 * Real.log ‖z‖ + 2 * |z.im| / (-z.re) := by
-  have him : z.im ≠ 0 := by
-    intro him
-    norm_num [him] at hexp
-  have hπim : |((Real.pi : ℂ) * z).im| = Real.pi * |z.im| := by
-    simp [Complex.mul_im, abs_mul, abs_of_pos Real.pi_pos]
-  have hs := abs_log_norm_sin_sub_abs_im (z := (Real.pi : ℂ) * z)
-    (by simpa only [hπim, mul_assoc] using hexp)
-  rw [hπim] at hs
-  have hnorm : -z.re ≤ ‖z‖ := by
-    simpa only [Complex.neg_re, norm_neg] using Complex.re_le_norm (-z)
-  have hlog := Real.log_le_log (show 0 < -z.re by linarith) hnorm
-  have hright := abs_gammaNormError_right (z := -z) (by simpa only [Complex.neg_re] using (show 2 ≤ -z.re by linarith))
-  simp only [Complex.neg_re, Complex.neg_im, abs_neg] at hright
-  have href := gammaNormError_reflection (show z.re < 0 by linarith) him
-  obtain ⟨hr₀, hr₁⟩ := abs_le.mp hright
-  obtain ⟨hs₀, hs₁⟩ := abs_le.mp hs
-  have hnlog : 0 ≤ Real.log ‖z‖ := Real.log_nonneg (by linarith)
-  exact abs_le.mpr ⟨by linarith [neg_le_abs (Real.log Real.pi)],
-    by linarith [le_abs_self (Real.log Real.pi)]⟩
 
 end ThisWork.Analytic

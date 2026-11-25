@@ -1,176 +1,131 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.ScaledDigamma
+public import ThisWork.ImaginaryDigammaTools
+public import ThisWork.Scales
 
-/-! Digamma estimates controlled by distance from the real axis. -/
+/-! Quantitative digamma bounds at the arbitrary-rank small-parameter scale,
+including neighborhoods crossing the imaginary axis. -/
 
-public section
+@[expose] public section
+namespace ThisWork
 
-namespace ThisWork.Analytic
-
-
-open Set Filter Metric
+open Filter
 open scoped Topology
 
-theorem hasDerivAt_log_add_real_of_im_ne_zero {z : ℂ} (him : z.im ≠ 0) (t : ℝ) :
-    HasDerivAt (fun u : ℝ => Complex.log (z + (u : ℂ))) (z + (t : ℂ))⁻¹ t := by
-  have h := (Complex.hasDerivAt_log (Complex.mem_slitPlane_iff.mpr
-    (Or.inr (show (z + (t : ℂ)).im ≠ 0 by simpa using him)))).comp
-    (t : ℂ) ((hasDerivAt_id (t : ℂ)).const_add z)
-  simpa only [Function.comp_def, id_eq, mul_one] using h.comp_ofReal
+theorem norm_digamma_sub_log_right_small {R ε η : ℝ} (hR : 0 < R)
+    (hε : 0 < ε) (hε1 : ε ≤ 1) (hscale : 1 ≤ R * ε ^ 2) (hη : 0 < η)
+    {w : ℂ} (hre : 0 ≤ w.re) (him : R * η ≤ |w.im|) :
+    ‖Complex.digamma w - Complex.log w‖ ≤ (1 + 8 / η) * ε := by
+  let N : ℕ := ⌈ε⁻¹⌉₊ + 2
+  have hN2 : 2 ≤ N := by dsimp only [N]; omega
+  have hNlo : ε⁻¹ ≤ (N : ℝ) - 1 := by
+    have h := Nat.le_ceil ε⁻¹
+    dsimp only [N]
+    push_cast
+    linarith
+  have hNhi : (N : ℝ) ≤ 4 / ε := by
+    have hc := Nat.ceil_lt_add_one (inv_pos.mpr hε).le
+    apply (le_div_iff₀ hε).mpr
+    dsimp only [N]
+    push_cast
+    nlinarith [mul_lt_mul_of_pos_right hc hε, inv_mul_cancel₀ hε.ne']
+  have hfirst : 1 / ((N : ℝ) - 1) ≤ ε := by
+    have h := one_div_le_one_div_of_le (inv_pos.mpr hε) hNlo
+    simpa only [one_div, inv_inv] using h
+  have hRe : 1 / (R * ε) ≤ ε := by
+    apply (div_le_iff₀ (mul_pos hR hε)).mpr
+    nlinarith [hscale]
+  have hsecond : 2 * (N : ℝ) / |w.im| ≤ (8 / η) * ε := by
+    calc
+      _ ≤ 2 * (N : ℝ) / (R * η) :=
+        div_le_div_of_nonneg_left (by positivity) (mul_pos hR hη) him
+      _ ≤ 2 * (4 / ε) / (R * η) :=
+        div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hNhi (by norm_num)) (by positivity)
+      _ = (8 / η) * (1 / (R * ε)) := by ring
+      _ ≤ _ := mul_le_mul_of_nonneg_left hRe (by positivity)
+  have hb := Analytic.norm_digamma_sub_log_of_re_nonneg hre
+    (abs_pos.mp ((mul_pos hR hη).trans_le him)) hN2
+  exact hb.trans ((add_le_add hfirst hsecond).trans_eq (by ring))
 
-theorem norm_resolvent_add_real_le_im {z : ℂ} (him : z.im ≠ 0) (t : ℝ) :
-    ‖(z + (t : ℂ))⁻¹‖ ≤ 1 / |z.im| := by
-  rw [norm_inv, ← one_div]
-  exact one_div_le_one_div_of_le (abs_pos.mpr him)
-    (by simpa only [Complex.add_im, Complex.ofReal_im, add_zero] using
-      Complex.abs_im_le_norm (z + (t : ℂ)))
+theorem norm_digamma_sub_log_im_small {R ε η : ℝ} (hR : 0 < R)
+    (hε : 0 < ε) (hε1 : ε ≤ 1) (hscale : 1 ≤ R * ε ^ 2) (hη : 0 < η)
+    {w : ℂ} (him : R * η ≤ |w.im|)
+    (hexp : Real.exp (-2 * Real.pi * |w.im|) ≤ 1 / 2)
+    (hexpR : Real.exp (-2 * Real.pi * |w.im|) ≤ 1 / R) :
+    ‖Complex.digamma w - Complex.log w‖ ≤ (1 + 9 / η + 4 * Real.pi) * ε := by
+  by_cases hre : 0 ≤ w.re
+  · have hb := norm_digamma_sub_log_right_small hR hε hε1 hscale hη hre him
+    have hc : 0 ≤ (1 / η + 4 * Real.pi) * ε := by positivity
+    calc
+      _ ≤ (1 + 8 / η) * ε := hb
+      _ ≤ (1 + 8 / η) * ε + (1 / η + 4 * Real.pi) * ε := le_add_of_nonneg_right hc
+      _ = _ := by ring
+  have hinv : 1 / R ≤ ε := by
+    apply (div_le_iff₀ hR).mpr
+    have he : ε ^ 2 ≤ ε := by nlinarith
+    simpa only [mul_comm] using hscale.trans (mul_le_mul_of_nonneg_left he hR.le)
+  have hright : ‖Complex.digamma (1 - w) - Complex.log (1 - w)‖ ≤ (1 + 8 / η) * ε :=
+    norm_digamma_sub_log_right_small hR hε hε1 hscale hη
+      (by simp only [Complex.sub_re, Complex.one_re]; linarith)
+      (by simpa only [Complex.sub_im, Complex.one_im, zero_sub, abs_neg] using him)
+  have hfrac : 1 / |w.im| ≤ (1 / η) * ε := by
+    calc
+      _ ≤ 1 / (R * η) := one_div_le_one_div_of_le (mul_pos hR hη) him
+      _ = (1 / η) * (1 / R) := by ring
+      _ ≤ _ := mul_le_mul_of_nonneg_left hinv (by positivity)
+  have hcot : 4 * Real.pi * Real.exp (-2 * Real.pi * |w.im|) ≤ 4 * Real.pi * ε :=
+    mul_le_mul_of_nonneg_left (hexpR.trans hinv) (by positivity)
+  have hb := Analytic.norm_digamma_sub_log_reflection_im
+    (abs_pos.mp ((mul_pos hR hη).trans_le him)) hexp
+  exact hb.trans ((add_le_add (add_le_add hright hfrac) hcot).trans_eq (by ring))
 
-theorem norm_log_add_real_sub_le_im {z : ℂ} (him : z.im ≠ 0) {a : ℝ} (ha : 0 ≤ a) :
-    ‖Complex.log (z + (a : ℂ)) - Complex.log z‖ ≤ a / |z.im| := by
-  have h := (convex_Icc (0 : ℝ) a).norm_image_sub_le_of_norm_hasDerivWithin_le
-    (fun u _ => (hasDerivAt_log_add_real_of_im_ne_zero him u).hasDerivWithinAt)
-    (fun u _ => norm_resolvent_add_real_le_im him u) (left_mem_Icc.mpr ha) (right_mem_Icc.mpr ha)
-  simpa only [Complex.ofReal_zero, add_zero, sub_zero, Real.norm_eq_abs,
-    abs_of_nonneg ha, div_mul_eq_mul_div, one_mul] using h
-
-theorem norm_digamma_add_nat_sub_le_im {z : ℂ} (him : z.im ≠ 0) (N : ℕ) :
-    ‖Complex.digamma (z + (N : ℂ)) - Complex.digamma z‖ ≤ (N : ℝ) / |z.im| := by
-  rw [Complex.digamma_apply_add_nat (fun m he => him (by
-    simp only [he, Complex.neg_im, Complex.natCast_im, neg_zero])), add_sub_cancel_left]
-  calc
-    _ ≤ ∑ k ∈ Finset.range N, ‖(z + (k : ℂ))⁻¹‖ := norm_sum_le _ _
-    _ ≤ ∑ _k ∈ Finset.range N, 1 / |z.im| := Finset.sum_le_sum (fun k _ =>
-      by simpa only [Complex.ofReal_natCast] using norm_resolvent_add_real_le_im him (k : ℝ))
-    _ = _ := by simp [div_eq_mul_inv]
-
-theorem norm_digamma_sub_log_of_re_nonneg {z : ℂ} (hre : 0 ≤ z.re) (him : z.im ≠ 0)
-    {N : ℕ} (hN : 2 ≤ N) :
-    ‖Complex.digamma z - Complex.log z‖ ≤ 1 / ((N : ℝ) - 1) + 2 * N / |z.im| := by
-  have hN₀ : (2 : ℝ) ≤ N := by exact_mod_cast hN
-  have hright : ‖Complex.digamma (z + (N : ℂ)) - Complex.log (z + (N : ℂ))‖ ≤ 1 / ((N : ℝ) - 1) :=
-    (norm_digamma_sub_log_le (by simpa only [Complex.add_re, Complex.natCast_re] using
-      (show 1 < z.re + (N : ℝ) by linarith))).trans
-      (one_div_le_one_div_of_le (by linarith : 0 < (N : ℝ) - 1)
-        (by simpa only [Complex.add_re, Complex.natCast_re] using (show (N : ℝ) - 1 ≤ z.re + N - 1 by linarith)))
-  calc
-    _ = ‖(Complex.digamma z - Complex.digamma (z + (N : ℂ))) +
-        (Complex.digamma (z + (N : ℂ)) - Complex.log (z + (N : ℂ))) +
-        (Complex.log (z + (N : ℂ)) - Complex.log z)‖ := by congr 1; ring
-    _ ≤ (‖Complex.digamma z - Complex.digamma (z + (N : ℂ))‖ +
-        ‖Complex.digamma (z + (N : ℂ)) - Complex.log (z + (N : ℂ))‖) +
-        ‖Complex.log (z + (N : ℂ)) - Complex.log z‖ :=
-      (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) (le_refl _))
-    _ ≤ ((N : ℝ) / |z.im| + 1 / ((N : ℝ) - 1)) + (N : ℝ) / |z.im| :=
-      add_le_add (add_le_add (by simpa only [norm_sub_rev] using norm_digamma_add_nat_sub_le_im him N) hright)
-        (by simpa only [Complex.ofReal_natCast] using norm_log_add_real_sub_le_im him (a := (N : ℝ)) (Nat.cast_nonneg N))
-    _ = _ := by ring
-
-theorem uniform_scaled_digamma_right_im {η ε : ℝ} (hη : 0 < η) (hε : 0 < ε) :
-    ∀ᶠ R : ℝ in atTop, 0 < R ∧ ∀ s : ℂ, 0 ≤ s.re → η ≤ |s.im| →
-      ‖Complex.digamma ((R : ℂ) * s) - Complex.log ((R : ℂ) * s)‖ ≤ ε := by
-  obtain ⟨N, hN⟩ := exists_nat_ge (2 / ε + 2)
-  have hN₂ : 2 ≤ N := by
-    exact_mod_cast (show (2 : ℝ) ≤ N by linarith [div_pos (by norm_num : (0 : ℝ) < 2) hε])
-  have hfirst : 1 / ((N : ℝ) - 1) ≤ ε / 2 := by
-    apply (div_le_iff₀ (show 0 < (N : ℝ) - 1 by
-      have h : (2 : ℝ) ≤ N := by exact_mod_cast hN₂
-      linarith)).mpr
-    nlinarith [(div_le_iff₀ hε).mp (show 2 / ε ≤ (N : ℝ) - 1 by linarith)]
-  filter_upwards [eventually_ge_atTop (4 * (N : ℝ) / (η * ε)), eventually_ge_atTop (1 : ℝ)]
-    with R hlarge hR₁
-  refine ⟨by linarith, fun s hs him => ?_⟩
-  have hden : R * η ≤ |((R : ℂ) * s).im| := by
-    simpa [Complex.mul_im, abs_mul, abs_of_nonneg (show 0 ≤ R by linarith)] using
-      mul_le_mul_of_nonneg_left him (show 0 ≤ R by linarith)
-  have hsecond : 2 * (N : ℝ) / |((R : ℂ) * s).im| ≤ ε / 2 := by
-    apply (div_le_iff₀ ((mul_pos (show 0 < R by linarith) hη).trans_le hden)).mpr
-    nlinarith [(div_le_iff₀ (mul_pos hη hε)).mp hlarge,
-      mul_le_mul_of_nonneg_right hden hε.le]
-  exact (norm_digamma_sub_log_of_re_nonneg
-    (by simpa [Complex.mul_re] using mul_nonneg (show 0 ≤ R by linarith) hs)
-    (abs_pos.mp ((mul_pos (show 0 < R by linarith) hη).trans_le hden)) hN₂).trans (by linarith)
-
-theorem norm_digamma_sub_log_reflection_im {z : ℂ} (him : z.im ≠ 0)
-    (hexp : Real.exp (-2 * Real.pi * |z.im|) ≤ 1 / 2) :
-    ‖Complex.digamma z - Complex.log z‖ ≤
-      ‖Complex.digamma (1 - z) - Complex.log (1 - z)‖ + 1 / |z.im| +
-        4 * Real.pi * Real.exp (-2 * Real.pi * |z.im|) := by
-  have hcorr : ∃ C : ℂ, ‖C‖ ≤ 4 * Real.exp (-2 * Real.pi * |z.im|) ∧
-      Complex.digamma z - Complex.log z =
-        (Complex.digamma (1 - z) - Complex.log (1 - z)) +
-        (Complex.log (1 - z) - Complex.log (-z)) - (Real.pi : ℂ) * C := by
-    rcases lt_or_gt_of_ne him with hneg | hpos
-    · refine ⟨Complex.cot ((Real.pi : ℂ) * z) - Complex.I, ?_, ?_⟩
-      · have he : -2 * Real.pi * |z.im| = 2 * Real.pi * z.im := by rw [abs_of_neg hneg]; ring
-        rw [he] at hexp ⊢
-        exact norm_cot_pi_sub_I_le hexp
-      · rw [digamma_reflection_of_im_ne_zero him, log_neg_of_im_neg hneg]
-        ring
-    · refine ⟨Complex.cot ((Real.pi : ℂ) * z) + Complex.I, ?_, ?_⟩
-      · rw [abs_of_pos hpos] at hexp ⊢
-        exact norm_cot_pi_add_I_le hexp
-      · rw [digamma_reflection_of_im_ne_zero him, log_neg_of_im_pos hpos]
-        ring
-  have hB : ‖Complex.log (1 - z) - Complex.log (-z)‖ ≤ 1 / |z.im| := by
-    simpa only [Complex.ofReal_one, neg_add_eq_sub, Complex.neg_im, abs_neg] using
-      norm_log_add_real_sub_le_im (z := -z) (by simpa only [Complex.neg_im] using neg_ne_zero.mpr him)
-        (a := 1) zero_le_one
-  obtain ⟨C, hC, he⟩ := hcorr
-  calc
-    _ = ‖(Complex.digamma (1 - z) - Complex.log (1 - z)) +
-        (Complex.log (1 - z) - Complex.log (-z)) - (Real.pi : ℂ) * C‖ := congrArg norm he
-    _ ≤ (‖Complex.digamma (1 - z) - Complex.log (1 - z)‖ +
-        ‖Complex.log (1 - z) - Complex.log (-z)‖) + ‖(Real.pi : ℂ) * C‖ :=
-      (norm_sub_le _ _).trans (add_le_add (norm_add_le _ _) (le_refl _))
-    _ ≤ (‖Complex.digamma (1 - z) - Complex.log (1 - z)‖ + 1 / |z.im|) +
-        Real.pi * (4 * Real.exp (-2 * Real.pi * |z.im|)) :=
-      add_le_add (add_le_add (le_refl _) hB) (by
-        rw [norm_mul, Complex.norm_of_nonneg Real.pi_pos.le]
-        exact mul_le_mul_of_nonneg_left hC Real.pi_pos.le)
-    _ = _ := by ring
-
-/-- Uniform convergence of the scaled digamma error on both sides of the
-imaginary axis, away from the real axis. -/
-theorem uniform_scaled_digamma_im {η ε : ℝ} (hη : 0 < η) (hε : 0 < ε) :
-    ∀ᶠ R : ℝ in atTop, 0 < R ∧ ∀ s : ℂ, η ≤ |s.im| →
-      ‖Complex.digamma ((R : ℂ) * s) - Complex.log ((R : ℂ) * s)‖ ≤ ε := by
-  filter_upwards [uniform_scaled_digamma_right_im hη (half_pos hε),
-    eventually_exp_decay_bounds (show 0 < 2 * Real.pi * η by positivity),
-    eventually_ge_atTop (2 * (1 / η + 4 * Real.pi) / ε)] with R hright hdec hlarge
-  refine ⟨hdec.1, fun s him => ?_⟩
-  by_cases hre : 0 ≤ s.re
-  · exact (hright.2 s hre him).trans (by linarith)
-  have hA : ‖Complex.digamma (1 - (R : ℂ) * s) - Complex.log (1 - (R : ℂ) * s)‖ ≤ ε / 2 := by
-    have h := hright.2 (((R⁻¹ : ℝ) : ℂ) - s)
-      (by simp only [Complex.sub_re, Complex.ofReal_re]; linarith [inv_pos.mpr hdec.1, lt_of_not_ge hre])
-      (by simpa using him)
-    rwa [show (R : ℂ) * (((R⁻¹ : ℝ) : ℂ) - s) = 1 - (R : ℂ) * s by
-      rw [Complex.ofReal_inv, mul_sub, mul_inv_cancel₀ (Complex.ofReal_ne_zero.mpr hdec.1.ne')]] at h
-  have hden : R * η ≤ |((R : ℂ) * s).im| := by
-    simpa [Complex.mul_im, abs_mul, abs_of_pos hdec.1] using mul_le_mul_of_nonneg_left him hdec.1.le
-  have he : Real.exp (-2 * Real.pi * |((R : ℂ) * s).im|) ≤ Real.exp (-(2 * Real.pi * η) * R) := by
+/-- Quantitative convergence across the imaginary axis, at the small-parameter
+rate needed for the logarithmic growth errors in every rank at least three. -/
+theorem uniform_scaled_digamma_im_smallParameter {r : ℕ} (hr : 3 ≤ r)
+    {η : ℝ} (hη : 0 < η) :
+    ∀ᶠ n : ℕ in atTop, ∀ s : ℂ, η ≤ |s.im| →
+      ‖Complex.digamma ((largeScale r n : ℂ) * s) -
+          Complex.log ((largeScale r n : ℂ) * s)‖ ≤
+        (1 + 9 / η + 4 * Real.pi) * smallParameter r n := by
+  filter_upwards [(largeScale_tendsto (show 1 < r by omega)).eventually
+    (Analytic.eventually_exp_decay_bounds (show 0 < 2 * Real.pi * η by positivity)),
+    eventually_ge_atTop (1 : ℕ)] with n hdec hn s hs
+  have hR := hdec.1
+  have hε : 0 < smallParameter r n := Real.rpow_pos_of_pos (Nat.cast_pos.mpr (by omega)) _
+  have hden : largeScale r n * η ≤ |((largeScale r n : ℂ) * s).im| := by
+    simpa [Complex.mul_im, abs_mul, abs_of_pos hR] using
+      mul_le_mul_of_nonneg_left hs hR.le
+  have he : Real.exp (-2 * Real.pi * |((largeScale r n : ℂ) * s).im|) ≤
+      Real.exp (-(2 * Real.pi * η) * largeScale r n) := by
     apply Real.exp_le_exp.mpr
     nlinarith [mul_le_mul_of_nonneg_left hden (show 0 ≤ 2 * Real.pi by positivity)]
-  have hfrac : 1 / |((R : ℂ) * s).im| ≤ (1 / η) / R :=
-    (one_div_le_one_div_of_le (mul_pos hdec.1 hη) hden).trans_eq (by field_simp)
-  have hsmall : (1 / η + 4 * Real.pi) / R ≤ ε / 2 := by
-    apply (div_le_iff₀ hdec.1).mpr
-    nlinarith [(div_le_iff₀ hε).mp hlarge]
-  have hb := norm_digamma_sub_log_reflection_im
-    (abs_pos.mp ((mul_pos hdec.1 hη).trans_le hden)) (he.trans hdec.2.1)
-  nlinarith [mul_le_mul_of_nonneg_left (he.trans hdec.2.2) (show 0 ≤ 4 * Real.pi by positivity),
-    show (1 / η) / R + 4 * Real.pi * (1 / R) ≤ ε / 2 by convert hsmall using 1; ring]
+  exact norm_digamma_sub_log_im_small hR hε (smallParameter_le_one r hn)
+    (one_le_largeScale_mul_smallParameter_sq hr hn) hη hden
+    (he.trans hdec.2.1) (he.trans hdec.2.2)
 
-theorem uniform_scaled_digamma_region {κ η ε : ℝ}
-    (hκ : 0 < κ) (hη : 0 < η) (hε : 0 < ε) :
-    ∀ᶠ R : ℝ in atTop, 0 < R ∧ ∀ s : ℂ, κ ≤ s.re ∨ η ≤ |s.im| →
-      ‖Complex.digamma ((R : ℂ) * s) - Complex.log ((R : ℂ) * s)‖ ≤ ε := by
-  filter_upwards [uniform_scaled_digamma_right hκ, uniform_scaled_digamma_im hη hε,
-    eventually_ge_atTop ((2 / κ) / ε)] with R hright him hlarge
-  refine ⟨hright.1, fun s hs => hs.elim (fun hre => ?_) (fun h => him.2 s h)⟩
-  exact (hright.2 s hre).trans ((div_le_iff₀ hright.1).mpr
-    (by nlinarith [(div_le_iff₀ hε).mp hlarge]))
+theorem uniform_scaled_digamma_region_smallParameter {r : ℕ} (hr : 3 ≤ r)
+    {κ η : ℝ} (hκ : 0 < κ) (hη : 0 < η) :
+    ∀ᶠ n : ℕ in atTop, ∀ s : ℂ, κ ≤ s.re ∨ η ≤ |s.im| →
+      ‖Complex.digamma ((largeScale r n : ℂ) * s) -
+          Complex.log ((largeScale r n : ℂ) * s)‖ ≤
+        (2 / κ + 1 + 9 / η + 4 * Real.pi) * smallParameter r n := by
+  filter_upwards [(largeScale_tendsto (show 1 < r by omega)).eventually
+    (Analytic.uniform_scaled_digamma_right hκ), uniform_scaled_digamma_im_smallParameter hr hη,
+    eventually_ge_atTop (1 : ℕ)] with n hright him hn s hs
+  have hε : 0 < smallParameter r n := Real.rpow_pos_of_pos (Nat.cast_pos.mpr (by omega)) _
+  rcases hs with hre | hims
+  · calc
+      _ ≤ (2 / κ) / largeScale r n := hright.2 s hre
+      _ ≤ (2 / κ) * smallParameter r n := by
+        rw [div_eq_mul_one_div]
+        exact mul_le_mul_of_nonneg_left (inv_largeScale_le_smallParameter hr hn) (by positivity)
+      _ ≤ (2 / κ) * smallParameter r n +
+          (1 + 9 / η + 4 * Real.pi) * smallParameter r n := le_add_of_nonneg_right (by positivity)
+      _ = _ := by ring
+  · calc
+      _ ≤ (1 + 9 / η + 4 * Real.pi) * smallParameter r n := him s hims
+      _ ≤ (2 / κ) * smallParameter r n +
+          (1 + 9 / η + 4 * Real.pi) * smallParameter r n := le_add_of_nonneg_left (by positivity)
+      _ = _ := by ring
 
-end ThisWork.Analytic
+end ThisWork

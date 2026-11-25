@@ -1,16 +1,13 @@
 module
 
-public import ThisWork.Argument
-public import ThisWork.GammaApproximation
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Digamma
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+public import ThisWork.GammaApproximation
 
-/-! Passing Euler's approximants to the logarithmic derivative of Gamma. -/
+/-! Shared analytic tools for Mellin–Barnes contour integrals. -/
 
 @[expose] public section
-
 namespace ThisWork.Analytic
-
 
 open Set Filter Metric MeasureTheory Asymptotics
 open scoped Topology
